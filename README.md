@@ -172,12 +172,13 @@
                 <div class="channel-item">
                     <h3>Ziipzy</h3>
                     <p>Main content creation channel featuring innovative projects and programming content</p>
+                    <a href="https://www.linktr.ee/ziipzygaming" target="_blank" class="social-link">Visit on Linktree</a>
                 </div>
                 
                 <div class="channel-item">
                     <h3>Silver Q. Electronics And Electrical Specialists</h3>
                     <p>Specialized content focused on electronics, electrical engineering, and technical expertise</p>
-                    <a href="https://facebook.com" target="_blank" class="social-link">Visit on Facebook</a>
+                    <a href="https://www.facebook.com/profile.php?id=61582774085939" target="_blank" class="social-link">Visit on Facebook</a>
                 </div>
             </div>
 
