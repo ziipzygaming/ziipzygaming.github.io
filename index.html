@@ -53,43 +53,71 @@
         .nav-links a:hover { color: #fff; text-shadow: 0 0 10px var(--accent); }
 
         /* --- HERO --- */
-        .hero { height: 80vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        .hero h1 { font-size: clamp(3rem, 10vw, 7rem); margin-bottom: 1rem; }
-        .hero p { color: var(--text-dim); margin-bottom: 2rem; max-width: 500px; }
+        .hero { height: 85vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .hero h1 { font-size: clamp(3rem, 10vw, 7rem); margin-bottom: 0.5rem; }
+        .hero p { color: var(--text-dim); margin-bottom: 2rem; max-width: 500px; font-size: 1.1rem; }
 
-        /* --- GOAL BAR --- */
+        /* --- TIKTOK GOAL BAR --- */
         .goal-container { width: 100%; max-width: 400px; margin-bottom: 2.5rem; background: var(--card-bg); padding: 1rem; border-radius: 15px; border: 1px solid var(--border); }
         .goal-header { display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 8px; font-weight: bold; }
         .progress-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
-        .progress-fill { width: 0%; height: 100%; background: var(--accent); box-shadow: 0 0 15px var(--accent); transition: width 1.5s cubic-bezier(0.1, 0.5, 0.2, 1); }
+        .progress-fill { width: 0%; height: 100%; background: var(--accent); box-shadow: 0 0 15px var(--accent); transition: width 2s cubic-bezier(0.1, 0.5, 0.2, 1); }
 
         .btn-main { background: #fff; color: #000; padding: 1rem 2.5rem; border-radius: 100px; text-decoration: none; font-weight: 700; transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1); border: none; cursor: pointer; }
         .btn-main:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(255,255,255,0.2); }
 
-        /* --- LIVE STATS SECTION --- */
-        #stats { padding: 4rem 0; }
-        .stats-wrapper { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
+        /* --- SECTIONS COMMON --- */
+        section { padding: 5rem 0; }
+        .section-title { text-align: center; font-size: 2rem; letter-spacing: -1px; margin-bottom: 3rem; }
+        .section-title span { color: var(--accent); }
+
+        /* --- LIVE STATS GRID --- */
+        .stats-wrapper { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 4rem; }
         .stat-card {
             background: var(--card-bg);
             border: 1px solid var(--border);
-            padding: 2.5rem;
-            border-radius: 24px;
-            min-width: 260px;
+            padding: 2rem 3rem;
+            border-radius: 20px;
+            min-width: 240px;
             text-align: center;
             backdrop-filter: blur(10px);
             transition: 0.4s;
+            position: relative;
         }
         .stat-card:hover { border-color: var(--accent); transform: translateY(-5px); background: rgba(168, 85, 247, 0.05); }
-        .stat-value { font-size: 3rem; font-weight: 900; color: #fff; margin-bottom: 5px; }
-        .stat-label { color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
+        .stat-value { font-size: 3rem; font-weight: 900; color: #fff; line-height: 1; }
+        .stat-label { color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; margin-top: 10px; }
+        
+        /* Live Indicator Dot */
+        .live-dot { display: inline-block; width: 10px; height: 10px; background: #ef4444; border-radius: 50%; margin-left: 10px; box-shadow: 0 0 10px #ef4444; animation: pulse 2s infinite; display: none; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
-        /* --- ABOUT SECTION --- */
-        #about { scroll-margin-top: 100px; padding: 5rem 0; }
-        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 3rem; }
-        .info-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; padding: 3rem; transition: 0.4s; position: relative; overflow: hidden; }
+        /* --- INFO CARDS --- */
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+        .info-card { 
+            background: var(--card-bg); 
+            border: 1px solid var(--border); 
+            border-radius: 24px; 
+            padding: 3rem; 
+            transition: 0.4s; 
+            position: relative; 
+            overflow: hidden; 
+        }
         .info-card:hover { border-color: var(--accent); transform: translateY(-10px); }
-        .info-card h3 { font-size: 1.5rem; margin-bottom: 1rem; color: var(--accent); }
+        .info-card h3 { font-size: 1.5rem; margin-bottom: 1rem; color: #fff; }
         .info-card p { color: var(--text-dim); font-size: 1rem; }
+
+        /* --- ARSENAL (GEAR) GRID --- */
+        .arsenal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
+        .gear-item { background: rgba(255,255,255,0.02); border: 1px solid var(--border); padding: 1.5rem; border-radius: 16px; text-align: center; transition: 0.3s; }
+        .gear-item:hover { background: rgba(255,255,255,0.05); border-color: var(--accent); }
+        .gear-label { font-size: 0.75rem; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; font-weight: 700; }
+        .gear-name { font-size: 1.1rem; font-weight: 600; }
+
+        /* --- SOFTWARE TAGS --- */
+        .software-list { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; max-width: 800px; margin: 0 auto; }
+        .soft-tag { padding: 0.8rem 1.5rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: 100px; font-size: 0.9rem; color: var(--text-dim); transition: 0.3s; }
+        .soft-tag:hover { color: #fff; border-color: #fff; transform: scale(1.05); background: rgba(255,255,255,0.05); }
 
         /* --- FOOTER & DOCK --- */
         .social-dock { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); padding: 0.8rem 2rem; border-radius: 100px; border: 1px solid var(--border); display: flex; gap: 1.5rem; z-index: 1000; }
@@ -108,7 +136,7 @@
 
     <div id="loader">
         <div class="loader-title">ZIIPZY</div>
-        <p style="letter-spacing: 5px; font-size: 0.6rem; opacity: 0.5; margin-top: 10px;">LOADING IDENTITY</p>
+        <p style="letter-spacing: 5px; font-size: 0.6rem; opacity: 0.5; margin-top: 10px;">ESTABLISHING CONNECTION</p>
     </div>
 
     <div class="mesh"></div>
@@ -117,8 +145,9 @@
         <img src="favicon.ico" alt="Ziipzy" style="height: 35px; border-radius: 8px;">
         <nav class="nav-links">
             <a href="#about">ABOUT</a>
+            <a href="#stats">STATS</a>
+            <a href="#gear">GEAR</a>
             <a href="https://github.com/ziipzygaming">GITHUB</a>
-            <a href="https://linktr.ee/ziipzygaming">LINKTREE</a>
         </nav>
     </header>
 
@@ -126,33 +155,40 @@
         <section class="hero">
             <h1>ZIIPZY.</h1>
             <p>Minecrafter, Content Creator, and Digital Storyteller.</p>
+            
             <div class="goal-container">
                 <div class="goal-header">
-                    <span>TIKTOK GOAL</span>
-                    <span>65%</span>
+                    <span>NEXT MILESTONE</span>
+                    <span id="goal-percentage">CALCULATING...</span>
                 </div>
                 <div class="progress-bg">
                     <div id="progress" class="progress-fill"></div>
                 </div>
             </div>
-            <a href="#about" class="btn-main">Get to know me</a>
+
+            <a href="#about" class="btn-main">View Profile</a>
         </section>
 
         <section id="stats">
+            <h2 class="section-title">Live <span>Statistics</span></h2>
             <div class="stats-wrapper">
                 <div class="stat-card">
-                    <div class="stat-value" id="follower-count">...</div>
+                    <div class="stat-value" id="follower-count">---</div>
                     <div class="stat-label">Followers</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" id="like-count">...</div>
+                    <div class="stat-value" id="like-count">---</div>
                     <div class="stat-label">Total Likes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="video-count">---</div>
+                    <div class="stat-label">Videos</div>
                 </div>
             </div>
         </section>
 
         <section id="about">
-            <h2 style="text-align: center; font-size: 2.5rem; letter-spacing: -1px;">Brief Information</h2>
+            <h2 class="section-title">The <span>Identity</span></h2>
             <div class="info-grid">
                 <div class="info-card">
                     <h3>Who I Am</h3>
@@ -166,6 +202,41 @@
                     <h3>The Vision</h3>
                     <p>Beyond just gaming, I aim to build a community where creativity has no limits. Whether it's a technical build or a chaotic challenge, I'm here to break the mold.</p>
                 </div>
+            </div>
+        </section>
+
+        <section id="gear">
+            <h2 class="section-title">My <span>Arsenal</span></h2>
+            <div class="arsenal-grid">
+                <div class="gear-item">
+                    <div class="gear-label">PROCESSOR</div>
+                    <div class="gear-name">Intel Core i9</div>
+                </div>
+                <div class="gear-item">
+                    <div class="gear-label">GRAPHICS</div>
+                    <div class="gear-name">NVIDIA RTX 4080</div>
+                </div>
+                <div class="gear-item">
+                    <div class="gear-label">MEMORY</div>
+                    <div class="gear-name">64GB DDR5</div>
+                </div>
+                <div class="gear-item">
+                    <div class="gear-label">MICROPHONE</div>
+                    <div class="gear-name">Shure SM7B</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tools">
+            <h2 class="section-title">Creation <span>Suite</span></h2>
+            <div class="software-list">
+                <div class="soft-tag">Adobe Premiere Pro</div>
+                <div class="soft-tag">After Effects</div>
+                <div class="soft-tag">OBS Studio</div>
+                <div class="soft-tag">Minecraft Java</div>
+                <div class="soft-tag">VS Code</div>
+                <div class="soft-tag">Blender</div>
+                <div class="soft-tag">Photoshop</div>
             </div>
         </section>
     </main>
@@ -186,12 +257,15 @@
     </div>
 
     <script>
-        // Start all functions once page loads
+        // --- CONFIGURATION ---
+        const TIKTOK_USERNAME = 'ziipzy'; 
+        const FOLLOWER_GOAL = 10000; // Set your next milestone here
+
         window.addEventListener('load', () => {
+            // Remove Loader
             setTimeout(() => {
                 document.getElementById('loader').classList.add('finished');
-                document.getElementById('progress').style.width = '65%';
-            }, 1000);
+            }, 800);
             
             fetchRepoDate();
             fetchTikTokStats();
@@ -209,26 +283,47 @@
             }
         }
 
-        // TikTok Stats Logic
+        // --- TIKTOK API LOGIC ---
         async function fetchTikTokStats() {
-            const username = 'ziipzy';
             try {
-                const apiResponse = await fetch(`https://countik.com/api/userinfo/${username}`);
+                // Using Countik Bridge
+                const apiResponse = await fetch(`https://countik.com/api/userinfo/${TIKTOK_USERNAME}`);
                 const data = await apiResponse.json();
                 
                 if (data.followerCount) {
+                    // Update Stats Cards
                     animateValue("follower-count", 0, data.followerCount, 2500);
                     animateValue("like-count", 0, data.heartCount, 2500);
+                    animateValue("video-count", 0, data.videoCount, 2500);
+                    
+                    // Update Goal Bar Logic
+                    updateGoalBar(data.followerCount);
                 } else {
                     throw new Error('No data');
                 }
             } catch (error) {
+                console.error("API Error", error);
                 document.getElementById('follower-count').innerText = "LIVE";
-                document.getElementById('like-count').innerText = "ACTIVE";
+                document.getElementById('like-count').innerText = "HIDDEN";
+                document.getElementById('video-count').innerText = "---";
+                
+                // Fallback for Goal Bar
+                document.getElementById('goal-percentage').innerText = "TIKTOK.COM/@ZIIPZY";
+                document.getElementById('progress').style.width = '50%';
             }
         }
 
-        // Counting Animation (High Performance)
+        // Update the Progress Bar dynamically based on current followers
+        function updateGoalBar(currentFollowers) {
+            let percentage = (currentFollowers / FOLLOWER_GOAL) * 100;
+            if (percentage > 100) percentage = 100; // Cap at 100%
+
+            const displayPercent = Math.floor(percentage);
+            document.getElementById('goal-percentage').innerText = `${displayPercent}% TO ${FOLLOWER_GOAL.toLocaleString()}`;
+            document.getElementById('progress').style.width = `${percentage}%`;
+        }
+
+        // High Performance Counting Animation
         function animateValue(id, start, end, duration) {
             const obj = document.getElementById(id);
             const range = end - start;
@@ -238,11 +333,9 @@
             function update(currentTime) {
                 const elapsed = currentTime - startTime;
                 const progress = Math.min(elapsed / duration, 1);
+                const ease = 1 - Math.pow(1 - progress, 3); // Cubic ease out
                 
-                // Ease-out cubic formula
-                const ease = 1 - Math.pow(1 - progress, 3);
                 current = start + (range * ease);
-                
                 obj.innerText = Math.floor(current).toLocaleString();
                 
                 if (progress < 1) {
@@ -254,7 +347,7 @@
             requestAnimationFrame(update);
         }
 
-        // Mouse Tracker
+        // Mouse Tracker & Tilt
         document.addEventListener('mousemove', (e) => {
             document.documentElement.style.setProperty('--x', (e.clientX / window.innerWidth * 100) + '%');
             document.documentElement.style.setProperty('--y', (e.clientY / window.innerHeight * 100) + '%');
@@ -268,8 +361,8 @@
         });
         btt.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-        // Tilt Hover Effect
-        document.querySelectorAll('.info-card, .stat-card').forEach(card => {
+        // 3D Card Effect
+        document.querySelectorAll('.info-card, .gear-item, .stat-card').forEach(card => {
             card.addEventListener('mousemove', (e) => {
                 const rect = card.getBoundingClientRect();
                 const x = (e.clientX - rect.left) / rect.width - 0.5;
