@@ -23,6 +23,146 @@
             flex-direction: column;
         }
 
+        /* INTRO ANIMATION STYLES */
+        #intro-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        #intro-screen.hide {
+            animation: fadeOut 1s ease forwards;
+        }
+
+        .loading-circle {
+            width: 100px;
+            height: 100px;
+            border: 6px solid rgba(255,255,255,0.1);
+            border-top: 6px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite, morphToLine 0.6s ease 4s forwards;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes morphToLine {
+            0% {
+                width: 1px;
+                height: 100px;
+                border-radius: 50%;
+                border: 6px solid rgba(255,255,255,0.1);
+                border-top: 6px solid white;
+            }
+            100% {
+                width: 30000px;
+                height: 6px;
+                border-radius: 3px;
+                border: none;
+                background: white;
+                transform: rotate(0deg);
+            }
+        }
+
+        .expanding-line {
+            position: absolute;
+            width: 1000000px;
+            height: 100%;
+            background: white;
+            left: 50%;
+            transform: translateX(-50%) scaleY(0);
+            transform-origin: center;
+            animation: expandLine 0.8s ease 3s forwards;
+        }
+
+        @keyframes expandLine {
+            0% {
+                transform: translateX(-50%) scaleY(0);
+            }
+            100% {
+                transform: translateX(-50%) scaleY(1);
+            }
+        }
+
+        .intro-bg-white {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: white;
+            opacity: 0;
+            animation: fillScreen 0.6s ease 3.2s forwards;
+        }
+
+        @keyframes fillScreen {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .intro-text {
+            position: absolute;
+            font-size: 84px;
+            font-weight: 900;
+            letter-spacing: 12px;
+            color: #0a0a0a;
+            opacity: 0;
+            z-index: 10;
+            animation: fadeInText 0.8s ease 4s forwards;
+        }
+
+        @keyframes fadeInText {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .intro-text.fade-out {
+            animation: fadeOutAll 1s ease 5.5s forwards;
+        }
+
+        .intro-bg-white.fade-out {
+            animation: fadeOutAll 1s ease 5.5s forwards;
+        }
+
+        @keyframes fadeOutAll {
+            to {
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        /* MAIN WEBSITE STYLES */
+        #main-content {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        #main-content.show {
+            animation: fadeIn 1s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
         .gradient-bg {
             position: fixed;
             top: 0;
@@ -306,15 +446,6 @@
             }
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
         @media (max-width: 768px) {
             h1 {
                 font-size: 40px;
@@ -332,158 +463,186 @@
                 grid-template-columns: 1fr;
                 gap: 30px;
             }
+
+            .intro-text {
+                font-size: 56px;
+                letter-spacing: 6px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="gradient-bg"></div>
-    <div class="container">
-        <header>
-            <nav>
-                <a href="https://linktr.ee/ziipzygaming" class="logo">
-                    <img src="favicon.ico" alt="Ziipzy Logo" class="logo-img">
-                </a>
-                <div class="nav-links">
-                    <a href="#about">About</a>
-                    <a href="#docs">Docs</a>
-                    <a href="#features">Features</a>
-                </div>
-            </nav>
-        </header>
-
-        <section class="hero">
-            <h1>It's me! Ziipzy</h1>
-            <p class="subtitle">A self proclaimed mincrafter and tiktoker.</p>
-            <div class="cta-buttons">
-                <a href="https://tiktok.com/@ziipzy" class="btn btn-primary">View on tiktok</a>
-                <a href="https://github.com/ziipzygaming/ziipzygaming.github.io" class="btn btn-secondary">View Github Website Repo</a>
-            </div>
-        </section>
-
-        <section class="features" id="about">
-            <div class="section-header">
-                <h2 style="font-size: 48px; font-weight: 700; text-align: center; margin-bottom: 20px;">About Me</h2>
-                <p style="text-align: center; font-size: 18px; opacity: 0.8; max-width: 700px; margin: 0 auto 50px;">Get to know who I am and what I do!</p>
-            </div>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">🏡</div>
-                    <h3>Home of the best content</h3>
-                    <p>Content that makes you bust hard.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🎨</div>
-                    <h3>Beautiful Design</h3>
-                    <p>Crafted with attention to detail and modern aesthetics that users will love.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔧</div>
-                    <h3>Easy to Understand</h3>
-                    <p>Simple setup and intuitive videos means you can start learning in minutes.</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="features" id="docs">
-            <div class="section-header">
-                <h2 style="font-size: 48px; font-weight: 700; text-align: center; margin-bottom: 20px;">Documentation</h2>
-                <p style="text-align: center; font-size: 18px; opacity: 0.8; max-width: 700px; margin: 0 auto 50px;">Everything you need to know about my content and projects.</p>
-            </div>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">📚</div>
-                    <h3>Getting Started</h3>
-                    <p>Learn the basics and get up to speed with my content style and what to expect.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🎮</div>
-                    <h3>Minecraft Guides</h3>
-                    <p>Tips, tricks, and tutorials for all your Minecraft adventures and builds.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📱</div>
-                    <h3>TikTok Content</h3>
-                    <p>Behind the scenes of my TikTok creation process and video ideas.</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="features" id="features">
-            <div class="section-header">
-                <h2 style="font-size: 48px; font-weight: 700; text-align: center; margin-bottom: 20px;">Features</h2>
-                <p style="text-align: center; font-size: 18px; opacity: 0.8; max-width: 700px; margin: 0 auto 50px;">What makes this website special.</p>
-            </div>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <h3>Lightning Fast</h3>
-                    <p>Optimized performance ensures smooth browsing and quick load times.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🌙</div>
-                    <h3>Interactive Design</h3>
-                    <p>Dynamic gradient background that follows your cursor for an immersive experience.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📱</div>
-                    <h3>Fully Responsive</h3>
-                    <p>Perfect viewing experience on desktop, tablet, and mobile devices.</p>
-                </div>
-            </div>
-        </section>
+    <!-- INTRO ANIMATION -->
+    <div id="intro-screen">
+        <div class="loading-circle"></div>
+        <div class="expanding-line"></div>
+        <div class="intro-bg-white"></div>
+        <div class="intro-text">ZIIPZY</div>
     </div>
 
-    <footer>
-        <div class="footer-content">
-            <div class="footer-grid">
-                <div class="footer-section">
-                    <div class="footer-logo">
-                        <img src="favicon.ico" alt="Ziipzy">
-                        <span class="footer-logo-text">Ziipzy</span>
+    <!-- MAIN WEBSITE CONTENT -->
+    <div id="main-content">
+        <div class="gradient-bg"></div>
+        <div class="container">
+            <header>
+                <nav>
+                    <a href="https://linktr.ee/ziipzygaming" class="logo">
+                        <img src="favicon.ico" alt="Ziipzy Logo" class="logo-img">
+                    </a>
+                    <div class="nav-links">
+                        <a href="#about">About</a>
+                        <a href="#docs">Docs</a>
+                        <a href="#features">Features</a>
                     </div>
-                    <p style="color: rgba(255,255,255,0.7); line-height: 1.6;">
-                        Creating amazing Minecraft content and entertaining TikTok videos for the community.
-                    </p>
-                </div>
+                </nav>
+            </header>
 
-                <div class="footer-section">
-                    <h4>Quick Links</h4>
-                    <ul class="footer-links">
-                        <li><a href="YOUR_LINK_HERE">Home</a></li>
-                        <li><a href="YOUR_LINK_HERE">About</a></li>
-                        <li><a href="YOUR_LINK_HERE">Videos</a></li>
-                        <li><a href="YOUR_LINK_HERE">Contact</a></li>
-                    </ul>
+            <section class="hero">
+                <h1>It's me! Ziipzy</h1>
+                <p class="subtitle">A self proclaimed mincrafter and tiktoker.</p>
+                <div class="cta-buttons">
+                    <a href="https://tiktok.com/@ziipzy" class="btn btn-primary">View on tiktok</a>
+                    <a href="https://github.com/ziipzygaming/ziipzygaming.github.io" class="btn btn-secondary">View Github Website Repo</a>
                 </div>
+            </section>
 
-                <div class="footer-section">
-                    <h4>Social Media</h4>
-                    <ul class="footer-links">
-                        <li><a href="https://tiktok.com/@ziipzy">TikTok</a></li>
-                        <li><a href="https://linktr.ee/ziipzygaming">Linktree</a></li>
-                        <li><a href="https://github.com/ziipzygaming">GitHub</a></li>
-                        <li><a href="YOUR_LINK_HERE">Discord</a></li>
-                    </ul>
+            <section class="features" id="about">
+                <div class="section-header">
+                    <h2 style="font-size: 48px; font-weight: 700; text-align: center; margin-bottom: 20px;">About Me</h2>
+                    <p style="text-align: center; font-size: 18px; opacity: 0.8; max-width: 700px; margin: 0 auto 50px;">Get to know who I am and what I do!</p>
                 </div>
-
-                <div class="footer-section">
-                    <h4>Resources</h4>
-                    <ul class="footer-links">
-                        <li><a href="YOUR_LINK_HERE">Documentation</a></li>
-                        <li><a href="YOUR_LINK_HERE">FAQ</a></li>
-                        <li><a href="YOUR_LINK_HERE">Privacy Policy</a></li>
-                        <li><a href="YOUR_LINK_HERE">Terms of Service</a></li>
-                    </ul>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🏡</div>
+                        <h3>Home of the best content</h3>
+                        <p>Content that makes you bust hard.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎨</div>
+                        <h3>Beautiful Design</h3>
+                        <p>Crafted with attention to detail and modern aesthetics that users will love.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔧</div>
+                        <h3>Easy to Understand</h3>
+                        <p>Simple setup and intuitive videos means you can start learning in minutes.</p>
+                    </div>
                 </div>
-            </div>
+            </section>
 
-            <div class="footer-bottom">
-                <p>&copy; 2025 Ziipzy. All rights reserved.</p>
-            </div>
+            <section class="features" id="docs">
+                <div class="section-header">
+                    <h2 style="font-size: 48px; font-weight: 700; text-align: center; margin-bottom: 20px;">Documentation</h2>
+                    <p style="text-align: center; font-size: 18px; opacity: 0.8; max-width: 700px; margin: 0 auto 50px;">Everything you need to know about my content and projects.</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">📚</div>
+                        <h3>Getting Started</h3>
+                        <p>Learn the basics and get up to speed with my content style and what to expect.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎮</div>
+                        <h3>Minecraft Guides</h3>
+                        <p>Tips, tricks, and tutorials for all your Minecraft adventures and builds.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📱</div>
+                        <h3>TikTok Content</h3>
+                        <p>Behind the scenes of my TikTok creation process and video ideas.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="features" id="features">
+                <div class="section-header">
+                    <h2 style="font-size: 48px; font-weight: 700; text-align: center; margin-bottom: 20px;">Features</h2>
+                    <p style="text-align: center; font-size: 18px; opacity: 0.8; max-width: 700px; margin: 0 auto 50px;">What makes this website special.</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Lightning Fast</h3>
+                        <p>Optimized performance ensures smooth browsing and quick load times.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🌙</div>
+                        <h3>Interactive Design</h3>
+                        <p>Dynamic gradient background that follows your cursor for an immersive experience.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📱</div>
+                        <h3>Fully Responsive</h3>
+                        <p>Perfect viewing experience on desktop, tablet, and mobile devices.</p>
+                    </div>
+                </div>
+            </section>
         </div>
-    </footer>
+
+        <footer>
+            <div class="footer-content">
+                <div class="footer-grid">
+                    <div class="footer-section">
+                        <div class="footer-logo">
+                            <img src="favicon.ico" alt="Ziipzy">
+                            <span class="footer-logo-text">Ziipzy</span>
+                        </div>
+                        <p style="color: rgba(255,255,255,0.7); line-height: 1.6;">
+                            Creating amazing Minecraft content and entertaining TikTok videos for the community.
+                        </p>
+                    </div>
+
+                    <div class="footer-section">
+                        <h4>Quick Links</h4>
+                        <ul class="footer-links">
+                            <li><a href="YOUR_LINK_HERE">Home</a></li>
+                            <li><a href="YOUR_LINK_HERE">About</a></li>
+                            <li><a href="YOUR_LINK_HERE">Videos</a></li>
+                            <li><a href="YOUR_LINK_HERE">Contact</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-section">
+                        <h4>Social Media</h4>
+                        <ul class="footer-links">
+                            <li><a href="https://tiktok.com/@ziipzy">TikTok</a></li>
+                            <li><a href="https://linktr.ee/ziipzygaming">Linktree</a></li>
+                            <li><a href="https://github.com/ziipzygaming">GitHub</a></li>
+                            <li><a href="YOUR_LINK_HERE">Discord</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-section">
+                        <h4>Resources</h4>
+                        <ul class="footer-links">
+                            <li><a href="YOUR_LINK_HERE">Documentation</a></li>
+                            <li><a href="YOUR_LINK_HERE">FAQ</a></li>
+                            <li><a href="YOUR_LINK_HERE">Privacy Policy</a></li>
+                            <li><a href="YOUR_LINK_HERE">Terms of Service</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="footer-bottom">
+                    <p>&copy; 2025 Ziipzy. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
 
     <script>
+        // Intro animation sequence
+        setTimeout(() => {
+            document.querySelector('.intro-text').classList.add('fade-out');
+            document.querySelector('.intro-bg-white').classList.add('fade-out');
+        }, 5500);
+
+        setTimeout(() => {
+            document.getElementById('intro-screen').classList.add('hide');
+            document.getElementById('main-content').classList.add('show');
+        }, 6500);
+
+        // Mouse-following gradient
         const gradientBg = document.querySelector('.gradient-bg');
         
         document.addEventListener('mousemove', (e) => {
