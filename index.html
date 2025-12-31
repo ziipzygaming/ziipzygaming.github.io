@@ -33,107 +33,63 @@
             background: #0a0a0a;
             z-index: 9999;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             overflow: hidden;
         }
 
         #intro-screen.hide {
-            animation: fadeOut 1s ease forwards;
-        }
-
-        .loading-circle {
-            width: 100px;
-            height: 100px;
-            border: 6px solid rgba(255,255,255,0.1);
-            border-top: 6px solid white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite, morphToLine 0.6s ease 4s forwards;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        @keyframes morphToLine {
-            0% {
-                width: 1px;
-                height: 100px;
-                border-radius: 50%;
-                border: 6px solid rgba(255,255,255,0.1);
-                border-top: 6px solid white;
-            }
-            100% {
-                width: 30000px;
-                height: 6px;
-                border-radius: 3px;
-                border: none;
-                background: white;
-                transform: rotate(0deg);
-            }
-        }
-
-        .expanding-line {
-            position: absolute;
-            width: 1000000px;
-            height: 100%;
-            background: white;
-            left: 50%;
-            transform: translateX(-50%) scaleY(0);
-            transform-origin: center;
-            animation: expandLine 0.8s ease 3s forwards;
-        }
-
-        @keyframes expandLine {
-            0% {
-                transform: translateX(-50%) scaleY(0);
-            }
-            100% {
-                transform: translateX(-50%) scaleY(1);
-            }
-        }
-
-        .intro-bg-white {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: white;
-            opacity: 0;
-            animation: fillScreen 0.6s ease 3.2s forwards;
-        }
-
-        @keyframes fillScreen {
-            to {
-                opacity: 1;
-            }
+            animation: fadeOut 1.2s ease forwards;
         }
 
         .intro-text {
-            position: absolute;
-            font-size: 84px;
+            font-size: 80px;
             font-weight: 900;
             letter-spacing: 12px;
-            color: #0a0a0a;
+            color: white;
+            margin-bottom: 50px;
             opacity: 0;
-            z-index: 10;
-            animation: fadeInText 0.5s ease 4s forwards;
+            transition: all 0.8s ease;
         }
 
-        @keyframes fadeInText {
-            to {
-                opacity: 1;
-            }
+        .intro-text.centered {
+            margin-bottom: 0;
+            font-size: 96px;
         }
 
-        .intro-bg-white.fade-out {
-            animation: fadeOutAll 1s ease s forwards;
-
+        .loading-bar-container {
+            width: 400px;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            opacity: 1;
+            transition: opacity 0.8s ease;
         }
 
-        @keyframes fadeOutAll {
-            to {
-                opacity: 0;
-            }
+        .loading-bar-container.fade-out {
+            opacity: 0;
+        }
+
+        .loading-bar {
+            width: 0%;
+            height: 100%;
+            background: white;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .loading-percentage {
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            margin-top: 15px;
+            opacity: 1;
+            transition: opacity 0.8s ease;
+        }
+
+        .loading-percentage.fade-out {
+            opacity: 0;
         }
 
         @keyframes fadeOut {
@@ -150,7 +106,7 @@
         }
 
         #main-content.show {
-            animation: fadeIn 1s ease forwards;
+            animation: fadeIn 1.5s ease forwards;
         }
 
         @keyframes fadeIn {
@@ -170,7 +126,7 @@
             background: radial-gradient(600px circle at var(--x, 50%) var(--y, 50%), 
                 rgba(29, 78, 216, 0.15), 
                 transparent 80%);
-            transition: --x 0.3s ease, --y 0.3s ease;
+            transition: --x 0.5s ease, --y 0.5s ease;
         }
 
         .gradient-bg::before {
@@ -196,7 +152,7 @@
 
         header {
             padding: 30px 0;
-            animation: fadeInDown 0.8s ease;
+            animation: fadeInDown 1.2s ease;
         }
 
         nav {
@@ -209,7 +165,7 @@
             display: flex;
             align-items: center;
             text-decoration: none;
-            transition: opacity 0.3s;
+            transition: opacity 0.4s ease;
         }
 
         .logo:hover {
@@ -220,14 +176,19 @@
             height: 50px;
             width: auto;
             border-radius: 8px;
+            transition: transform 0.4s ease;
+        }
+
+        .logo:hover .logo-img {
+            transform: scale(1.05);
         }
 
         .nav-links a {
             color: white;
             text-decoration: none;
-            margin-left: 30px;
+            margin-left: 50px;
             font-weight: 500;
-            transition: opacity 0.3s;
+            transition: opacity 0.4s ease;
         }
 
         .nav-links a:hover {
@@ -237,7 +198,7 @@
         .hero {
             text-align: center;
             padding: 100px 0;
-            animation: fadeInUp 0.8s ease;
+            animation: fadeInUp 1.2s ease;
         }
 
         h1 {
@@ -245,7 +206,7 @@
             font-weight: 800;
             margin-bottom: 20px;
             line-height: 1.2;
-            animation: slideIn 1s ease;
+            animation: slideIn 1.4s ease;
         }
 
         .subtitle {
@@ -270,7 +231,7 @@
             text-decoration: none;
             font-weight: 600;
             font-size: 16px;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             display: inline-block;
             cursor: pointer;
         }
@@ -300,7 +261,7 @@
 
         .features {
             padding: 80px 0;
-            animation: fadeIn 1s ease 0.3s both;
+            animation: fadeIn 1.4s ease 0.3s both;
         }
 
         .features-grid {
@@ -316,12 +277,15 @@
             border: 1px solid rgba(255,255,255,0.2);
             border-radius: 20px;
             padding: 40px;
-            transition: all 0.3s ease;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+            position: relative;
         }
 
         .feature-card:hover {
-            transform: translateY(-5px);
+            transform: translateZ(20px);
             background: rgba(255,255,255,0.15);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
 
         .feature-icon {
@@ -377,7 +341,7 @@
         .footer-links a {
             color: rgba(255,255,255,0.7);
             text-decoration: none;
-            transition: color 0.3s;
+            transition: color 0.4s ease;
         }
 
         .footer-links a:hover {
@@ -465,16 +429,21 @@
                 font-size: 56px;
                 letter-spacing: 6px;
             }
+
+            .loading-bar-container {
+                width: 280px;
+            }
         }
     </style>
 </head>
 <body>
     <!-- INTRO ANIMATION -->
     <div id="intro-screen">
-        <div class="loading-circle"></div>
-        <div class="expanding-line"></div>
-        <div class="intro-bg-white"></div>
         <div class="intro-text">ZIIPZY</div>
+        <div class="loading-bar-container">
+            <div class="loading-bar" id="loadingBar"></div>
+        </div>
+        <div class="loading-percentage" id="loadingPercentage">0%</div>
     </div>
 
     <!-- MAIN WEBSITE CONTENT -->
@@ -500,6 +469,7 @@
                 <div class="cta-buttons">
                     <a href="https://tiktok.com/@ziipzy" class="btn btn-primary">View on tiktok</a>
                     <a href="https://github.com/ziipzygaming/ziipzygaming.github.io" class="btn btn-secondary">View Github Website Repo</a>
+                    <a href="https://linktr.ee/ziipzygaming" class="btn btn-secondary">View Linktree</a>
                 </div>
             </section>
 
@@ -621,33 +591,102 @@
                 </div>
 
                 <div class="footer-bottom">
-                    <p>&copy; 2025 Ziipzy. All rights reserved.</p>
+                    <p>&copy; 2026 Ziipzy. All rights reserved.</p>
                 </div>
             </div>
         </footer>
     </div>
 
     <script>
-        // Intro animation sequence
-        setTimeout(() => {
-            document.querySelector('.intro-text').classList.add('fade-out');
-            document.querySelector('.intro-bg-white').classList.add('fade-out');
-        }, 5500);
+        // Loading bar animation
+        const loadingBar = document.getElementById('loadingBar');
+        const loadingPercentage = document.getElementById('loadingPercentage');
+        const loadingBarContainer = document.querySelector('.loading-bar-container');
+        const introText = document.querySelector('.intro-text');
+        const introScreen = document.getElementById('intro-screen');
+        const mainContent = document.getElementById('main-content');
+        
+        let progress = 0;
+        const loadingInterval = setInterval(() => {
+            progress += Math.random() * 8 + 2; // Slower, smoother progress
+            if (progress > 100) progress = 100;
+            
+            loadingBar.style.width = progress + '%';
+            loadingPercentage.textContent = Math.floor(progress) + '%';
+            
+            // Sync ZIIPZY text opacity with loading percentage
+            introText.style.opacity = progress / 100;
+            
+            if (progress >= 100) {
+                clearInterval(loadingInterval);
+                
+                // Fade out bar and percentage
+                setTimeout(() => {
+                    loadingBarContainer.classList.add('fade-out');
+                    loadingPercentage.classList.add('fade-out');
+                }, 300);
+                
+                // Center and enlarge ZIIPZY text
+                setTimeout(() => {
+                    introText.classList.add('centered');
+                }, 800);
+                
+                // Fade out intro screen
+                setTimeout(() => {
+                    introScreen.classList.add('hide');
+                }, 2300);
+                
+                // Show main content
+                setTimeout(() => {
+                    mainContent.classList.add('show');
+                }, 3200);
+            }
+        }, 150);
 
-        setTimeout(() => {
-            document.getElementById('intro-screen').classList.add('hide');
-            document.getElementById('main-content').classList.add('show');
-        }, 6500);
-
-        // Mouse-following gradient
+        // Gradient effect
         const gradientBg = document.querySelector('.gradient-bg');
         
         document.addEventListener('mousemove', (e) => {
+            // Calculate mouse position as percentage
             const x = (e.clientX / window.innerWidth) * 100;
             const y = (e.clientY / window.innerHeight) * 100;
             
+            // Update gradient
             gradientBg.style.setProperty('--x', `${x}%`);
             gradientBg.style.setProperty('--y', `${y}%`);
+        });
+
+        // 3D Parallax effect on cards only
+        const cards = document.querySelectorAll('.feature-card');
+        
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 10;
+                const rotateY = (centerX - x) / 10;
+                
+                card.style.transform = `
+                    perspective(1000px)
+                    rotateX(${rotateX}deg)
+                    rotateY(${rotateY}deg)
+                    scale3d(1.07, 1.07, 1.07)
+                `;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `
+                    perspective(1000px)
+                    rotateX(0deg)
+                    rotateY(0deg)
+                    scale3d(1, 1, 1)
+                `;
+            });
         });
     </script>
 </body>
