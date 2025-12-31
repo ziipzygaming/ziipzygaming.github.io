@@ -13,15 +13,43 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0a0a0a;
             color: white;
             overflow-x: hidden;
+            position: relative;
+        }
+
+        .gradient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(600px circle at var(--x, 50%) var(--y, 50%), 
+                rgba(29, 78, 216, 0.15), 
+                transparent 80%);
+            transition: --x 0.3s ease, --y 0.3s ease;
+        }
+
+        .gradient-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(800px circle at var(--x, 50%) var(--y, 50%), 
+                rgba(168, 85, 247, 0.1), 
+                transparent 80%);
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
+            position: relative;
+            z-index: 1;
         }
 
         header {
@@ -95,24 +123,24 @@
 
         .btn-primary {
             background: white;
-            color: #667eea;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            color: #1e1e1e;
+            box-shadow: 0 10px 30px rgba(255,255,255,0.1);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            box-shadow: 0 15px 40px rgba(255,255,255,0.2);
         }
 
         .btn-secondary {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.1);
             color: white;
             backdrop-filter: blur(10px);
-            border: 2px solid rgba(255,255,255,0.3);
+            border: 2px solid rgba(255,255,255,0.2);
         }
 
         .btn-secondary:hover {
-            background: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.15);
             transform: translateY(-2px);
         }
 
@@ -215,6 +243,7 @@
     </style>
 </head>
 <body>
+    <div class="gradient-bg"></div>
     <div class="container">
         <header>
             <nav>
@@ -256,5 +285,17 @@
             </div>
         </section>
     </div>
+
+    <script>
+        const gradientBg = document.querySelector('.gradient-bg');
+        
+        document.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth) * 100;
+            const y = (e.clientY / window.innerHeight) * 100;
+            
+            gradientBg.style.setProperty('--x', `${x}%`);
+            gradientBg.style.setProperty('--y', `${y}%`);
+        });
+    </script>
 </body>
 </html>
