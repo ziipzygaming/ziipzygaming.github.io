@@ -13,6 +13,8 @@
             --border: rgba(255, 255, 255, 0.08);
             --text-main: #ffffff;
             --text-dim: #a1a1aa;
+            --x: 50%;
+            --y: 50%;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -23,232 +25,259 @@
             background: var(--bg);
             color: var(--text-main);
             overflow-x: hidden;
+            line-height: 1.6;
         }
 
         /* --- PRELOADER --- */
         #loader {
-            position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transition: clip-path 1s cubic-bezier(0.7, 0, 0.2, 1);
-            clip-path: inset(0 0 0 0);
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: clip-path 1s cubic-bezier(0.7, 0, 0.2, 1); clip-path: inset(0 0 0 0);
         }
-
         #loader.finished { clip-path: inset(0 0 100% 0); }
-
-        .loader-title {
-            font-size: 5rem;
-            font-weight: 900;
-            letter-spacing: -2px;
-            background: linear-gradient(to right, #fff, var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        .loader-title { font-size: 5rem; font-weight: 900; background: linear-gradient(to right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
         /* --- BACKGROUND MESH --- */
         .mesh {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
+            position: fixed; inset: 0; z-index: -1;
             background: 
-                radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at var(--x) var(--y), rgba(168, 85, 247, 0.15) 0%, transparent 50%),
                 radial-gradient(circle at 80% 20%, rgba(29, 78, 216, 0.1) 0%, transparent 40%);
         }
 
-        /* --- NAVIGATION --- */
-        header {
-            padding: 1.5rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
 
-        .nav-links { display: flex; gap: 2rem; }
-        .nav-links a { 
-            text-decoration: none; 
-            color: var(--text-dim); 
-            font-size: 0.9rem; 
-            transition: 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+        /* --- NAVIGATION --- */
+        header { padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
+        .nav-links a { text-decoration: none; color: var(--text-dim); margin-left: 2rem; font-size: 0.8rem; transition: 0.3s; letter-spacing: 1px; }
         .nav-links a:hover { color: #fff; text-shadow: 0 0 10px var(--accent); }
 
         /* --- HERO --- */
-        .hero {
-            height: 90vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 0 1rem;
-        }
+        .hero { height: 80vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .hero h1 { font-size: clamp(3rem, 10vw, 7rem); margin-bottom: 1rem; }
+        .hero p { color: var(--text-dim); margin-bottom: 2rem; max-width: 500px; }
 
-        .hero h1 {
-            font-size: clamp(3rem, 10vw, 7rem);
-            line-height: 0.9;
-            margin-bottom: 1.5rem;
-        }
+        /* --- GOAL BAR --- */
+        .goal-container { width: 100%; max-width: 400px; margin-bottom: 2.5rem; background: var(--card-bg); padding: 1rem; border-radius: 15px; border: 1px solid var(--border); }
+        .goal-header { display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 8px; font-weight: bold; }
+        .progress-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
+        .progress-fill { width: 0%; height: 100%; background: var(--accent); box-shadow: 0 0 15px var(--accent); transition: width 1.5s cubic-bezier(0.1, 0.5, 0.2, 1); }
 
-        .hero p {
-            font-size: 1.25rem;
-            color: var(--text-dim);
-            max-width: 600px;
-            margin-bottom: 2.5rem;
-        }
-
-        /* --- CARDS & GRID --- */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 1.5rem;
-            padding: 5rem 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            padding: 3rem;
-            border-radius: 32px;
-            position: relative;
-            overflow: hidden;
-            transition: border-color 0.3s;
-        }
-
-        .card:hover { border-color: var(--accent); }
-
-        .card::before {
-            content: "";
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-            transition: 0.5s;
-        }
-
-        .card:hover::before { left: 100%; }
-
-        /* --- SOCIAL DOCK --- */
-        .social-dock {
-            position: fixed;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            padding: 0.75rem 1.5rem;
-            border-radius: 100px;
-            border: 1px solid var(--border);
-            display: flex;
-            gap: 1.5rem;
-            z-index: 1000;
-        }
-
-        .social-dock a { color: #fff; text-decoration: none; font-size: 0.8rem; font-weight: 600; opacity: 0.6; transition: 0.3s; }
-        .social-dock a:hover { opacity: 1; transform: translateY(-2px); }
-
-        .btn-main {
-            background: #fff;
-            color: #000;
-            padding: 1rem 2.5rem;
-            border-radius: 100px;
-            text-decoration: none;
-            font-weight: 700;
-            transition: 0.3s;
-        }
-
+        .btn-main { background: #fff; color: #000; padding: 1rem 2.5rem; border-radius: 100px; text-decoration: none; font-weight: 700; transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1); border: none; cursor: pointer; }
         .btn-main:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(255,255,255,0.2); }
 
-        @media (max-width: 600px) {
-            .nav-links { display: none; }
-            .loader-title { font-size: 3rem; }
+        /* --- LIVE STATS SECTION --- */
+        #stats { padding: 4rem 0; }
+        .stats-wrapper { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 2.5rem;
+            border-radius: 24px;
+            min-width: 260px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: 0.4s;
         }
+        .stat-card:hover { border-color: var(--accent); transform: translateY(-5px); background: rgba(168, 85, 247, 0.05); }
+        .stat-value { font-size: 3rem; font-weight: 900; color: #fff; margin-bottom: 5px; }
+        .stat-label { color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
+
+        /* --- ABOUT SECTION --- */
+        #about { scroll-margin-top: 100px; padding: 5rem 0; }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 3rem; }
+        .info-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; padding: 3rem; transition: 0.4s; position: relative; overflow: hidden; }
+        .info-card:hover { border-color: var(--accent); transform: translateY(-10px); }
+        .info-card h3 { font-size: 1.5rem; margin-bottom: 1rem; color: var(--accent); }
+        .info-card p { color: var(--text-dim); font-size: 1rem; }
+
+        /* --- FOOTER & DOCK --- */
+        .social-dock { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); padding: 0.8rem 2rem; border-radius: 100px; border: 1px solid var(--border); display: flex; gap: 1.5rem; z-index: 1000; }
+        .social-dock a { color: #fff; text-decoration: none; font-size: 0.7rem; font-weight: 700; opacity: 0.6; transition: 0.3s; }
+        .social-dock a:hover { opacity: 1; transform: translateY(-2px); }
+        footer { text-align: center; padding: 4rem 0 8rem; opacity: 0.5; font-size: 0.7rem; letter-spacing: 1px; }
+
+        .back-to-top { position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid var(--border); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.4s; opacity: 0; visibility: hidden; z-index: 1001; }
+        .back-to-top.show { opacity: 1; visibility: visible; bottom: 100px; }
+        .back-to-top:hover { background: var(--accent); box-shadow: 0 0 20px var(--accent); }
+
+        @media (max-width: 600px) { .nav-links { display: none; } .loader-title { font-size: 3rem; } }
     </style>
 </head>
 <body>
 
     <div id="loader">
         <div class="loader-title">ZIIPZY</div>
-        <p style="margin-top: 1rem; letter-spacing: 4px; font-size: 0.7rem; opacity: 0.5;">INITIALIZING EXPERIENCE</p>
+        <p style="letter-spacing: 5px; font-size: 0.6rem; opacity: 0.5; margin-top: 10px;">LOADING IDENTITY</p>
     </div>
 
     <div class="mesh"></div>
 
-    <header>
-        <img src="favicon.ico" alt="Ziipzy" style="height: 40px; border-radius: 8px;">
+    <header class="container">
+        <img src="favicon.ico" alt="Ziipzy" style="height: 35px; border-radius: 8px;">
         <nav class="nav-links">
-            <a href="#about">About</a>
-            <a href="#work">Content</a>
-            <a href="#contact">Contact</a>
+            <a href="#about">ABOUT</a>
+            <a href="https://github.com/ziipzygaming">GITHUB</a>
+            <a href="https://linktr.ee/ziipzygaming">LINKTREE</a>
         </nav>
-        <a href="https://tiktok.com/@ziipzy" class="btn-main" style="padding: 0.6rem 1.5rem; font-size: 0.8rem;">TikTok</a>
     </header>
 
-    <main>
+    <main class="container">
         <section class="hero">
             <h1>ZIIPZY.</h1>
-            <p>Creating high-energy Minecraft stories and chaotic TikTok content for the modern viewer.</p>
-            <a href="#work" class="btn-main">Explore Content</a>
+            <p>Minecrafter, Content Creator, and Digital Storyteller.</p>
+            <div class="goal-container">
+                <div class="goal-header">
+                    <span>TIKTOK GOAL</span>
+                    <span>65%</span>
+                </div>
+                <div class="progress-bg">
+                    <div id="progress" class="progress-fill"></div>
+                </div>
+            </div>
+            <a href="#about" class="btn-main">Get to know me</a>
         </section>
 
-        <section id="about" class="grid">
-            <div class="card">
-                <h3 style="margin-bottom: 1rem;">The Creator</h3>
-                <p style="color: var(--text-dim);">Specializing in Minecraft gameplay with a focus on fast-paced editing and community engagement.</p>
+        <section id="stats">
+            <div class="stats-wrapper">
+                <div class="stat-card">
+                    <div class="stat-value" id="follower-count">...</div>
+                    <div class="stat-label">Followers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="like-count">...</div>
+                    <div class="stat-label">Total Likes</div>
+                </div>
             </div>
-            <div class="card">
-                <h3 style="margin-bottom: 1rem;">The Vision</h3>
-                <p style="color: var(--text-dim);">Redefining how gaming content is consumed through short-form storytelling and high-fidelity visuals.</p>
+        </section>
+
+        <section id="about">
+            <h2 style="text-align: center; font-size: 2.5rem; letter-spacing: -1px;">Brief Information</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>Who I Am</h3>
+                    <p>I am a self-proclaimed Minecrafter and TikToker dedicated to creating high-energy gaming content that bridges the gap between chaos and entertainment.</p>
+                </div>
+                <div class="info-card">
+                    <h3>What I Do</h3>
+                    <p>My work focuses on short-form storytelling, showcasing unique Minecraft moments, fast-paced edits, and community interactions that keep viewers engaged.</p>
+                </div>
+                <div class="info-card">
+                    <h3>The Vision</h3>
+                    <p>Beyond just gaming, I aim to build a community where creativity has no limits. Whether it's a technical build or a chaotic challenge, I'm here to break the mold.</p>
+                </div>
             </div>
         </section>
     </main>
+
+    <footer>
+        <p id="github-update">FETCHING REPO DATA...</p>
+        <p style="margin-top: 10px;">&copy; 2026 ZIIPZY GAMING</p>
+    </footer>
+
+    <button id="backToTop" class="back-to-top">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+    </button>
 
     <div class="social-dock">
         <a href="https://tiktok.com/@ziipzy">TIKTOK</a>
         <a href="https://github.com/ziipzygaming">GITHUB</a>
         <a href="https://linktr.ee/ziipzygaming">LINKTREE</a>
-        <a href="#">DISCORD</a>
     </div>
 
     <script>
-        // Smooth Preloader
+        // Start all functions once page loads
         window.addEventListener('load', () => {
             setTimeout(() => {
                 document.getElementById('loader').classList.add('finished');
-            }, 1500);
+                document.getElementById('progress').style.width = '65%';
+            }, 1000);
+            
+            fetchRepoDate();
+            fetchTikTokStats();
         });
 
-        // Mouse Mesh Tracking
+        // GitHub API
+        async function fetchRepoDate() {
+            try {
+                const response = await fetch('https://api.github.com/repos/ziipzygaming/ziipzygaming.github.io');
+                const data = await response.json();
+                const date = new Date(data.pushed_at).toLocaleDateString();
+                document.getElementById('github-update').innerText = `LAST REPO PUSH: ${date}`;
+            } catch (e) {
+                document.getElementById('github-update').innerText = `SITE LIVE`;
+            }
+        }
+
+        // TikTok Stats Logic
+        async function fetchTikTokStats() {
+            const username = 'ziipzy';
+            try {
+                const apiResponse = await fetch(`https://countik.com/api/userinfo/${username}`);
+                const data = await apiResponse.json();
+                
+                if (data.followerCount) {
+                    animateValue("follower-count", 0, data.followerCount, 2500);
+                    animateValue("like-count", 0, data.heartCount, 2500);
+                } else {
+                    throw new Error('No data');
+                }
+            } catch (error) {
+                document.getElementById('follower-count').innerText = "LIVE";
+                document.getElementById('like-count').innerText = "ACTIVE";
+            }
+        }
+
+        // Counting Animation (High Performance)
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            const range = end - start;
+            let current = start;
+            const startTime = performance.now();
+            
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Ease-out cubic formula
+                const ease = 1 - Math.pow(1 - progress, 3);
+                current = start + (range * ease);
+                
+                obj.innerText = Math.floor(current).toLocaleString();
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    obj.innerText = Math.floor(end).toLocaleString();
+                }
+            }
+            requestAnimationFrame(update);
+        }
+
+        // Mouse Tracker
         document.addEventListener('mousemove', (e) => {
-            const x = (e.clientX / window.innerWidth) * 100;
-            const y = (e.clientY / window.innerHeight) * 100;
-            document.documentElement.style.setProperty('--x', `${x}%`);
-            document.documentElement.style.setProperty('--y', `${y}%`);
+            document.documentElement.style.setProperty('--x', (e.clientX / window.innerWidth * 100) + '%');
+            document.documentElement.style.setProperty('--y', (e.clientY / window.innerHeight * 100) + '%');
         });
 
-        // Tilt Effect for Cards
-        const cards = document.querySelectorAll('.card');
-        cards.forEach(card => {
+        // Back to Top
+        const btt = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 400) btt.classList.add('show');
+            else btt.classList.remove('show');
+        });
+        btt.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+        // Tilt Hover Effect
+        document.querySelectorAll('.info-card, .stat-card').forEach(card => {
             card.addEventListener('mousemove', (e) => {
                 const rect = card.getBoundingClientRect();
                 const x = (e.clientX - rect.left) / rect.width - 0.5;
                 const y = (e.clientY - rect.top) / rect.height - 0.5;
-                card.style.transform = `perspective(1000px) rotateX(${y * -10}deg) rotateY(${x * 10}deg)`;
+                card.style.transform = `perspective(1000px) rotateX(${y * -10}deg) rotateY(${x * 10}deg) translateY(-5px)`;
             });
             card.addEventListener('mouseleave', () => {
-                card.style.transform = `perspective(1000px) rotateX(0) rotateY(0)`;
+                card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) translateY(0)`;
             });
         });
     </script>
