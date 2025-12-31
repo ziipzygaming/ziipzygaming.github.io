@@ -17,51 +17,22 @@
         }
 
         /* --- HIDE SCROLLBAR --- */
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-            scrollbar-width: none; 
-        }
-
-        *::-webkit-scrollbar {
-            display: none;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: none; }
+        *::-webkit-scrollbar { display: none; }
 
         @media (min-width: 1024px) { * { cursor: none !important; } }
         html { scroll-behavior: smooth; }
-        body { 
-            font-family: 'Inter', -apple-system, sans-serif; 
-            background: var(--bg-color); 
-            color: var(--text-main); 
-            overflow-x: hidden; 
-            min-height: 100vh; 
-        }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg-color); color: var(--text-main); overflow-x: hidden; min-height: 100vh; }
 
         /* --- SCROLL PROGRESS BAR --- */
-        #progress-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: transparent;
-            z-index: 9999;
-        }
-        #progress-bar {
-            height: 100%;
-            background: var(--accent);
-            width: 0%;
-            box-shadow: 0 0 10px var(--accent);
-            transition: width 0.1s ease-out;
-        }
+        #progress-container { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: transparent; z-index: 10001; }
+        #progress-bar { height: 100%; background: var(--accent); width: 0%; box-shadow: 0 0 10px var(--accent); transition: width 0.1s ease-out; }
 
         /* --- BIOS LOADER --- */
         #loader { 
             position: fixed; inset: 0; background: #000; z-index: 10000; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            transition: opacity 0.8s ease, visibility 0.8s; 
-            font-family: 'Courier New', monospace;
+            transition: opacity 0.8s ease, visibility 0.8s; font-family: 'Courier New', monospace;
         }
         #loader.finished { opacity: 0; visibility: hidden; }
         .boot-log { width: 250px; font-size: 0.7rem; color: var(--accent); line-height: 1.5; margin-bottom: 20px; }
@@ -74,7 +45,7 @@
         #glow { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle 400px at var(--x, 50%) var(--y, 50%), rgba(168, 85, 247, 0.15), transparent 80%); pointer-events: none; }
         #cursor-dot { 
             width: var(--cursor-size); height: var(--cursor-size); background: #fff; border-radius: 50%; 
-            position: fixed; pointer-events: none; z-index: 10001; display: none;
+            position: fixed; pointer-events: none; z-index: 10002; display: none;
             left: 0; top: 0; transform: translate(-50%, -50%);
             transition: width 0.3s ease, height 0.3s ease, border 0.3s ease;
         }
@@ -237,18 +208,15 @@
         const banner = document.getElementById('event-banner');
         const progressBar = document.getElementById('progress-bar');
 
-        // Randomized Background
         const grayer = ['linear-gradient(135deg, #000, #0a0510)', 'linear-gradient(to bottom, #000, #08020c)'];
         bg.style.background = grayer[Math.floor(Math.random() * grayer.length)];
 
-        // Loader Sequence
         window.addEventListener('load', () => {
             const log = document.getElementById('boot-log');
             setTimeout(() => log.innerHTML += "<br>> SYNCING UI...", 800);
             setTimeout(() => document.getElementById('loader').classList.add('finished'), 2200);
         });
 
-        // Mouse & Glow
         document.addEventListener('mousemove', (e) => {
             dot.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
             document.documentElement.style.setProperty('--x', e.clientX + 'px');
@@ -261,16 +229,6 @@
             }
         });
 
-        // Easter Eggs
-        function toggleTerminal() { document.getElementById('terminal').classList.toggle('active'); }
-        
-        function ghEgg(e) {
-            const t = document.getElementById('gh-text');
-            t.innerText = "@ziipzy";
-            setTimeout(() => t.innerText = "GitHub", 2000);
-        }
-
-        // NYE Countdown
         function updateCountdown() {
             const now = new Date();
             if (now.getMonth() === 11 && now.getDate() === 31) {
@@ -284,7 +242,6 @@
         }
         setInterval(updateCountdown, 1000);
 
-        // Tilt logic
         document.querySelectorAll('.tilt').forEach(card => {
             card.addEventListener('mousemove', (e) => {
                 const rect = card.getBoundingClientRect();
@@ -295,18 +252,15 @@
             card.addEventListener('mouseleave', () => card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) translateY(0)`);
         });
 
-        // Scroll Logic (Progress Bar + Header Visibility)
         window.addEventListener('scroll', () => {
-            // Header
             if (window.scrollY > 50) document.body.classList.add('ui-visible');
             else document.body.classList.remove('ui-visible');
-
-            // Progress Bar
             const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
             const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            const scrolled = (winScroll / height) * 100;
-            progressBar.style.width = scrolled + "%";
+            progressBar.style.width = ((winScroll / height) * 100) + "%";
         });
     </script>
+
+    <script src="kernel.js"></script>
 </body>
 </html>
