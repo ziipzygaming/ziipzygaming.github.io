@@ -1,34 +1,34 @@
-# 🚀 Your Project Name
+# ZIIPZY_
 
-A modern, powerful solution designed to make your development workflow effortless.
+### Gamer • Editor • Creative
+Just here to play games, make edits, and keep things moving. 
 
-## ✨ Features
+---
 
-- ⚡ **Lightning Fast** - Optimized performance for smooth operation
-- 🎨 **Beautiful Design** - Crafted with modern aesthetics
-- 🔧 **Easy to Use** - Simple setup, intuitive interface
+## 🎮 What I Do
 
-## 🚀 Quick Start
+* **Gaming:** Primarily grinding in **Minecraft**, but always into whatever keeps the energy up.
+* **Editing:** Putting in work on **Filmora 15** to turn raw clips into something worth watching.
+* **Vibe:** Minimalist, high-speed, and always online.
 
-\`\`\`bash
-# Clone the repository
-git clone https://github.com/yourusername/yourrepo.git
+---
 
-# Install dependencies
-npm install
+## 🛠️ The Rig
 
-# Run the project
-npm start
-\`\`\`
+* **CPU:** G4400
+* **GPU:** GT 740
+* **OS:** Win 11
 
-## 📖 Documentation
+---
 
-[View full documentation](link-to-docs)
+## 🔗 Stay Connected
 
-## 🤝 Contributing
+* **YouTube:** [@ziipzygaming](https://youtube.com/@ziipzygaming) — Edits and highlights.
+* **TikTok:** [@ziipzy](https://tiktok.com/@ziipzy) — Short form clips.
+* **Linktree:** [ziipzygaming](https://linktr.ee/ziipzygaming) — Everything else.
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+---
 
-## 📄 License
-
-This project is licensed under the MIT License.
+<p align="center">
+  <b>© 2026 Ziipzy | All Systems Operational</b>
+</p>
