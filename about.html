@@ -3,93 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZIIPZY // v87 ABOUT</title>
+    <title>ZIIPZY // v87 DEEP-LINK</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Outfit:wght@100;400;900&family=JetBrains+Mono&display=swap');
 
         :root {
             --bg: #020204; --accent: #00f2ff; --text: #ffffff;
-            --secondary: rgba(255, 255, 255, 0.4);
             --surface: rgba(255, 255, 255, 0.02); --border: rgba(255, 255, 255, 0.08);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none !important; }
-        
+        [data-theme="light"] {
+            --bg: #f5f7fa; --accent: #0044cc; --text: #0a0a0a;
+            --surface: rgba(0, 0, 0, 0.03); --border: rgba(0, 0, 0, 0.1);
+        }
+
+        /* PC CURSOR KILLSWITCH */
+        html, body, *, a, button, i, span { cursor: none !important; }
+
         body {
             background: var(--bg); color: var(--text);
             font-family: 'Outfit', sans-serif; height: 100vh;
-            overflow: hidden;
+            overflow: hidden; transition: background 0.6s ease;
         }
 
-        /* --- EXIT LAYER (Black Void - Highest on Exit) --- */
-        #loader { 
-            position: fixed; inset: 0; background: #000; z-index: 20000; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transition: opacity 0.5s ease; pointer-events: none;
+        /* --- CURSOR & RIPPLE --- */
+        #cursor { 
+            position: fixed; width: 20px; height: 20px; border: 1px solid var(--accent); 
+            z-index: 100000; pointer-events: none; transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, background 0.3s;
         }
-        #loader.active { pointer-events: all; opacity: 1; }
-        #loader.loaded { opacity: 0; }
-        
+        #cursor::after { content: ''; position: absolute; inset: 8px; background: var(--accent); transition: 0.2s; }
+
+        .ripple {
+            position: fixed; border: 1px solid var(--accent); border-radius: 50%;
+            pointer-events: none; transform: translate(-50%, -50%);
+            animation: ripple-out 0.4s ease-out forwards; z-index: 99999;
+        }
+        @keyframes ripple-out { from { width: 0; height: 0; opacity: 1; } to { width: 100px; height: 100px; opacity: 0; } }
+
+        /* --- OVERLAYS --- */
+        #shutter { 
+            position: fixed; inset: 0; background: var(--accent); z-index: 9999; 
+            transform: scaleX(0); transform-origin: left;
+            transition: transform 0.6s cubic-bezier(0.8, 0, 0.2, 1); pointer-events: none; 
+        }
+        #shutter.active { transform: scaleX(1); }
+
+        #loader { 
+            position: fixed; inset: 0; background: #000; z-index: 15000; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.8s ease;
+        }
+        #loader.loaded { opacity: 0; pointer-events: none; }
         .scanner-line { width: 150px; height: 1px; background: var(--accent); box-shadow: 0 0 15px var(--accent); animation: scan 1.5s infinite ease-in-out; }
         @keyframes scan { 0%, 100% { transform: scaleX(0.1); opacity: 0.2; } 50% { transform: scaleX(1); opacity: 1; } }
 
-        /* --- ENTRY LAYER (Legacy Blue Shutter) --- */
-        #shutter { 
-            position: fixed; inset: 0; background: var(--accent); z-index: 25000; 
-            transform: scaleX(1); transform-origin: left;
-            transition: transform 0.8s cubic-bezier(0.85, 0, 0.15, 1); pointer-events: none; 
-        }
-        #shutter.reveal { transform: scaleX(0); transform-origin: right; }
-
-        /* --- CURSOR --- */
-        #cursor { position: fixed; width: 20px; height: 20px; border: 1px solid var(--accent); z-index: 100000; pointer-events: none; transform: translate(-50%, -50%); transition: width 0.3s, height 0.3s; }
-
         /* --- UI ELEMENTS --- */
-        #system-log { position: fixed; bottom: 35px; left: 35px; width: 220px; height: 85px; font-family: 'JetBrains Mono'; font-size: 8px; color: var(--accent); overflow: hidden; display: flex; flex-direction: column-reverse; opacity: 0; transform: translateY(20px); transition: 0.8s; z-index: 1000; }
+        #scroll-hint {
+            position: fixed; bottom: 130px; left: 50%; transform: translateX(-50%);
+            font-family: 'JetBrains Mono'; font-size: 9px; letter-spacing: 2px;
+            color: var(--accent); opacity: 0.5; animation: pulse 2s infinite; pointer-events: none;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 0.2; transform: translate(-50%, 0); } 50% { opacity: 0.8; transform: translate(-50%, -5px); } }
+        body.ui-active #scroll-hint { opacity: 0; }
+
+        #theme-btn { 
+            position: fixed; top: 35px; right: 35px; z-index: 1000; 
+            background: none; border: 1px solid var(--border); color: var(--text); 
+            padding: 10px 20px; font-family: 'JetBrains Mono'; font-size: 10px; 
+            opacity: 0; transform: translateY(-20px); transition: 0.8s;
+        }
+
+        #system-log {
+            position: fixed; bottom: 35px; left: 35px; width: 220px; height: 85px;
+            font-family: 'JetBrains Mono'; font-size: 8px; color: var(--accent);
+            overflow: hidden; display: flex; flex-direction: column-reverse;
+            opacity: 0; transform: translateY(20px); transition: 0.8s; pointer-events: none;
+            z-index: 1000;
+        }
         .log-entry { margin-top: 4px; border-left: 2px solid var(--accent); padding-left: 8px; animation: log-in 0.3s ease; }
+        @keyframes log-in { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
+
+        footer { 
+            position: fixed; bottom: 35px; right: 35px;
+            display: flex; flex-direction: column; align-items: flex-end;
+            z-index: 1000; font-family: 'JetBrains Mono'; font-size: 10px;
+            opacity: 0; transform: translateY(20px); transition: 0.8s;
+        }
+
+        /* --- CONTENT & KINETICS --- */
+        .hero-bg { position: fixed; inset: 0; display: flex; justify-content: center; align-items: center; z-index: 1; pointer-events: none; }
+        .brand-logo { font-family: 'Syncopate', sans-serif; font-size: clamp(3rem, 15vw, 12rem); opacity: 0.1; transition: 1s ease; }
 
         .content-layer { position: fixed; inset: 0; z-index: 100; display: flex; justify-content: center; align-items: center; pointer-events: none; perspective: 1000px; }
-        .btn-stack { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 12px; padding: 20px; pointer-events: auto; }
+        .btn-stack { width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 20px; padding: 20px; }
         
-        .info-card { width: 100%; padding: 35px; background: var(--surface); border: 1px solid var(--border); backdrop-filter: blur(20px); opacity: 0; transform: scale(0.9) translateZ(-50px); transition: 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .action-btn { width: 100%; padding: 18px; text-decoration: none; text-align: center; font-family: 'JetBrains Mono'; font-size: 10px; opacity: 0; transform: translateY(20px); transition: 0.6s; background: transparent; border: 1px solid var(--border); }
-        
-        .btn-primary { border-color: var(--accent); color: var(--accent); }
-        .btn-secondary { color: var(--secondary); margin-top: 5px; }
+        .pop-btn {
+            width: 100%; padding: 30px 40px; text-decoration: none; color: var(--text);
+            display: flex; align-items: center; gap: 30px; background: var(--surface); border: 1px solid var(--border);
+            backdrop-filter: blur(20px); opacity: 0; transform: scale(0.8) translateZ(-100px);
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none;
+        }
 
-        body.ui-active .info-card, body.ui-active .action-btn, body.ui-active #system-log { opacity: 1; transform: none; }
-        .v87-ghost { font-family: 'Syncopate'; font-size: 5vw; opacity: 0.02; position: fixed; bottom: 20px; right: 20px; pointer-events: none; }
+        /* REVEAL ACTIVE STATES */
+        body.ui-active .pop-btn, body.ui-active #theme-btn, body.ui-active footer, body.ui-active #system-log { opacity: 1; transform: none; pointer-events: all; }
+        body.ui-active .brand-logo { opacity: 0.03; transform: scale(0.95); }
+
+        /* Hover Physics */
+        .pop-btn:hover { transform: translateZ(50px) scale(1.02); border-color: var(--accent); background: rgba(255,255,255,0.05); }
+
+        /* Staggered entry */
+        .pop-btn:nth-child(1) { transition-delay: 0.1s; }
+        .pop-btn:nth-child(2) { transition-delay: 0.15s; }
+        .pop-btn:nth-child(3) { transition-delay: 0.2s; }
+        .pop-btn:nth-child(4) { transition-delay: 0.25s; }
     </style>
 </head>
 <body onwheel="handleScroll(event)">
+
+    <div id="shutter"></div>
 
     <div id="loader">
         <div class="scanner-line"></div>
         <div id="pct" style="font-family:'JetBrains Mono'; font-size:10px; margin-top:20px;">0%</div>
     </div>
 
-    <div id="shutter"></div>
-    
     <div id="cursor"></div>
+    <div id="scroll-hint">[ SCROLL_TO_INITIALIZE ]</div>
+
+    <button id="theme-btn" onclick="toggleTheme()">[ SWITCH_MODE ]</button>
     <div id="system-log"></div>
-    <div class="v87-ghost">v87</div>
+
+    <div class="hero-bg"><h1 class="brand-logo">ZIIPZY</h1></div>
 
     <div class="content-layer">
         <div class="btn-stack">
-            <div class="info-card">
-                <span style="font-family:'JetBrains Mono'; font-size:9px; color:var(--accent); letter-spacing: 2px;">// SYSTEM_SPEC</span>
-                <p style="font-size: 13px; line-height: 2; opacity: 0.6; margin-top: 15px;">v87 architecture provides the kinetic framework for ZIIPZY. Optimized for zero-latency session transitions.</p>
-            </div>
-            <a href="index.html" class="action-btn btn-primary" onclick="exitTransition(event, this.href, 'TERMINATING_NODE')">[ DISCONNECT_SESSION ]</a>
-            <a href="old" class="action-btn btn-secondary" onclick="exitTransition(event, this.href, 'ROLLBACK_INIT')">[ ROLLBACK_PROTOCOL ]</a>
+            <a href="https://youtube.com/@ziipzygaming" class="pop-btn" onclick="pageTransition(event, this.href, true)"><i class="fa-brands fa-youtube"></i><span>Youtube</span></a>
+            <a href="https://tiktok.com/@ziipzy" class="pop-btn" onclick="pageTransition(event, this.href, true)"><i class="fa-brands fa-tiktok"></i><span>Tiktok</span></a>
+            <a href="https://linktr.ee/ziipzygaming" class="pop-btn" onclick="pageTransition(event, this.href, true)"><i class="fa-solid fa-link"></i><span>Linktree</span></a>
+            <a href="about.html" class="pop-btn" style="border-style: dashed;" onclick="pageTransition(event, this.href, false)"><i class="fa-solid fa-user-secret"></i><span>About_System</span></a>
         </div>
     </div>
 
+    <footer>
+        <a href="https://time.is/UTC" id="time-link" style="text-decoration:none; color:var(--accent);" onclick="pageTransition(event, this.href, true)">
+            <div id="time">00:00:00 UTC</div>
+        </a>
+        <div style="opacity: 0.4;">© 2026 ZIIPZY</div>
+    </footer>
+
     <script>
+        const cursor = document.getElementById('cursor');
         const shutter = document.getElementById('shutter');
-        const loader = document.getElementById('loader');
-        const pctText = document.getElementById('pct');
         const logBox = document.getElementById('system-log');
 
         function addLog(msg) {
@@ -97,50 +163,86 @@
             entry.className = 'log-entry';
             entry.innerText = `> ${msg}`;
             logBox.prepend(entry);
+            if(logBox.children.length > 5) logBox.lastChild.remove();
         }
 
-        window.onload = () => {
-            // Priority 1: Trigger Blue Shutter Sweep
-            setTimeout(() => {
-                shutter.classList.add('reveal');
-            }, 100);
-
-            // Priority 2: Initialize Loader but hide it immediately after blue sweep starts
-            let p = 0;
-            const loadInterval = setInterval(() => {
-                p += Math.floor(Math.random() * 15) + 5;
-                if (p >= 100) {
-                    p = 100; clearInterval(loadInterval);
-                    setTimeout(() => { 
-                        loader.classList.add('loaded'); 
-                        addLog('BOOT_v87_COMPLETE'); 
-                    }, 400);
-                }
-                pctText.innerText = p + '%';
-            }, 50);
-        };
-
-        function handleScroll(e) {
-            if (e.deltaY > 0) document.body.classList.add('ui-active');
-            else if (e.deltaY < -15) document.body.classList.remove('ui-active');
-        }
-
-        function exitTransition(e, url, logMsg) {
-            e.preventDefault();
-            addLog(logMsg);
-            
-            // Activate Black Void over everything
-            pctText.innerText = "0%";
-            loader.classList.add('active');
-            loader.classList.remove('loaded'); 
-            
-            setTimeout(() => { window.location.href = url; }, 750);
-        }
-
+        // MOUSE & CLICK PHYSICS
         document.addEventListener('mousemove', e => {
-            const cursor = document.getElementById('cursor');
             cursor.style.left = e.clientX + 'px';
             cursor.style.top = e.clientY + 'px';
+        });
+
+        document.addEventListener('mousedown', e => {
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple';
+            ripple.style.left = e.clientX + 'px';
+            ripple.style.top = e.clientY + 'px';
+            document.body.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 400);
+        });
+
+        // SCROLL REVEAL ENGINE
+        function handleScroll(e) {
+            if (e.deltaY > 0) {
+                if(!document.body.classList.contains('ui-active')) {
+                    document.body.classList.add('ui-active');
+                    addLog('UI_REVEAL_INIT');
+                }
+            } else if (e.deltaY < -15) {
+                document.body.classList.remove('ui-active');
+            }
+        }
+
+        // PAGE TRANSITION ENGINE
+        function pageTransition(e, url, isExternal) {
+            e.preventDefault();
+            addLog(`HANDSHAKE: ${isExternal ? 'EXT' : 'INT'}`);
+            shutter.classList.add('active');
+            setTimeout(() => {
+                if (isExternal) {
+                    window.open(url, '_blank');
+                    setTimeout(() => shutter.classList.remove('active'), 200);
+                } else {
+                    window.location.href = url;
+                }
+            }, 600); 
+        }
+
+        // BOOT SEQUENCE
+        let p = 0;
+        const load = setInterval(() => {
+            p += Math.floor(Math.random() * 8) + 2;
+            if (p >= 100) { 
+                p = 100; clearInterval(load);
+                setTimeout(() => {
+                    document.getElementById('loader').classList.add('loaded');
+                    addLog('OS_V87_BOOT');
+                }, 500);
+            }
+            document.getElementById('pct').innerText = p + '%';
+        }, 50);
+
+        function toggleTheme() {
+            const isLight = document.body.getAttribute('data-theme') === 'light';
+            isLight ? document.body.removeAttribute('data-theme') : document.body.setAttribute('data-theme', 'light');
+            addLog(`SYNC: THEME_${isLight ? 'DARK' : 'LIGHT'}`);
+        }
+
+        // CLOCK ENGINE
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('time').innerText = now.getUTCHours().toString().padStart(2, '0') + ":" + now.getUTCMinutes().toString().padStart(2, '0') + ":" + now.getUTCSeconds().toString().padStart(2, '0') + " UTC";
+        }, 1000);
+
+        // HOVER PHYSICS
+        document.querySelectorAll('.pop-btn, #theme-btn, #time-link').forEach(el => {
+            el.addEventListener('mouseenter', () => { 
+                cursor.style.width = '60px'; cursor.style.height = '60px'; cursor.style.background = 'rgba(0, 242, 255, 0.1)'; 
+                if(el.classList.contains('pop-btn')) addLog('HOVER_ENGAGED');
+            });
+            el.addEventListener('mouseleave', () => { 
+                cursor.style.width = '20px'; cursor.style.height = '20px'; cursor.style.background = 'none'; 
+            });
         });
     </script>
 </body>
