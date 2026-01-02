@@ -3,220 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZIIPZY // v62 OMNI</title>
+    <title>ZIIPZY // v87 DEEP-LINK</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Outfit:wght@100;900&family=JetBrains+Mono&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Outfit:wght@100;400;900&family=JetBrains+Mono&display=swap');
 
         :root {
-            --bg: #030406; --accent: #00f2ff; --text: #ffffff;
-            --surface: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.1);
-            --yt: #FF0000; --tt: #00f2ea; --lt: #43ee62;
+            --bg: #020204; --accent: #00f2ff; --text: #ffffff;
+            --surface: rgba(255, 255, 255, 0.02); --border: rgba(255, 255, 255, 0.08);
         }
 
         [data-theme="light"] {
-            --bg: #f0f2f5; --accent: #0066ff; --text: #0a0a0a;
-            --surface: rgba(0, 0, 0, 0.03); --border: rgba(0, 0, 0, 0.08);
+            --bg: #f5f7fa; --accent: #0055ff; --text: #0a0a0a;
+            --surface: rgba(0, 0, 0, 0.02); --border: rgba(0, 0, 0, 0.06);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; cursor: none !important; }
         
         body {
             background: var(--bg); color: var(--text);
-            font-family: 'Outfit', sans-serif; overflow-x: hidden;
-            scrollbar-width: none; transition: background 0.5s ease;
-        }
-        body::-webkit-scrollbar { display: none; }
-
-        /* FILM GRAIN */
-        body::before {
-            content: ""; position: fixed; inset: 0; z-index: 9999;
-            background-image: url("https://grainy-gradients.vercel.app/noise.svg");
-            opacity: 0.03; pointer-events: none;
+            font-family: 'Outfit', sans-serif; height: 100vh;
+            overflow: hidden; transition: background 0.6s ease;
         }
 
-        /* TRANSITION SHUTTER */
-        #shutter {
-            position: fixed; inset: 0; background: var(--text); z-index: 20000;
-            transform: scaleY(0); transform-origin: top; 
-            transition: transform 0.6s cubic-bezier(0.8, 0, 0.2, 1);
-            pointer-events: none; mix-blend-mode: difference;
+        /* --- OVERLAY --- */
+        #shutter { 
+            position: fixed; inset: 0; background: var(--accent); z-index: 99999; 
+            transform: scaleX(0); transform-origin: left;
+            transition: transform 0.6s cubic-bezier(0.8, 0, 0.2, 1); pointer-events: none; 
         }
-        #shutter.active { transform: scaleY(1); transform-origin: bottom; }
+        #shutter.active { transform: scaleX(1); }
 
-        /* CIRCULAR LOADER */
-        #loader {
-            position: fixed; inset: 0; background: var(--bg); z-index: 15000;
+        #loader { 
+            position: fixed; inset: 0; background: #000; z-index: 15000; 
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transition: opacity 0.8s ease, visibility 0.8s;
+            transition: opacity 0.8s ease;
         }
-        .circle-wrap { position: relative; width: 100px; height: 100px; transform: rotate(-90deg); }
-        .circle-bg { fill: none; stroke: var(--border); stroke-width: 2; }
-        .circle-progress { 
-            fill: none; stroke: var(--accent); stroke-width: 2; 
-            stroke-dasharray: 283; stroke-dashoffset: 283; 
-            transition: stroke-dashoffset 0.3s ease;
+        #loader.loaded { opacity: 0; pointer-events: none; }
+        .scanner-line { width: 150px; height: 1px; background: var(--accent); box-shadow: 0 0 15px var(--accent); animation: scan 1.5s infinite ease-in-out; }
+        @keyframes scan { 0%, 100% { transform: scaleX(0.1); opacity: 0.2; } 50% { transform: scaleX(1); opacity: 1; } }
+
+        /* --- CURSOR --- */
+        #cursor { 
+            position: fixed; width: 20px; height: 20px; border: 1px solid var(--accent); 
+            z-index: 100000; pointer-events: none; transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, background 0.3s;
+        }
+        #cursor::after { content: ''; position: absolute; inset: 8px; background: var(--accent); transition: 0.2s; }
+
+        /* --- UI ELEMENTS --- */
+        #theme-btn { 
+            position: fixed; top: 35px; right: 35px; z-index: 1000; 
+            background: none; border: 1px solid var(--border); color: var(--text); 
+            padding: 10px 20px; font-family: 'JetBrains Mono'; font-size: 10px; 
+            opacity: 0; transform: translateY(-20px); transition: 0.8s;
         }
 
-        /* BACKGROUND LOGO (Parallax) */
-        .hero-bg {
-            position: fixed; inset: 0; display: flex; justify-content: center; align-items: center;
-            z-index: 1; pointer-events: none;
+        #system-log {
+            position: fixed; bottom: 35px; left: 35px; width: 220px; height: 85px;
+            font-family: 'JetBrains Mono'; font-size: 8px; color: var(--accent);
+            overflow: hidden; display: flex; flex-direction: column-reverse;
+            opacity: 0; transform: translateY(20px); transition: 0.8s; pointer-events: none;
+            z-index: 1000; background: transparent;
         }
-        .brand-logo {
-            font-family: 'Syncopate', sans-serif; font-size: clamp(3rem, 20vw, 18rem);
-            opacity: 0.15; transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        body.scrolled .brand-logo { transform: scale(0.8); opacity: 0.02; filter: blur(15px); }
+        .log-entry { margin-top: 4px; border-left: 2px solid var(--accent); padding-left: 8px; animation: log-in 0.3s ease; }
+        @keyframes log-in { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
 
-        /* POP-OUT BUTTONS */
-        .content-layer {
-            position: relative; z-index: 10; padding: 100vh 5% 20vh;
-            display: flex; flex-direction: column; align-items: center; perspective: 1000px;
-        }
-        .pop-btn {
-            width: 100%; max-width: 900px; padding: 40px; margin-bottom: 20px;
-            text-decoration: none; color: var(--text); display: flex; align-items: center; gap: 40px;
-            opacity: 0; transform: translateZ(-200px) translateY(100px); filter: blur(10px);
-            transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1), background 0.4s;
-            position: relative; overflow: hidden; border-radius: 8px;
-        }
-        .pop-btn.reveal { opacity: 1; transform: translateZ(0) translateY(0); filter: blur(0); }
-
-        /* REFLECTION GLINT */
-        .pop-btn::after {
-            content: ""; position: absolute; inset: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-            transform: translateX(-100%); transition: 0.6s;
-        }
-        .pop-btn:hover::after { transform: translateX(100%); }
-
-        /* FLOATING HOVER */
-        .pop-btn:hover {
-            background: var(--surface); transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        footer { 
+            position: fixed; bottom: 35px; right: 35px;
+            display: flex; flex-direction: column; align-items: flex-end;
+            z-index: 1000; font-family: 'JetBrains Mono'; font-size: 10px;
+            opacity: 0; transform: translateY(20px); transition: 0.8s;
         }
 
-        .pop-btn i { font-size: 3rem; width: 80px; text-align: center; transition: 0.4s; }
-        .pop-btn span { font-size: clamp(2rem, 8vw, 5rem); font-weight: 900; text-transform: uppercase; }
+        /* --- CLOCK LINK --- */
+        #time-link { text-decoration: none; color: var(--accent); margin-bottom: 5px; transition: 0.3s; }
+        #time-link:hover { opacity: 0.7; letter-spacing: 1px; }
 
-        /* BRAND COLORS */
-        .pop-btn.yt:hover i { color: var(--yt); filter: drop-shadow(0 0 15px var(--yt)); }
-        .pop-btn.tt:hover i { color: var(--tt); filter: drop-shadow(0 0 15px var(--tt)); }
-        .pop-btn.lt:hover i { color: var(--lt); filter: drop-shadow(0 0 15px var(--lt)); }
+        /* --- CONTENT --- */
+        .hero-bg { position: fixed; inset: 0; display: flex; justify-content: center; align-items: center; z-index: 1; pointer-events: none; }
+        .brand-logo { font-family: 'Syncopate', sans-serif; font-size: clamp(3rem, 15vw, 12rem); opacity: 0.1; transition: 1s ease; }
 
-        /* HUD & CURSOR */
-        #cursor-dot { position: fixed; width: 6px; height: 6px; background: #fff; border-radius: 50%; pointer-events: none; z-index: 10001; transform: translate(-50%, -50%); mix-blend-mode: difference; }
-        #cursor-ring { position: fixed; width: 40px; height: 40px; border: 1.5px solid var(--accent); border-radius: 50%; pointer-events: none; z-index: 10000; transform: translate(-50%, -50%); transition: 0.15s ease-out; }
+        .content-layer { position: fixed; inset: 0; z-index: 100; display: flex; justify-content: center; align-items: center; pointer-events: none; perspective: 1000px; }
+        .btn-stack { width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 20px; padding: 20px; }
         
-        #theme-btn { position: fixed; top: 30px; right: 30px; z-index: 1000; background: none; border: 1px solid var(--border); color: var(--text); padding: 10px; font-family: 'JetBrains Mono'; font-size: 10px; }
-        footer { position: fixed; bottom: 30px; left: 30px; right: 30px; display: flex; justify-content: space-between; z-index: 100; opacity: 0.3; font-family: 'JetBrains Mono'; font-size: 10px; letter-spacing: 2px; }
-        #time { color: var(--accent); font-weight: 700; text-decoration: none; }
+        .pop-btn {
+            width: 100%; padding: 30px 40px; text-decoration: none; color: var(--text);
+            display: flex; align-items: center; gap: 30px; background: var(--surface); border: 1px solid var(--border);
+            backdrop-filter: blur(20px); opacity: 0; transform: scale(0.8) translateZ(-100px);
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none;
+        }
+
+        /* --- REVEAL TRIGGER --- */
+        body.ui-active .pop-btn, body.ui-active #theme-btn, body.ui-active footer, body.ui-active #system-log { opacity: 1; transform: none; pointer-events: all; }
+        body.ui-active .brand-logo { opacity: 0.03; transform: scale(0.95); }
+
+        .pop-btn:hover { transform: translateZ(50px) scale(1.02); border-color: var(--accent); background: rgba(255,255,255,0.05); }
     </style>
 </head>
-<body>
+<body onwheel="handleScroll(event)">
 
     <div id="shutter"></div>
 
     <div id="loader">
-        <div class="circle-wrap">
-            <svg width="100" height="100">
-                <circle class="circle-bg" cx="50" cy="50" r="45"></circle>
-                <circle id="bar" class="circle-progress" cx="50" cy="50" r="45"></circle>
-            </svg>
-            <div id="pct" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(90deg); font-family: 'JetBrains Mono'; font-size: 12px;">0%</div>
-        </div>
+        <div class="scanner-line"></div>
+        <div id="pct" style="font-family:'JetBrains Mono'; font-size:10px; margin-top:20px;">0%</div>
     </div>
 
-    <div id="cursor-dot"></div>
-    <div id="cursor-ring"></div>
-    
-    <button id="theme-btn" onclick="toggleTheme()">[ THEME_SWAP ]</button>
+    <div id="cursor"></div>
+    <button id="theme-btn" onclick="toggleTheme()">[ SWITCH_MODE ]</button>
+    <div id="system-log" id="log-anchor"></div>
 
     <div class="hero-bg"><h1 class="brand-logo">ZIIPZY</h1></div>
 
     <div class="content-layer">
-        <a href="https://youtube.com/@ziipzygaming" class="pop-btn yt jump">
-            <i class="fa-brands fa-youtube"></i>
-            <span>Youtube</span>
-        </a>
-        <a href="https://tiktok.com/@ziipzy" class="pop-btn tt jump">
-            <i class="fa-brands fa-tiktok"></i>
-            <span>Tiktok</span>
-        </a>
-        <a href="https://linktr.ee/ziipzygaming" class="pop-btn lt jump">
-            <i class="fa-solid fa-link"></i>
-            <span>Linktree</span>
-        </a>
+        <div class="btn-stack">
+            <a href="https://youtube.com/@ziipzygaming" class="pop-btn" onclick="pageTransition(event, this.href, true)"><i class="fa-brands fa-youtube"></i><span>Youtube</span></a>
+            <a href="https://tiktok.com/@ziipzy" class="pop-btn" onclick="pageTransition(event, this.href, true)"><i class="fa-brands fa-tiktok"></i><span>Tiktok</span></a>
+            <a href="https://linktr.ee/ziipzygaming" class="pop-btn" onclick="pageTransition(event, this.href, true)"><i class="fa-solid fa-link"></i><span>Linktree</span></a>
+            <a href="about.html" class="pop-btn" style="border-style: dashed;" onclick="pageTransition(event, this.href, false)"><i class="fa-solid fa-user-secret"></i><span>About_System</span></a>
+        </div>
     </div>
 
     <footer>
-        <div>@2026 ZIIPZY. All Rights Reserved.</div>
-        <a href="#" id="time">00:00:00 UTC</a>
+        <a href="https://time.is/UTC" id="time-link" onclick="pageTransition(event, this.href, true)">
+            <div id="time">00:00:00 UTC</div>
+        </a>
+        <div style="opacity: 0.4;">© 2026 ZIIPZY_LABS</div>
     </footer>
 
     <script>
-        window.scrollTo(0,0);
-        const dot = document.getElementById('cursor-dot');
-        const ring = document.getElementById('cursor-ring');
+        const cursor = document.getElementById('cursor');
+        const shutter = document.getElementById('shutter');
+        const logBox = document.getElementById('system-log');
 
-        document.addEventListener('mousemove', (e) => {
-            dot.style.left = e.clientX + 'px'; dot.style.top = e.clientY + 'px';
-            ring.style.left = e.clientX + 'px'; ring.style.top = e.clientY + 'px';
-        });
-
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 100) document.body.classList.add('scrolled');
-            else document.body.classList.remove('scrolled');
-        });
-
-        // CIRCLE LOADER
-        let p = 0;
-        const bar = document.getElementById('bar');
-        const pct = document.getElementById('pct');
-        const total = 2 * Math.PI * 45;
-        const load = setInterval(() => {
-            p += Math.floor(Math.random() * 5) + 2;
-            if (p >= 100) {
-                p = 100; clearInterval(load);
-                setTimeout(() => { 
-                    document.getElementById('loader').style.opacity = '0';
-                    setTimeout(() => document.getElementById('loader').style.display = 'none', 800);
-                }, 400);
-            }
-            bar.style.strokeDashoffset = total - (p / 100) * total;
-            pct.innerText = p + '%';
-        }, 80);
-
-        // REVEAL OBSERVER
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('reveal'); });
-        }, { threshold: 0.1 });
-        document.querySelectorAll('.pop-btn').forEach(btn => observer.observe(btn));
-
-        // SHUTTER TRANSITION
-        document.querySelectorAll('.jump').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.getElementById('shutter').classList.add('active');
-                setTimeout(() => window.location.href = this.href, 600);
-            });
-        });
-
-        function toggleTheme() {
-            const body = document.body;
-            if (body.getAttribute('data-theme') === 'light') body.removeAttribute('data-theme');
-            else body.setAttribute('data-theme', 'light');
+        // FIXED LOG SYSTEM
+        function addLog(msg) {
+            if (!logBox) return;
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerText = `> ${msg}`;
+            logBox.prepend(entry);
+            if(logBox.children.length > 5) logBox.lastChild.remove();
         }
 
+        // SCROLL REVEAL
+        function handleScroll(e) {
+            if (e.deltaY > 0) {
+                if(!document.body.classList.contains('ui-active')) {
+                    document.body.classList.add('ui-active');
+                    addLog('UI_REVEAL_INIT');
+                }
+            } else if (e.deltaY < -15) {
+                document.body.classList.remove('ui-active');
+            }
+        }
+
+        // UNIVERSAL TRANSITION
+        function pageTransition(e, url, isExternal) {
+            e.preventDefault();
+            addLog(`HANDSHAKE: ${isExternal ? 'EXT' : 'INT'}`);
+            shutter.classList.add('active');
+            setTimeout(() => {
+                if (isExternal) {
+                    window.open(url, '_blank');
+                    setTimeout(() => shutter.classList.remove('active'), 200);
+                } else {
+                    window.location.href = url;
+                }
+            }, 600); 
+        }
+
+        document.addEventListener('mousemove', e => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        // LOADING ENGINE
+        let p = 0;
+        const load = setInterval(() => {
+            p += Math.floor(Math.random() * 8) + 2;
+            if (p >= 100) { 
+                p = 100; clearInterval(load);
+                setTimeout(() => {
+                    document.getElementById('loader').classList.add('loaded');
+                    addLog('OS_V87_BOOT');
+                }, 500);
+            }
+            document.getElementById('pct').innerText = p + '%';
+        }, 50);
+
+        function toggleTheme() {
+            const isLight = document.body.getAttribute('data-theme') === 'light';
+            isLight ? document.body.removeAttribute('data-theme') : document.body.setAttribute('data-theme', 'light');
+            addLog(`SYNC: THEME_${isLight ? 'DARK' : 'LIGHT'}`);
+        }
+
+        // CLOCK ENGINE
         setInterval(() => {
             const now = new Date();
             document.getElementById('time').innerText = now.getUTCHours().toString().padStart(2, '0') + ":" + now.getUTCMinutes().toString().padStart(2, '0') + ":" + now.getUTCSeconds().toString().padStart(2, '0') + " UTC";
         }, 1000);
 
-        document.querySelectorAll('.pop-btn, button').forEach(el => {
-            el.addEventListener('mouseenter', () => { ring.style.width = '80px'; ring.style.height = '80px'; ring.style.background = 'rgba(0, 242, 255, 0.1)'; });
-            el.addEventListener('mouseleave', () => { ring.style.width = '40px'; ring.style.height = '40px'; ring.style.background = 'transparent'; });
+        // HOVER PHYSICS
+        document.querySelectorAll('.pop-btn, #theme-btn, #time-link').forEach(el => {
+            el.addEventListener('mouseenter', () => { 
+                cursor.style.width = '60px'; cursor.style.height = '60px'; cursor.style.background = 'rgba(0, 242, 255, 0.1)'; 
+                if(el.classList.contains('pop-btn')) addLog('HOVER_ENGAGED');
+            });
+            el.addEventListener('mouseleave', () => { 
+                cursor.style.width = '20px'; cursor.style.height = '20px'; cursor.style.background = 'none'; 
+            });
         });
     </script>
 </body>
