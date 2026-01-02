@@ -10,6 +10,7 @@
 
         :root {
             --bg: #020204; --accent: #00f2ff; --text: #ffffff;
+            --secondary: rgba(255, 255, 255, 0.4);
             --surface: rgba(255, 255, 255, 0.02); --border: rgba(255, 255, 255, 0.08);
         }
 
@@ -21,7 +22,7 @@
             overflow: hidden;
         }
 
-        /* --- LEGACY SHUTTER (THE OLD VERSION) --- */
+        /* --- LEGACY SHUTTER --- */
         #shutter { 
             position: fixed; inset: 0; background: var(--accent); z-index: 15000; 
             transform: scaleX(1); transform-origin: left;
@@ -29,7 +30,7 @@
         }
         #shutter.reveal { transform: scaleX(0); transform-origin: right; }
 
-        /* --- LOADER (OVERLAY) --- */
+        /* --- LOADER --- */
         #loader { 
             position: fixed; inset: 0; background: #000; z-index: 14000; 
             display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -60,33 +61,37 @@
         .brand-logo { font-family: 'Syncopate', sans-serif; font-size: 10vw; opacity: 0.03; letter-spacing: -5px; }
 
         .content-layer { position: fixed; inset: 0; z-index: 100; display: flex; justify-content: center; align-items: center; pointer-events: none; perspective: 1000px; }
-        .btn-stack { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 15px; padding: 20px; }
+        .btn-stack { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 12px; padding: 20px; }
         
         .info-card {
-            width: 100%; padding: 40px; background: var(--surface); border: 1px solid var(--border);
+            width: 100%; padding: 35px; background: var(--surface); border: 1px solid var(--border);
             backdrop-filter: blur(20px); opacity: 0; transform: scale(0.9) translateZ(-50px);
             transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none;
         }
 
-        .disconnect-btn {
-            width: 100%; padding: 20px; text-decoration: none; color: var(--accent);
-            text-align: center; border: 1px dashed var(--border); font-family: 'JetBrains Mono'; font-size: 10px;
+        .action-btn {
+            width: 100%; padding: 18px; text-decoration: none;
+            text-align: center; font-family: 'JetBrains Mono'; font-size: 10px;
             opacity: 0; transform: translateY(20px); transition: 0.6s; pointer-events: none;
+            background: transparent;
         }
 
-        body.ui-active .info-card, body.ui-active .disconnect-btn, body.ui-active #system-log { opacity: 1; transform: none; pointer-events: all; }
-        
-        .info-card:hover { transform: translateZ(30px) scale(1.02); border-color: var(--accent); }
-        .disconnect-btn:hover { border-color: var(--accent); letter-spacing: 4px; background: rgba(0, 242, 255, 0.05); }
+        /* Primary Styling */
+        .btn-primary { border: 1px dashed var(--accent); color: var(--accent); }
+        .btn-primary:hover { background: rgba(0, 242, 255, 0.05); letter-spacing: 2px; }
 
+        /* Secondary Styling (Rollback) */
+        .btn-secondary { border: 1px solid var(--border); color: var(--secondary); margin-top: 5px; }
+        .btn-secondary:hover { border-color: var(--secondary); color: #fff; background: rgba(255, 255, 255, 0.02); }
+
+        body.ui-active .info-card, body.ui-active .action-btn, body.ui-active #system-log { opacity: 1; transform: none; pointer-events: all; }
+        
         footer { position: fixed; bottom: 35px; right: 35px; font-family: 'JetBrains Mono'; font-size: 10px; opacity: 0.4; text-align: right; }
-        .v87-ghost { font-family: 'Syncopate'; font-size: 5vw; opacity: 0.02; position: fixed; bottom: 20px; right: 20px; pointer-events: none; }
     </style>
 </head>
 <body onwheel="handleScroll(event)">
 
     <div id="shutter"></div>
-
     <div id="loader">
         <div class="scanner-line"></div>
         <div id="pct" style="font-family:'JetBrains Mono'; font-size:10px; margin-top:20px;">0%</div>
@@ -94,19 +99,21 @@
     
     <div id="cursor"></div>
     <div id="system-log"></div>
-    <div class="v87-ghost">v87</div>
 
     <div class="hero-bg"><h1 class="brand-logo">SYSTEM</h1></div>
 
     <div class="content-layer">
         <div class="btn-stack">
             <div class="info-card">
-                <span style="font-family:'JetBrains Mono'; font-size:9px; color:var(--accent); letter-spacing: 2px;">// ABOUT_MANIFEST_v87</span>
+                <span style="font-family:'JetBrains Mono'; font-size:9px; color:var(--accent); letter-spacing: 2px;">// SYSTEM_SPEC</span>
                 <p style="font-size: 13px; line-height: 2; opacity: 0.6; margin-top: 15px;">
                     Technical specifications for the ZIIPZY ecosystem. Built on v87 architecture to facilitate low-latency kinetic feedback.
                 </p>
             </div>
-            <a href="index.html" class="action-btn disconnect-btn" onclick="exitTransition(event, this.href)">[ DISCONNECT_SESSION ]</a>
+            
+            <a href="index.html" class="action-btn btn-primary" onclick="exitTransition(event, this.href, 'TERMINATING_NODE')">[ DISCONNECT_SESSION ]</a>
+
+            <a href="/old" class="action-btn btn-secondary" onclick="exitTransition(event, this.href, 'ROLLBACK_PROTOCOL_INIT')">[ ROLLBACK_PROTOCOL ]</a>
         </div>
     </div>
 
@@ -130,24 +137,14 @@
             if(logBox.children.length > 5) logBox.lastChild.remove();
         }
 
-        // LEGACY ENTRY SEQUENCE
         window.onload = () => {
-            // Step 1: Sweep the legacy shutter
-            setTimeout(() => {
-                shutter.classList.add('reveal');
-            }, 100);
-
-            // Step 2: Run the sync loader
+            setTimeout(() => shutter.classList.add('reveal'), 100);
             let p = 0;
             const loadInterval = setInterval(() => {
                 p += Math.floor(Math.random() * 15) + 5;
                 if (p >= 100) {
-                    p = 100;
-                    clearInterval(loadInterval);
-                    setTimeout(() => {
-                        loader.classList.add('loaded');
-                        addLog('BOOT_v87_COMPLETE');
-                    }, 400);
+                    p = 100; clearInterval(loadInterval);
+                    setTimeout(() => { loader.classList.add('loaded'); addLog('BOOT_v87_COMPLETE'); }, 400);
                 }
                 pctText.innerText = p + '%';
             }, 60);
@@ -159,23 +156,16 @@
                     document.body.classList.add('ui-active');
                     addLog('UI_READY');
                 }
-            } else if (e.deltaY < -15) {
-                document.body.classList.remove('ui-active');
-            }
+            } else if (e.deltaY < -15) { document.body.classList.remove('ui-active'); }
         }
 
-        // SEAMLESS EXIT (Back to 0%)
-        function exitTransition(e, url) {
+        function exitTransition(e, url, logMsg) {
             e.preventDefault();
-            addLog('TERMINATING_NODE');
-            
+            addLog(logMsg);
             pctText.innerText = "0%";
             loader.classList.remove('loaded');
-            shutter.classList.remove('reveal'); // Close shutter
-            
-            setTimeout(() => {
-                window.location.href = url;
-            }, 700);
+            shutter.classList.remove('reveal');
+            setTimeout(() => { window.location.href = url; }, 750);
         }
 
         document.addEventListener('mousemove', e => {
@@ -183,7 +173,7 @@
             cursor.style.top = e.clientY + 'px';
         });
 
-        document.querySelectorAll('.disconnect-btn, .info-card').forEach(el => {
+        document.querySelectorAll('.action-btn, .info-card').forEach(el => {
             el.addEventListener('mouseenter', () => { 
                 cursor.style.width = '60px'; cursor.style.height = '60px'; cursor.style.background = 'rgba(0, 242, 255, 0.1)'; 
             });
