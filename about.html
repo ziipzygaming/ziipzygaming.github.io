@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZIIPZY // ABOUT_SYSTEM</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Outfit:wght@100;400;900&family=JetBrains+Mono&display=swap');
+
+        :root {
+            --bg: #020204; --accent: #00f2ff; --text: #ffffff;
+            --surface: rgba(255, 255, 255, 0.02); --border: rgba(255, 255, 255, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none !important; }
+        
+        body {
+            background: var(--bg); color: var(--text);
+            font-family: 'Outfit', sans-serif; height: 100vh;
+            overflow: hidden; 
+        }
+
+        /* --- EXIT SHUTTER --- */
+        #shutter { 
+            position: fixed; inset: 0; background: var(--accent); z-index: 99999; 
+            transform: scaleX(1); transform-origin: right;
+            transition: transform 0.6s cubic-bezier(0.8, 0, 0.2, 1); pointer-events: none; 
+        }
+        #shutter.reveal { transform: scaleX(0); }
+
+        /* --- CURSOR --- */
+        #cursor { 
+            position: fixed; width: 20px; height: 20px; border: 1px solid var(--accent); 
+            z-index: 100000; pointer-events: none; transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, background 0.3s;
+        }
+
+        /* --- BACKGROUND LOGO --- */
+        .hero-bg { position: fixed; inset: 0; display: flex; justify-content: center; align-items: center; z-index: 1; pointer-events: none; }
+        .brand-logo { font-family: 'Syncopate', sans-serif; font-size: clamp(2rem, 10vw, 8rem); opacity: 0.05; transition: 1s ease; }
+
+        /* --- TERMINAL CONTENT --- */
+        .content-layer { 
+            position: fixed; inset: 0; z-index: 100; 
+            display: flex; justify-content: center; align-items: center; 
+            pointer-events: none;
+        }
+
+        .data-panel {
+            width: 100%; max-width: 800px; padding: 40px;
+            background: var(--surface); border: 1px solid var(--border);
+            backdrop-filter: blur(30px); opacity: 0; transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        body.ui-active .data-panel { opacity: 1; transform: translateY(0); pointer-events: all; }
+        body.ui-active .brand-logo { opacity: 0.02; transform: scale(0.9); }
+
+        .terminal-text {
+            font-family: 'JetBrains Mono'; font-size: 14px; line-height: 1.8; color: rgba(255,255,255,0.7);
+        }
+        .accent-text { color: var(--accent); }
+
+        .back-btn {
+            display: inline-block; margin-top: 30px; padding: 12px 25px;
+            border: 1px solid var(--accent); color: var(--accent);
+            text-decoration: none; font-family: 'JetBrains Mono'; font-size: 11px;
+            transition: 0.3s;
+        }
+        .back-btn:hover { background: var(--accent); color: #000; }
+
+        /* --- HUD --- */
+        footer { 
+            position: fixed; bottom: 35px; right: 35px;
+            display: flex; flex-direction: column; align-items: flex-end;
+            z-index: 1000; font-family: 'JetBrains Mono'; font-size: 10px;
+            opacity: 0; transition: 0.8s;
+        }
+        body.ui-active footer { opacity: 0.4; }
+    </style>
+</head>
+<body onwheel="handleScroll(event)">
+
+    <div id="shutter"></div>
+    <div id="cursor"></div>
+
+    <div class="hero-bg"><h1 class="brand-logo">DATA_CORE</h1></div>
+
+    <div class="content-layer">
+        <div class="data-panel">
+            <div class="terminal-text">
+                <p class="accent-text">// SYSTEM_IDENTITY_V87.0</p>
+                <p>SUBJECT: <span style="color:#fff">ZIIPZY</span></p>
+                <p>STATUS: <span style="color:#0f0">OPERATIONAL</span></p>
+                <br>
+                <p>Architecture focused on <span class="accent-text">Kinetic UI</span> and <span class="accent-text">Minimalist Logic</span>. Designed to bridge the gap between void aesthetics and functional web environments.</p>
+                <br>
+                <p>> Encryption: Level 7</p>
+                <p>> Location: Distributed Nodes</p>
+                <p>> Purpose: Gaming / Innovation / Content</p>
+            </div>
+            <a href="index.html" class="back-btn" onclick="goBack(event, this.href)">[ RETURN_TO_VOID ]</a>
+        </div>
+    </div>
+
+    <footer>
+        <div>© 2026 ZIIPZY_LABS</div>
+        <div>SECURED_ACCESS_ONLY</div>
+    </footer>
+
+    <script>
+        const cursor = document.getElementById('cursor');
+        const shutter = document.getElementById('shutter');
+
+        // Initial Reveal
+        window.onload = () => {
+            setTimeout(() => shutter.classList.add('reveal'), 100);
+        };
+
+        function handleScroll(e) {
+            if (e.deltaY > 0) document.body.classList.add('ui-active');
+            else if (e.deltaY < -15) document.body.classList.remove('ui-active');
+        }
+
+        function goBack(e, url) {
+            e.preventDefault();
+            shutter.classList.remove('reveal'); // Closes the shutter
+            setTimeout(() => window.location.href = url, 600);
+        }
+
+        document.addEventListener('mousemove', e => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        // Hover logic
+        document.querySelectorAll('.back-btn').forEach(el => {
+            el.addEventListener('mouseenter', () => { 
+                cursor.style.width = '50px'; cursor.style.height = '50px'; cursor.style.background = 'rgba(0, 242, 255, 0.1)'; 
+            });
+            el.addEventListener('mouseleave', () => { 
+                cursor.style.width = '20px'; cursor.style.height = '20px'; cursor.style.background = 'none'; 
+            });
+        });
+    </script>
+</body>
+</html>
