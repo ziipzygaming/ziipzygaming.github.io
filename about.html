@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZIIPZY // ABOUT_SYSTEM</title>
+    <title>ZIIPZY // v87 ABOUT_SYS</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Outfit:wght@100;400;900&family=JetBrains+Mono&display=swap');
@@ -18,16 +18,26 @@
         body {
             background: var(--bg); color: var(--text);
             font-family: 'Outfit', sans-serif; height: 100vh;
-            overflow: hidden; 
+            overflow: hidden;
         }
 
-        /* --- EXIT SHUTTER --- */
+        /* --- SYNCED SHUTTER --- */
         #shutter { 
             position: fixed; inset: 0; background: var(--accent); z-index: 99999; 
             transform: scaleX(1); transform-origin: right;
             transition: transform 0.6s cubic-bezier(0.8, 0, 0.2, 1); pointer-events: none; 
         }
         #shutter.reveal { transform: scaleX(0); }
+
+        /* --- LOADER --- */
+        #loader { 
+            position: fixed; inset: 0; background: #000; z-index: 15000; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.8s ease;
+        }
+        #loader.loaded { opacity: 0; pointer-events: none; }
+        .scanner-line { width: 150px; height: 1px; background: var(--accent); box-shadow: 0 0 15px var(--accent); animation: scan 1.5s infinite ease-in-out; }
+        @keyframes scan { 0%, 100% { transform: scaleX(0.1); opacity: 0.2; } 50% { transform: scaleX(1); opacity: 1; } }
 
         /* --- CURSOR --- */
         #cursor { 
@@ -36,96 +46,115 @@
             transition: width 0.3s, height 0.3s, background 0.3s;
         }
 
-        /* --- BACKGROUND LOGO --- */
-        .hero-bg { position: fixed; inset: 0; display: flex; justify-content: center; align-items: center; z-index: 1; pointer-events: none; }
-        .brand-logo { font-family: 'Syncopate', sans-serif; font-size: clamp(2rem, 10vw, 8rem); opacity: 0.05; transition: 1s ease; }
-
-        /* --- TERMINAL CONTENT --- */
-        .content-layer { 
-            position: fixed; inset: 0; z-index: 100; 
-            display: flex; justify-content: center; align-items: center; 
-            pointer-events: none;
+        /* --- SYSTEM LOG --- */
+        #system-log {
+            position: fixed; bottom: 35px; left: 35px; width: 220px; height: 85px;
+            font-family: 'JetBrains Mono'; font-size: 8px; color: var(--accent);
+            overflow: hidden; display: flex; flex-direction: column-reverse;
+            opacity: 0; transform: translateY(20px); transition: 0.8s; pointer-events: none;
+            z-index: 1000;
         }
+        .log-entry { margin-top: 4px; border-left: 2px solid var(--accent); padding-left: 8px; animation: log-in 0.3s ease; }
+        @keyframes log-in { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
 
-        .data-panel {
-            width: 100%; max-width: 800px; padding: 40px;
-            background: var(--surface); border: 1px solid var(--border);
-            backdrop-filter: blur(30px); opacity: 0; transform: translateY(30px);
-            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        /* --- ASYMMETRIC GRID --- */
+        .master-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr; 
+            height: 100vh; width: 100vw;
+            padding: 8vw; gap: 60px;
+            opacity: 0; transition: 1.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
+        body.ui-active .master-grid { opacity: 1; }
 
-        body.ui-active .data-panel { opacity: 1; transform: translateY(0); pointer-events: all; }
-        body.ui-active .brand-logo { opacity: 0.02; transform: scale(0.9); }
+        /* --- LEFT SIDE: THE TEXT --- */
+        .content-rail { display: flex; flex-direction: column; justify-content: center; }
+        .title-main { font-family: 'Syncopate'; font-size: 3rem; line-height: 0.9; margin-bottom: 30px; letter-spacing: -2px; }
+        .desc-body { font-family: 'JetBrains Mono'; font-size: 11px; max-width: 450px; line-height: 2.4; opacity: 0.5; border-left: 1px solid var(--accent); padding-left: 25px; }
 
-        .terminal-text {
-            font-family: 'JetBrains Mono'; font-size: 14px; line-height: 1.8; color: rgba(255,255,255,0.7);
-        }
-        .accent-text { color: var(--accent); }
+        /* --- RIGHT SIDE: THE STATS --- */
+        .status-rail { border-left: 1px solid var(--border); display: flex; flex-direction: column; justify-content: flex-end; padding-left: 40px; padding-bottom: 40px; }
+        .stat-item { margin-bottom: 25px; }
+        .stat-label { display: block; font-family: 'JetBrains Mono'; font-size: 9px; opacity: 0.3; margin-bottom: 5px; }
+        .stat-val { font-family: 'JetBrains Mono'; font-size: 11px; color: var(--accent); letter-spacing: 1px; }
 
-        .back-btn {
-            display: inline-block; margin-top: 30px; padding: 12px 25px;
-            border: 1px solid var(--accent); color: var(--accent);
-            text-decoration: none; font-family: 'JetBrains Mono'; font-size: 11px;
+        /* --- WATERMARK --- */
+        .bg-watermark { position: fixed; bottom: 5%; right: 5%; font-family: 'Syncopate'; font-size: 10vw; opacity: 0.03; z-index: 1; pointer-events: none; }
+
+        /* --- NAV --- */
+        .action-link {
+            margin-top: 50px; padding: 15px 30px; width: fit-content;
+            border: 1px solid var(--border); color: var(--text);
+            text-decoration: none; font-family: 'JetBrains Mono'; font-size: 10px;
             transition: 0.3s;
         }
-        .back-btn:hover { background: var(--accent); color: #000; }
+        .action-link:hover { border-color: var(--accent); color: var(--accent); letter-spacing: 3px; }
 
-        /* --- HUD --- */
-        footer { 
-            position: fixed; bottom: 35px; right: 35px;
-            display: flex; flex-direction: column; align-items: flex-end;
-            z-index: 1000; font-family: 'JetBrains Mono'; font-size: 10px;
-            opacity: 0; transition: 0.8s;
-        }
-        body.ui-active footer { opacity: 0.4; }
+        footer { position: fixed; top: 8vw; right: 8vw; font-family: 'JetBrains Mono'; font-size: 9px; opacity: 0.3; }
     </style>
 </head>
 <body onwheel="handleScroll(event)">
 
     <div id="shutter"></div>
+
+    <div id="loader">
+        <div class="scanner-line"></div>
+        <div id="pct" style="font-family:'JetBrains Mono'; font-size:10px; margin-top:20px;">0%</div>
+    </div>
+
     <div id="cursor"></div>
+    <div id="system-log"></div>
+    <div class="bg-watermark">V87</div>
 
-    <div class="hero-bg"><h1 class="brand-logo">DATA_CORE</h1></div>
+    <div class="master-grid">
+        <div class="content-rail">
+            <h1 class="title-main">ABOUT<br><span style="color:var(--accent)">SYSTEM</span></h1>
+            <p class="desc-body">
+                The ZIIPZY Architecture is a proprietary interface built for v87 "Deep-Link" protocols. 
+                Everything is kinetic. Everything is intentional. 
+                Data packets are processed via the Proxima Void Engine to ensure zero-latency visual feedback.
+            </p>
+            <a href="index.html" class="action-link" onclick="exitTransition(event, this.href)">[ DISCONNECT ]</a>
+        </div>
 
-    <div class="content-layer">
-        <div class="data-panel">
-            <div class="terminal-text">
-                <p class="accent-text">// SYSTEM_IDENTITY_V87.0</p>
-                <p>SUBJECT: <span style="color:#fff">ZIIPZY</span></p>
-                <p>STATUS: <span style="color:#0f0">OPERATIONAL</span></p>
-                <br>
-                <p>Architecture focused on <span class="accent-text">Kinetic UI</span> and <span class="accent-text">Minimalist Logic</span>. Designed to bridge the gap between void aesthetics and functional web environments.</p>
-                <br>
-                <p>> Encryption: Level 7</p>
-                <p>> Location: Distributed Nodes</p>
-                <p>> Purpose: Gaming / Innovation / Content</p>
-            </div>
-            <a href="index.html" class="back-btn" onclick="goBack(event, this.href)">[ RETURN_TO_VOID ]</a>
+        <div class="status-rail">
+            <div class="stat-item"><span class="stat-label">OS_BUILD</span><span class="stat-val">v87-DEEP-LINK</span></div>
+            <div class="stat-item"><span class="stat-label">UPTIME</span><span class="stat-val" id="uptime">00:00</span></div>
+            <div class="stat-item"><span class="stat-label">STATUS</span><span class="stat-val" style="color:#0f0">STABLE</span></div>
         </div>
     </div>
 
-    <footer>
-        <div>© 2026 ZIIPZY_LABS</div>
-        <div>SECURED_ACCESS_ONLY</div>
-    </footer>
+    <footer>© 2026 ZIIPZY</footer>
 
     <script>
         const cursor = document.getElementById('cursor');
         const shutter = document.getElementById('shutter');
+        const logBox = document.getElementById('system-log');
+        let startTime = Date.now();
 
-        // Initial Reveal
-        window.onload = () => {
-            setTimeout(() => shutter.classList.add('reveal'), 100);
-        };
-
-        function handleScroll(e) {
-            if (e.deltaY > 0) document.body.classList.add('ui-active');
-            else if (e.deltaY < -15) document.body.classList.remove('ui-active');
+        function addLog(msg) {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerText = `> ${msg}`;
+            logBox.prepend(entry);
+            if(logBox.children.length > 5) logBox.lastChild.remove();
         }
 
-        function goBack(e, url) {
+        function handleScroll(e) {
+            if (e.deltaY > 0) {
+                if(!document.body.classList.contains('ui-active')) {
+                    document.body.classList.add('ui-active');
+                    addLog('UI_MOUNT_COMPLETE');
+                }
+            } else if (e.deltaY < -15) {
+                document.body.classList.remove('ui-active');
+            }
+        }
+
+        function exitTransition(e, url) {
             e.preventDefault();
-            shutter.classList.remove('reveal'); // Closes the shutter
+            addLog('TERMINATING_NODE');
+            shutter.classList.remove('reveal');
             setTimeout(() => window.location.href = url, 600);
         }
 
@@ -134,10 +163,32 @@
             cursor.style.top = e.clientY + 'px';
         });
 
-        // Hover logic
-        document.querySelectorAll('.back-btn').forEach(el => {
+        // Mirror Loader Engine
+        let p = 0;
+        const load = setInterval(() => {
+            p += Math.floor(Math.random() * 8) + 2;
+            if (p >= 100) { 
+                p = 100; clearInterval(load);
+                setTimeout(() => {
+                    document.getElementById('loader').classList.add('loaded');
+                    shutter.classList.add('reveal');
+                    addLog('OS_V87_ONLINE');
+                }, 500);
+            }
+            document.getElementById('pct').innerText = p + '%';
+        }, 50);
+
+        // Uptime Engine
+        setInterval(() => {
+            let diff = Math.floor((Date.now() - startTime) / 1000);
+            let m = Math.floor(diff / 60).toString().padStart(2, '0');
+            let s = (diff % 60).toString().padStart(2, '0');
+            document.getElementById('uptime').innerText = `${m}:${s}`;
+        }, 1000);
+
+        document.querySelectorAll('.action-link').forEach(el => {
             el.addEventListener('mouseenter', () => { 
-                cursor.style.width = '50px'; cursor.style.height = '50px'; cursor.style.background = 'rgba(0, 242, 255, 0.1)'; 
+                cursor.style.width = '60px'; cursor.style.height = '60px'; cursor.style.background = 'rgba(0, 242, 255, 0.1)'; 
             });
             el.addEventListener('mouseleave', () => { 
                 cursor.style.width = '20px'; cursor.style.height = '20px'; cursor.style.background = 'none'; 
