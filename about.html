@@ -22,108 +22,71 @@
             overflow: hidden;
         }
 
-        /* --- LEGACY SHUTTER --- */
+        /* --- EXIT LAYER (Black Void - Highest on Exit) --- */
+        #loader { 
+            position: fixed; inset: 0; background: #000; z-index: 20000; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.5s ease; pointer-events: none;
+        }
+        #loader.active { pointer-events: all; opacity: 1; }
+        #loader.loaded { opacity: 0; }
+        
+        .scanner-line { width: 150px; height: 1px; background: var(--accent); box-shadow: 0 0 15px var(--accent); animation: scan 1.5s infinite ease-in-out; }
+        @keyframes scan { 0%, 100% { transform: scaleX(0.1); opacity: 0.2; } 50% { transform: scaleX(1); opacity: 1; } }
+
+        /* --- ENTRY LAYER (Legacy Blue Shutter) --- */
         #shutter { 
-            position: fixed; inset: 0; background: var(--accent); z-index: 15000; 
+            position: fixed; inset: 0; background: var(--accent); z-index: 25000; 
             transform: scaleX(1); transform-origin: left;
             transition: transform 0.8s cubic-bezier(0.85, 0, 0.15, 1); pointer-events: none; 
         }
         #shutter.reveal { transform: scaleX(0); transform-origin: right; }
 
-        /* --- LOADER --- */
-        #loader { 
-            position: fixed; inset: 0; background: #000; z-index: 14000; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transition: opacity 0.6s ease;
-        }
-        #loader.loaded { opacity: 0; pointer-events: none; }
-        .scanner-line { width: 150px; height: 1px; background: var(--accent); box-shadow: 0 0 15px var(--accent); animation: scan 1.5s infinite ease-in-out; }
-        @keyframes scan { 0%, 100% { transform: scaleX(0.1); opacity: 0.2; } 50% { transform: scaleX(1); opacity: 1; } }
-
         /* --- CURSOR --- */
-        #cursor { 
-            position: fixed; width: 20px; height: 20px; border: 1px solid var(--accent); 
-            z-index: 100000; pointer-events: none; transform: translate(-50%, -50%);
-            transition: width 0.3s, height 0.3s, background 0.3s;
-        }
+        #cursor { position: fixed; width: 20px; height: 20px; border: 1px solid var(--accent); z-index: 100000; pointer-events: none; transform: translate(-50%, -50%); transition: width 0.3s, height 0.3s; }
 
-        /* --- SYSTEM LOGS --- */
-        #system-log {
-            position: fixed; bottom: 35px; left: 35px; width: 220px; height: 85px;
-            font-family: 'JetBrains Mono'; font-size: 8px; color: var(--accent);
-            overflow: hidden; display: flex; flex-direction: column-reverse;
-            opacity: 0; transform: translateY(20px); transition: 0.8s; pointer-events: none;
-        }
+        /* --- UI ELEMENTS --- */
+        #system-log { position: fixed; bottom: 35px; left: 35px; width: 220px; height: 85px; font-family: 'JetBrains Mono'; font-size: 8px; color: var(--accent); overflow: hidden; display: flex; flex-direction: column-reverse; opacity: 0; transform: translateY(20px); transition: 0.8s; z-index: 1000; }
         .log-entry { margin-top: 4px; border-left: 2px solid var(--accent); padding-left: 8px; animation: log-in 0.3s ease; }
 
-        /* --- MAIN UI --- */
-        .hero-bg { position: fixed; inset: 0; display: flex; justify-content: center; align-items: center; z-index: 1; pointer-events: none; }
-        .brand-logo { font-family: 'Syncopate', sans-serif; font-size: 10vw; opacity: 0.03; letter-spacing: -5px; }
-
         .content-layer { position: fixed; inset: 0; z-index: 100; display: flex; justify-content: center; align-items: center; pointer-events: none; perspective: 1000px; }
-        .btn-stack { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 12px; padding: 20px; }
+        .btn-stack { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 12px; padding: 20px; pointer-events: auto; }
         
-        .info-card {
-            width: 100%; padding: 35px; background: var(--surface); border: 1px solid var(--border);
-            backdrop-filter: blur(20px); opacity: 0; transform: scale(0.9) translateZ(-50px);
-            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none;
-        }
-
-        .action-btn {
-            width: 100%; padding: 18px; text-decoration: none;
-            text-align: center; font-family: 'JetBrains Mono'; font-size: 10px;
-            opacity: 0; transform: translateY(20px); transition: 0.6s; pointer-events: none;
-            background: transparent;
-        }
-
-        /* Primary Styling */
-        .btn-primary { border: 1px dashed var(--accent); color: var(--accent); }
-        .btn-primary:hover { background: rgba(0, 242, 255, 0.05); letter-spacing: 2px; }
-
-        /* Secondary Styling (Rollback) */
-        .btn-secondary { border: 1px solid var(--border); color: var(--secondary); margin-top: 5px; }
-        .btn-secondary:hover { border-color: var(--secondary); color: #fff; background: rgba(255, 255, 255, 0.02); }
-
-        body.ui-active .info-card, body.ui-active .action-btn, body.ui-active #system-log { opacity: 1; transform: none; pointer-events: all; }
+        .info-card { width: 100%; padding: 35px; background: var(--surface); border: 1px solid var(--border); backdrop-filter: blur(20px); opacity: 0; transform: scale(0.9) translateZ(-50px); transition: 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .action-btn { width: 100%; padding: 18px; text-decoration: none; text-align: center; font-family: 'JetBrains Mono'; font-size: 10px; opacity: 0; transform: translateY(20px); transition: 0.6s; background: transparent; border: 1px solid var(--border); }
         
-        footer { position: fixed; bottom: 35px; right: 35px; font-family: 'JetBrains Mono'; font-size: 10px; opacity: 0.4; text-align: right; }
+        .btn-primary { border-color: var(--accent); color: var(--accent); }
+        .btn-secondary { color: var(--secondary); margin-top: 5px; }
+
+        body.ui-active .info-card, body.ui-active .action-btn, body.ui-active #system-log { opacity: 1; transform: none; }
+        .v87-ghost { font-family: 'Syncopate'; font-size: 5vw; opacity: 0.02; position: fixed; bottom: 20px; right: 20px; pointer-events: none; }
     </style>
 </head>
 <body onwheel="handleScroll(event)">
 
-    <div id="shutter"></div>
     <div id="loader">
         <div class="scanner-line"></div>
         <div id="pct" style="font-family:'JetBrains Mono'; font-size:10px; margin-top:20px;">0%</div>
     </div>
+
+    <div id="shutter"></div>
     
     <div id="cursor"></div>
     <div id="system-log"></div>
-
-    <div class="hero-bg"><h1 class="brand-logo">SYSTEM</h1></div>
+    <div class="v87-ghost">v87</div>
 
     <div class="content-layer">
         <div class="btn-stack">
             <div class="info-card">
                 <span style="font-family:'JetBrains Mono'; font-size:9px; color:var(--accent); letter-spacing: 2px;">// SYSTEM_SPEC</span>
-                <p style="font-size: 13px; line-height: 2; opacity: 0.6; margin-top: 15px;">
-                    Technical specifications for the ZIIPZY ecosystem. Built on v87 architecture to facilitate low-latency kinetic feedback.
-                </p>
+                <p style="font-size: 13px; line-height: 2; opacity: 0.6; margin-top: 15px;">v87 architecture provides the kinetic framework for ZIIPZY. Optimized for zero-latency session transitions.</p>
             </div>
-            
             <a href="index.html" class="action-btn btn-primary" onclick="exitTransition(event, this.href, 'TERMINATING_NODE')">[ DISCONNECT_SESSION ]</a>
-
-            <a href="old" class="action-btn btn-secondary" onclick="exitTransition(event, this.href, 'ROLLBACK_PROTOCOL_INIT')">[ ROLLBACK_PROTOCOL ]</a>
+            <a href="old" class="action-btn btn-secondary" onclick="exitTransition(event, this.href, 'ROLLBACK_INIT')">[ ROLLBACK_PROTOCOL ]</a>
         </div>
     </div>
 
-    <footer>
-        <div style="color:var(--accent)">OS_STABLE</div>
-        <div>NODE_v87</div>
-    </footer>
-
     <script>
-        const cursor = document.getElementById('cursor');
         const shutter = document.getElementById('shutter');
         const loader = document.getElementById('loader');
         const pctText = document.getElementById('pct');
@@ -134,52 +97,50 @@
             entry.className = 'log-entry';
             entry.innerText = `> ${msg}`;
             logBox.prepend(entry);
-            if(logBox.children.length > 5) logBox.lastChild.remove();
         }
 
         window.onload = () => {
-            setTimeout(() => shutter.classList.add('reveal'), 100);
+            // Priority 1: Trigger Blue Shutter Sweep
+            setTimeout(() => {
+                shutter.classList.add('reveal');
+            }, 100);
+
+            // Priority 2: Initialize Loader but hide it immediately after blue sweep starts
             let p = 0;
             const loadInterval = setInterval(() => {
                 p += Math.floor(Math.random() * 15) + 5;
                 if (p >= 100) {
                     p = 100; clearInterval(loadInterval);
-                    setTimeout(() => { loader.classList.add('loaded'); addLog('BOOT_v87_COMPLETE'); }, 400);
+                    setTimeout(() => { 
+                        loader.classList.add('loaded'); 
+                        addLog('BOOT_v87_COMPLETE'); 
+                    }, 400);
                 }
                 pctText.innerText = p + '%';
-            }, 60);
+            }, 50);
         };
 
         function handleScroll(e) {
-            if (e.deltaY > 0) {
-                if(!document.body.classList.contains('ui-active')) {
-                    document.body.classList.add('ui-active');
-                    addLog('UI_READY');
-                }
-            } else if (e.deltaY < -15) { document.body.classList.remove('ui-active'); }
+            if (e.deltaY > 0) document.body.classList.add('ui-active');
+            else if (e.deltaY < -15) document.body.classList.remove('ui-active');
         }
 
         function exitTransition(e, url, logMsg) {
             e.preventDefault();
             addLog(logMsg);
+            
+            // Activate Black Void over everything
             pctText.innerText = "0%";
-            loader.classList.remove('loaded');
-            shutter.classList.remove('reveal');
+            loader.classList.add('active');
+            loader.classList.remove('loaded'); 
+            
             setTimeout(() => { window.location.href = url; }, 750);
         }
 
         document.addEventListener('mousemove', e => {
+            const cursor = document.getElementById('cursor');
             cursor.style.left = e.clientX + 'px';
             cursor.style.top = e.clientY + 'px';
-        });
-
-        document.querySelectorAll('.action-btn, .info-card').forEach(el => {
-            el.addEventListener('mouseenter', () => { 
-                cursor.style.width = '60px'; cursor.style.height = '60px'; cursor.style.background = 'rgba(0, 242, 255, 0.1)'; 
-            });
-            el.addEventListener('mouseleave', () => { 
-                cursor.style.width = '20px'; cursor.style.height = '20px'; cursor.style.background = 'none'; 
-            });
         });
     </script>
 </body>
