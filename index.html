@@ -24,6 +24,24 @@
             background: var(--bg); color: var(--text);
             font-family: 'Outfit', sans-serif; height: 100vh;
             overflow: hidden; transition: background 0.6s ease;
+            touch-action: none; /* Prevents default browser bounce */
+        }
+
+        /* --- MOBILE & HAPTIC SYSTEM --- */
+        @media (hover: none) and (pointer: coarse) {
+            * { cursor: auto !important; }
+            #cursor { display: none !important; }
+            .brand-logo { font-size: 5rem !important; }
+            .pop-btn { padding: 20px 25px !important; }
+        }
+
+        .haptic-pulse {
+            animation: haptic-flash 0.15s cubic-bezier(0, 0, 0.2, 1);
+        }
+
+        @keyframes haptic-flash {
+            0% { background: var(--accent); filter: invert(1); transform: scale(0.98); }
+            100% { background: var(--surface); filter: invert(0); transform: scale(1.02); }
         }
 
         /* --- OVERLAY --- */
@@ -76,7 +94,6 @@
             opacity: 0; transform: translateY(20px); transition: 0.8s;
         }
 
-        /* --- CLOCK LINK --- */
         #time-link { text-decoration: none; color: var(--accent); margin-bottom: 5px; transition: 0.3s; }
         #time-link:hover { opacity: 0.7; letter-spacing: 1px; }
 
@@ -94,14 +111,13 @@
             transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none;
         }
 
-        /* --- REVEAL TRIGGER --- */
         body.ui-active .pop-btn, body.ui-active #theme-btn, body.ui-active footer, body.ui-active #system-log { opacity: 1; transform: none; pointer-events: all; }
         body.ui-active .brand-logo { opacity: 0.03; transform: scale(0.95); }
 
         .pop-btn:hover { transform: translateZ(50px) scale(1.02); border-color: var(--accent); background: rgba(255,255,255,0.05); }
     </style>
 </head>
-<body onwheel="handleScroll(event)">
+<body>
 
     <div id="shutter"></div>
 
@@ -112,7 +128,7 @@
 
     <div id="cursor"></div>
     <button id="theme-btn" onclick="toggleTheme()">[ SWITCH_MODE ]</button>
-    <div id="system-log" id="log-anchor"></div>
+    <div id="system-log"></div>
 
     <div class="hero-bg"><h1 class="brand-logo">ZIIPZY</h1></div>
 
@@ -136,8 +152,8 @@
         const cursor = document.getElementById('cursor');
         const shutter = document.getElementById('shutter');
         const logBox = document.getElementById('system-log');
+        const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
-        // FIXED LOG SYSTEM
         function addLog(msg) {
             if (!logBox) return;
             const entry = document.createElement('div');
@@ -147,8 +163,29 @@
             if(logBox.children.length > 5) logBox.lastChild.remove();
         }
 
-        // SCROLL REVEAL
-        function handleScroll(e) {
+        // VISUAL HAPTIC ENGINE
+        function triggerHaptic(el) {
+            el.classList.add('haptic-pulse');
+            addLog('HAPTIC_FEEDBACK_SIG');
+            setTimeout(() => el.classList.remove('haptic-pulse'), 150);
+            if ("vibrate" in navigator) navigator.vibrate(10);
+        }
+
+        // TOUCH & SWIPE LOGIC
+        let touchStartY = 0;
+        window.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
+        window.addEventListener('touchend', e => {
+            const deltaY = touchStartY - e.changedTouches[0].clientY;
+            if (deltaY > 50 && !document.body.classList.contains('ui-active')) {
+                document.body.classList.add('ui-active');
+                addLog('UI_REVEAL_INIT');
+            } else if (deltaY < -50) {
+                document.body.classList.remove('ui-active');
+            }
+        }, { passive: true });
+
+        // DESKTOP SCROLL LOGIC
+        window.addEventListener('wheel', e => {
             if (e.deltaY > 0) {
                 if(!document.body.classList.contains('ui-active')) {
                     document.body.classList.add('ui-active');
@@ -157,29 +194,47 @@
             } else if (e.deltaY < -15) {
                 document.body.classList.remove('ui-active');
             }
-        }
-
-        // UNIVERSAL TRANSITION
-        function pageTransition(e, url, isExternal) {
-            e.preventDefault();
-            addLog(`HANDSHAKE: ${isExternal ? 'EXT' : 'INT'}`);
-            shutter.classList.add('active');
-            setTimeout(() => {
-                if (isExternal) {
-                    window.open(url, '_blank');
-                    setTimeout(() => shutter.classList.remove('active'), 200);
-                } else {
-                    window.location.href = url;
-                }
-            }, 600); 
-        }
-
-        document.addEventListener('mousemove', e => {
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top = e.clientY + 'px';
         });
 
-        // LOADING ENGINE
+        // TRANSITION ENGINE
+        function pageTransition(e, url, isExternal) {
+            e.preventDefault();
+            const target = e.currentTarget;
+            triggerHaptic(target);
+            addLog(`HANDSHAKE: ${isExternal ? 'EXT' : 'INT'}`);
+            
+            setTimeout(() => {
+                shutter.classList.add('active');
+                setTimeout(() => {
+                    if (isExternal) {
+                        window.open(url, '_blank');
+                        setTimeout(() => shutter.classList.remove('active'), 200);
+                    } else {
+                        window.location.href = url;
+                    }
+                }, 600);
+            }, 100);
+        }
+
+        // CURSOR PHYSICS (Desktop Only)
+        if (!isTouch) {
+            document.addEventListener('mousemove', e => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            });
+
+            document.querySelectorAll('.pop-btn, #theme-btn, #time-link').forEach(el => {
+                el.addEventListener('mouseenter', () => { 
+                    cursor.style.width = '60px'; cursor.style.height = '60px'; cursor.style.background = 'rgba(0, 242, 255, 0.1)'; 
+                    if(el.classList.contains('pop-btn')) addLog('HOVER_ENGAGED');
+                });
+                el.addEventListener('mouseleave', () => { 
+                    cursor.style.width = '20px'; cursor.style.height = '20px'; cursor.style.background = 'none'; 
+                });
+            });
+        }
+
+        // SYSTEM BOOT
         let p = 0;
         const load = setInterval(() => {
             p += Math.floor(Math.random() * 8) + 2;
@@ -204,17 +259,6 @@
             const now = new Date();
             document.getElementById('time').innerText = now.getUTCHours().toString().padStart(2, '0') + ":" + now.getUTCMinutes().toString().padStart(2, '0') + ":" + now.getUTCSeconds().toString().padStart(2, '0') + " UTC";
         }, 1000);
-
-        // HOVER PHYSICS
-        document.querySelectorAll('.pop-btn, #theme-btn, #time-link').forEach(el => {
-            el.addEventListener('mouseenter', () => { 
-                cursor.style.width = '60px'; cursor.style.height = '60px'; cursor.style.background = 'rgba(0, 242, 255, 0.1)'; 
-                if(el.classList.contains('pop-btn')) addLog('HOVER_ENGAGED');
-            });
-            el.addEventListener('mouseleave', () => { 
-                cursor.style.width = '20px'; cursor.style.height = '20px'; cursor.style.background = 'none'; 
-            });
-        });
     </script>
 </body>
 </html>
