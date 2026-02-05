@@ -3,262 +3,221 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZIIPZY // v87 DEEP-LINK</title>
+    <title>ZIIPZY // PRISM_v87</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Outfit:wght@100;400;900&family=JetBrains+Mono&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@800&family=Inter:wght@300;600&family=JetBrains+Mono&display=swap');
 
         :root {
-            --bg: #020204; --accent: #00f2ff; --text: #ffffff;
-            --surface: rgba(255, 255, 255, 0.02); --border: rgba(255, 255, 255, 0.08);
+            --bg: #050505;
+            --accent: #00ffaa;
+            --text: #ffffff;
+            --panel: rgba(255, 255, 255, 0.05);
         }
 
         [data-theme="light"] {
-            --bg: #f5f7fa; --accent: #0055ff; --text: #0a0a0a;
-            --surface: rgba(0, 0, 0, 0.02); --border: rgba(0, 0, 0, 0.06);
+            --bg: #f8f8f8;
+            --accent: #ff3300;
+            --text: #000000;
+            --panel: rgba(0, 0, 0, 0.05);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; cursor: none !important; }
-        
+
         body {
-            background: var(--bg); color: var(--text);
-            font-family: 'Outfit', sans-serif; height: 100vh;
-            overflow: hidden; transition: background 0.6s ease;
-            touch-action: none; /* Prevents default browser bounce */
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            transition: background 0.5s ease;
         }
 
-        /* --- MOBILE & HAPTIC SYSTEM --- */
-        @media (hover: none) and (pointer: coarse) {
-            * { cursor: auto !important; }
-            #cursor { display: none !important; }
-            .brand-logo { font-size: 5rem !important; }
-            .pop-btn { padding: 20px 25px !important; }
+        /* --- BACKGROUND LAYER --- */
+        #mesh {
+            position: fixed; inset: 0;
+            background-image: 
+                linear-gradient(var(--panel) 1px, transparent 1px),
+                linear-gradient(90deg, var(--panel) 1px, transparent 1px);
+            background-size: 50px 50px;
+            perspective: 1000px;
+            z-index: -1;
         }
 
-        .haptic-pulse {
-            animation: haptic-flash 0.15s cubic-bezier(0, 0, 0.2, 1);
+        /* --- CUSTOM CURSOR --- */
+        #cursor {
+            position: fixed; width: 12px; height: 12px;
+            background: var(--accent);
+            z-index: 10000; pointer-events: none;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, border-radius 0.3s;
         }
 
-        @keyframes haptic-flash {
-            0% { background: var(--accent); filter: invert(1); transform: scale(0.98); }
-            100% { background: var(--surface); filter: invert(0); transform: scale(1.02); }
-        }
-
-        /* --- OVERLAY --- */
-        #shutter { 
-            position: fixed; inset: 0; background: var(--accent); z-index: 99999; 
-            transform: scaleX(0); transform-origin: left;
-            transition: transform 0.6s cubic-bezier(0.8, 0, 0.2, 1); pointer-events: none; 
-        }
-        #shutter.active { transform: scaleX(1); }
-
-        #loader { 
-            position: fixed; inset: 0; background: #000; z-index: 15000; 
+        /* --- LOADER --- */
+        #loader {
+            position: fixed; inset: 0; background: #000; z-index: 15000;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transition: opacity 0.8s ease;
         }
-        #loader.loaded { opacity: 0; pointer-events: none; }
-        .scanner-line { width: 150px; height: 1px; background: var(--accent); box-shadow: 0 0 15px var(--accent); animation: scan 1.5s infinite ease-in-out; }
-        @keyframes scan { 0%, 100% { transform: scaleX(0.1); opacity: 0.2; } 50% { transform: scaleX(1); opacity: 1; } }
+        .prism-box {
+            width: 50px; height: 50px; border: 2px solid var(--accent);
+            animation: prism-spin 2s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        @keyframes prism-spin { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(0.5); border-radius: 50%; } 100% { transform: rotate(360deg) scale(1); } }
 
-        /* --- CURSOR --- */
-        #cursor { 
-            position: fixed; width: 20px; height: 20px; border: 1px solid var(--accent); 
-            z-index: 100000; pointer-events: none; transform: translate(-50%, -50%);
-            transition: width 0.3s, height 0.3s, background 0.3s;
+        /* --- MAIN UI --- */
+        .container {
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+            padding: 40px;
         }
-        #cursor::after { content: ''; position: absolute; inset: 8px; background: var(--accent); transition: 0.2s; }
 
-        /* --- UI ELEMENTS --- */
-        #theme-btn { 
-            position: fixed; top: 35px; right: 35px; z-index: 1000; 
-            background: none; border: 1px solid var(--border); color: var(--text); 
-            padding: 10px 20px; font-family: 'JetBrains Mono'; font-size: 10px; 
-            opacity: 0; transform: translateY(-20px); transition: 0.8s;
+        .prism-card {
+            display: grid; grid-template-columns: 1.2fr 1fr;
+            width: 100%; max-width: 900px; height: 500px;
+            background: var(--panel); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative; overflow: hidden;
+            opacity: 0; transform: scale(0.9); transition: 1s cubic-bezier(0.16, 1, 0.3, 1);
         }
+
+        body.ready .prism-card { opacity: 1; transform: scale(1); }
+
+        .hero-section {
+            padding: 60px; display: flex; flex-direction: column; justify-content: space-between;
+            border-right: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .brand-title {
+            font-family: 'Syne', sans-serif; font-size: 5rem; line-height: 0.9;
+            letter-spacing: -3px; text-transform: uppercase;
+        }
+
+        .nav-section { display: flex; flex-direction: column; }
+
+        .nav-btn {
+            flex: 1; display: flex; align-items: center; padding: 0 40px;
+            text-decoration: none; color: var(--text); font-weight: 600;
+            font-size: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: 0.4s; position: relative; overflow: hidden;
+        }
+
+        .nav-btn::after {
+            content: ''; position: absolute; left: 0; bottom: 0; width: 0; height: 100%;
+            background: var(--accent); z-index: -1; transition: 0.4s;
+        }
+
+        .nav-btn:hover { color: #000; padding-left: 60px; }
+        .nav-btn:hover::after { width: 100%; }
+
+        /* --- SHUTTER --- */
+        #shutter {
+            position: fixed; inset: 0; background: var(--bg); z-index: 20000;
+            transform: scaleX(0); transform-origin: right;
+            transition: transform 0.6s cubic-bezier(0.8, 0, 0.2, 1);
+        }
+        #shutter.active { transform: scaleX(1); transform-origin: left; }
 
         #system-log {
-            position: fixed; bottom: 35px; left: 35px; width: 220px; height: 85px;
-            font-family: 'JetBrains Mono'; font-size: 8px; color: var(--accent);
-            overflow: hidden; display: flex; flex-direction: column-reverse;
-            opacity: 0; transform: translateY(20px); transition: 0.8s; pointer-events: none;
-            z-index: 1000; background: transparent;
-        }
-        .log-entry { margin-top: 4px; border-left: 2px solid var(--accent); padding-left: 8px; animation: log-in 0.3s ease; }
-        @keyframes log-in { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
-
-        footer { 
-            position: fixed; bottom: 35px; right: 35px;
-            display: flex; flex-direction: column; align-items: flex-end;
-            z-index: 1000; font-family: 'JetBrains Mono'; font-size: 10px;
-            opacity: 0; transform: translateY(20px); transition: 0.8s;
+            position: fixed; bottom: 40px; left: 40px;
+            font-family: 'JetBrains Mono'; font-size: 9px; text-transform: uppercase;
         }
 
-        #time-link { text-decoration: none; color: var(--accent); margin-bottom: 5px; transition: 0.3s; }
-        #time-link:hover { opacity: 0.7; letter-spacing: 1px; }
-
-        /* --- CONTENT --- */
-        .hero-bg { position: fixed; inset: 0; display: flex; justify-content: center; align-items: center; z-index: 1; pointer-events: none; }
-        .brand-logo { font-family: 'Syncopate', sans-serif; font-size: clamp(3rem, 15vw, 12rem); opacity: 0.1; transition: 1s ease; }
-
-        .content-layer { position: fixed; inset: 0; z-index: 100; display: flex; justify-content: center; align-items: center; pointer-events: none; perspective: 1000px; }
-        .btn-stack { width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 20px; padding: 20px; }
-        
-        .pop-btn {
-            width: 100%; padding: 30px 40px; text-decoration: none; color: var(--text);
-            display: flex; align-items: center; gap: 30px; background: var(--surface); border: 1px solid var(--border);
-            backdrop-filter: blur(20px); opacity: 0; transform: scale(0.8) translateZ(-100px);
-            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none;
+        #theme-btn {
+            position: fixed; top: 40px; right: 40px;
+            background: none; border: 1px solid var(--text); color: var(--text);
+            padding: 5px 12px; font-size: 10px; font-family: 'JetBrains Mono';
         }
 
-        body.ui-active .pop-btn, body.ui-active #theme-btn, body.ui-active footer, body.ui-active #system-log { opacity: 1; transform: none; pointer-events: all; }
-        body.ui-active .brand-logo { opacity: 0.03; transform: scale(0.95); }
-
-        .pop-btn:hover { transform: translateZ(50px) scale(1.02); border-color: var(--accent); background: rgba(255,255,255,0.05); }
+        @media (max-width: 800px) {
+            .prism-card { grid-template-columns: 1fr; height: auto; }
+            .hero-section { padding: 40px; }
+            .brand-title { font-size: 3rem; margin-bottom: 20px; }
+            .nav-btn { height: 70px; }
+            #cursor { display: none; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="shutter"></div>
-
     <div id="loader">
-        <div class="scanner-line"></div>
-        <div id="pct" style="font-family:'JetBrains Mono'; font-size:10px; margin-top:20px;">0%</div>
+        <div class="prism-box"></div>
+        <p style="margin-top: 20px; font-size: 10px; font-family: 'JetBrains Mono'; letter-spacing: 4px;">SYNCING_PRISM</p>
     </div>
 
+    <div id="shutter"></div>
     <div id="cursor"></div>
-    <button id="theme-btn" onclick="toggleTheme()">[ SWITCH_MODE ]</button>
-    <div id="system-log"></div>
+    <div id="mesh"></div>
 
-    <div class="hero-bg"><h1 class="brand-logo">ZIIPZY</h1></div>
+    <div id="system-log">PRISM_V87_ACTIVE</div>
+    <button id="theme-btn" onclick="toggleTheme()">INVERT_INTERFACE</button>
 
-    <div class="content-layer">
-        <div class="btn-stack">
-            <a href="https://youtube.com/@ziipzygaming" class="pop-btn" onclick="pageTransition(event, this.href, true)"><i class="fa-brands fa-youtube"></i><span>Youtube</span></a>
-            <a href="https://tiktok.com/@ziipzy" class="pop-btn" onclick="pageTransition(event, this.href, true)"><i class="fa-brands fa-tiktok"></i><span>Tiktok</span></a>
-            <a href="https://linktr.ee/ziipzygaming" class="pop-btn" onclick="pageTransition(event, this.href, true)"><i class="fa-solid fa-link"></i><span>Linktree</span></a>
-            <a href="about" class="pop-btn" style="border-style: dashed;" onclick="pageTransition(event, this.href, false)"><i class="fa-solid fa-user-secret"></i><span>About_System</span></a>
+    <div class="container">
+        <div class="prism-card">
+            <div class="hero-section">
+                <p style="font-family: 'JetBrains Mono'; font-size: 10px; opacity: 0.5;">HUB_ID: 0x22F</p>
+                <h1 class="brand-title">ZIIP<br>ZY</h1>
+                <p style="font-size: 12px; opacity: 0.7; max-width: 200px;">Hyper-linked portal for gaming & creative assets.</p>
+            </div>
+            
+            <nav class="nav-section">
+                <a href="https://youtube.com/@ziipzygaming" class="nav-btn" onclick="pageTransition(event, this.href, true)">YouTube</a>
+                <a href="https://tiktok.com/@ziipzy" class="nav-btn" onclick="pageTransition(event, this.href, true)">TikTok</a>
+                <a href="https://linktr.ee/ziipzygaming" class="nav-btn" onclick="pageTransition(event, this.href, true)">Linktree</a>
+                <a href="about" class="nav-btn" style="background: rgba(0,0,0,0.2);" onclick="pageTransition(event, this.href, false)">Internal_Log</a>
+            </nav>
         </div>
     </div>
 
-    <footer>
-        <a href="https://time.is/UTC" id="time-link" onclick="pageTransition(event, this.href, true)">
-            <div id="time">00:00:00 UTC</div>
-        </a>
-        <div style="opacity: 0.4;">© 2026 ZIIPZY</div>
-    </footer>
-
     <script>
         const cursor = document.getElementById('cursor');
-        const shutter = document.getElementById('shutter');
-        const logBox = document.getElementById('system-log');
-        const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+        const mesh = document.getElementById('mesh');
 
-        function addLog(msg) {
-            if (!logBox) return;
-            const entry = document.createElement('div');
-            entry.className = 'log-entry';
-            entry.innerText = `> ${msg}`;
-            logBox.prepend(entry);
-            if(logBox.children.length > 5) logBox.lastChild.remove();
-        }
-
-        // VISUAL HAPTIC ENGINE
-        function triggerHaptic(el) {
-            el.classList.add('haptic-pulse');
-            addLog('HAPTIC_FEEDBACK_SIG');
-            setTimeout(() => el.classList.remove('haptic-pulse'), 150);
-            if ("vibrate" in navigator) navigator.vibrate(10);
-        }
-
-        // TOUCH & SWIPE LOGIC
-        let touchStartY = 0;
-        window.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
-        window.addEventListener('touchend', e => {
-            const deltaY = touchStartY - e.changedTouches[0].clientY;
-            if (deltaY > 50 && !document.body.classList.contains('ui-active')) {
-                document.body.classList.add('ui-active');
-                addLog('UI_REVEAL_INIT');
-            } else if (deltaY < -50) {
-                document.body.classList.remove('ui-active');
-            }
-        }, { passive: true });
-
-        // DESKTOP SCROLL LOGIC
-        window.addEventListener('wheel', e => {
-            if (e.deltaY > 0) {
-                if(!document.body.classList.contains('ui-active')) {
-                    document.body.classList.add('ui-active');
-                    addLog('UI_REVEAL_INIT');
-                }
-            } else if (e.deltaY < -15) {
-                document.body.classList.remove('ui-active');
-            }
+        // PARALLAX MESH
+        document.addEventListener('mousemove', e => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            
+            const moveX = (e.clientX - window.innerWidth/2) / 50;
+            const moveY = (e.clientY - window.innerHeight/2) / 50;
+            mesh.style.transform = `translateX(${moveX}px) translateY(${moveY}px)`;
         });
 
-        // TRANSITION ENGINE
-        function pageTransition(e, url, isExternal) {
-            e.preventDefault();
-            const target = e.currentTarget;
-            triggerHaptic(target);
-            addLog(`HANDSHAKE: ${isExternal ? 'EXT' : 'INT'}`);
-            
+        // BOOT
+        window.addEventListener('load', () => {
             setTimeout(() => {
-                shutter.classList.add('active');
-                setTimeout(() => {
-                    if (isExternal) {
-                        window.open(url, '_blank');
-                        setTimeout(() => shutter.classList.remove('active'), 200);
-                    } else {
-                        window.location.href = url;
-                    }
-                }, 600);
-            }, 100);
+                document.getElementById('loader').style.display = 'none';
+                document.body.classList.add('ready');
+            }, 1200);
+        });
+
+        // TRANSITION
+        function pageTransition(e, url, isExt) {
+            e.preventDefault();
+            document.getElementById('shutter').classList.add('active');
+            setTimeout(() => {
+                isExt ? window.open(url, '_blank') : window.location.href = url;
+                setTimeout(() => document.getElementById('shutter').classList.remove('active'), 600);
+            }, 600);
         }
 
-        // CURSOR PHYSICS (Desktop Only)
-        if (!isTouch) {
-            document.addEventListener('mousemove', e => {
-                cursor.style.left = e.clientX + 'px';
-                cursor.style.top = e.clientY + 'px';
-            });
-
-            document.querySelectorAll('.pop-btn, #theme-btn, #time-link').forEach(el => {
-                el.addEventListener('mouseenter', () => { 
-                    cursor.style.width = '60px'; cursor.style.height = '60px'; cursor.style.background = 'rgba(0, 242, 255, 0.1)'; 
-                    if(el.classList.contains('pop-btn')) addLog('HOVER_ENGAGED');
-                });
-                el.addEventListener('mouseleave', () => { 
-                    cursor.style.width = '20px'; cursor.style.height = '20px'; cursor.style.background = 'none'; 
-                });
-            });
-        }
-
-        // SYSTEM BOOT
-        let p = 0;
-        const load = setInterval(() => {
-            p += Math.floor(Math.random() * 8) + 2;
-            if (p >= 100) { 
-                p = 100; clearInterval(load);
-                setTimeout(() => {
-                    document.getElementById('loader').classList.add('loaded');
-                    addLog('OS_V87_BOOT');
-                }, 500);
-            }
-            document.getElementById('pct').innerText = p + '%';
-        }, 50);
-
+        // THEME
         function toggleTheme() {
-            const isLight = document.body.getAttribute('data-theme') === 'light';
-            isLight ? document.body.removeAttribute('data-theme') : document.body.setAttribute('data-theme', 'light');
-            addLog(`SYNC: THEME_${isLight ? 'DARK' : 'LIGHT'}`);
+            const b = document.body;
+            b.getAttribute('data-theme') === 'light' ? b.removeAttribute('data-theme') : b.setAttribute('data-theme', 'light');
         }
 
-        // CLOCK ENGINE
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('time').innerText = now.getUTCHours().toString().padStart(2, '0') + ":" + now.getUTCMinutes().toString().padStart(2, '0') + ":" + now.getUTCSeconds().toString().padStart(2, '0') + " UTC";
-        }, 1000);
+        // HOVER
+        document.querySelectorAll('.nav-btn, #theme-btn').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursor.style.width = '40px'; cursor.style.height = '40px';
+                cursor.style.borderRadius = '50%'; cursor.style.background = 'transparent';
+                cursor.style.border = '2px solid var(--accent)';
+            });
+            el.addEventListener('mouseleave', () => {
+                cursor.style.width = '12px'; cursor.style.height = '12px';
+                cursor.style.borderRadius = '0'; cursor.style.background = 'var(--accent)';
+                cursor.style.border = 'none';
+            });
+        });
     </script>
 </body>
 </html>
