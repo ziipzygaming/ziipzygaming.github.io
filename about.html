@@ -6,139 +6,193 @@
     <title>ZIIPZY // v87 ABOUT</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Outfit:wght@100;400;900&family=JetBrains+Mono&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@800&family=Inter:wght@300;600&family=JetBrains+Mono&display=swap');
 
         :root {
-            --bg: #020204; --accent: #00f2ff; --text: #ffffff;
-            --secondary: rgba(255, 255, 255, 0.4);
-            --surface: rgba(255, 255, 255, 0.02); --border: rgba(255, 255, 255, 0.08);
+            --bg: #050505;
+            --accent: #00ffaa;
+            --text: #ffffff;
+            --panel: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
         }
 
-        /* PC CURSOR KILLSWITCH */
-        @media (pointer: fine) {
-            * { margin: 0; padding: 0; box-sizing: border-box; cursor: none !important; }
-        }
-        @media (pointer: coarse) {
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none !important; }
+
         body {
-            background: var(--bg); color: var(--text);
-            font-family: 'Outfit', sans-serif; height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
             overflow: hidden;
+            transition: background 0.5s ease;
         }
 
-        /* --- EXIT & ENTRY LAYERS --- */
-        #loader { 
-            position: fixed; inset: 0; background: #000; z-index: 20000; 
+        /* --- BACKGROUND MESH --- */
+        #mesh {
+            position: fixed; inset: 0;
+            background-image: 
+                linear-gradient(var(--panel) 1px, transparent 1px),
+                linear-gradient(90deg, var(--panel) 1px, transparent 1px);
+            background-size: 50px 50px;
+            perspective: 1000px;
+            z-index: -1;
+            transition: transform 0.1s ease-out;
+        }
+
+        /* --- CURSOR --- */
+        #cursor {
+            position: fixed; width: 12px; height: 12px;
+            background: var(--accent);
+            z-index: 10000; pointer-events: none;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, border-radius 0.3s;
+        }
+
+        /* --- TRANSITION LAYERS --- */
+        #loader {
+            position: fixed; inset: 0; background: #000; z-index: 20000;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transition: opacity 0.5s ease; pointer-events: none;
+            transition: opacity 0.5s ease;
         }
-        #loader.active { pointer-events: all; opacity: 1; }
-        #loader.loaded { opacity: 0; }
-        
-        .scanner-line { width: 150px; height: 1px; background: var(--accent); box-shadow: 0 0 15px var(--accent); animation: scan 1.5s infinite ease-in-out; }
-        @keyframes scan { 0%, 100% { transform: scaleX(0.1); opacity: 0.2; } 50% { transform: scaleX(1); opacity: 1; } }
+        #loader.loaded { opacity: 0; pointer-events: none; }
 
-        #shutter { 
-            position: fixed; inset: 0; background: var(--accent); z-index: 25000; 
+        .prism-box {
+            width: 40px; height: 40px; border: 2px solid var(--accent);
+            animation: prism-spin 2s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        @keyframes prism-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        #shutter {
+            position: fixed; inset: 0; background: var(--bg); z-index: 25000;
             transform: scaleX(1); transform-origin: left;
-            transition: transform 0.8s cubic-bezier(0.85, 0, 0.15, 1); pointer-events: none; 
+            transition: transform 0.6s cubic-bezier(0.8, 0, 0.2, 1);
         }
         #shutter.reveal { transform: scaleX(0); transform-origin: right; }
 
-        /* --- CURSOR --- */
-        #cursor { 
-            position: fixed; width: 20px; height: 20px; border: 1px solid var(--accent); 
-            z-index: 100000; pointer-events: none; transform: translate(-50%, -50%); 
-            transition: width 0.3s, height 0.3s; 
-            display: none;
+        /* --- MAIN UI --- */
+        .container {
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+            padding: 40px;
         }
 
-        /* --- UI ELEMENTS --- */
-        #scroll-hint {
-            position: fixed; bottom: 130px; left: 50%; transform: translateX(-50%);
-            font-family: 'JetBrains Mono'; font-size: 9px; letter-spacing: 2px;
-            color: var(--accent); opacity: 0.5; animation: pulse 2s infinite; pointer-events: none;
+        .prism-card {
+            display: grid; grid-template-columns: 1fr 1.2fr;
+            width: 100%; max-width: 900px; height: 500px;
+            background: var(--panel); backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            position: relative; overflow: hidden;
+            opacity: 0; transform: translateY(30px); transition: 1s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        @keyframes pulse { 0%, 100% { opacity: 0.2; transform: translate(-50%, 0); } 50% { opacity: 0.8; transform: translate(-50%, -5px); } }
-        body.ui-active #scroll-hint { opacity: 0; }
 
-        #system-log { position: fixed; bottom: 35px; left: 35px; width: 220px; height: 85px; font-family: 'JetBrains Mono'; font-size: 8px; color: var(--accent); overflow: hidden; display: flex; flex-direction: column-reverse; opacity: 0; transform: translateY(20px); transition: 0.8s; z-index: 1000; }
-        .log-entry { margin-top: 4px; border-left: 2px solid var(--accent); padding-left: 8px; animation: log-in 0.3s ease; }
+        body.ready .prism-card { opacity: 1; transform: translateY(0); }
 
-        .content-layer { position: fixed; inset: 0; z-index: 100; display: flex; justify-content: center; align-items: center; pointer-events: none; perspective: 1000px; }
-        .btn-stack { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 12px; padding: 20px; pointer-events: auto; }
-        
-        .info-card { width: 100%; padding: 35px; background: var(--surface); border: 1px solid var(--border); backdrop-filter: blur(20px); opacity: 0; transform: scale(0.9) translateZ(-50px); transition: 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .action-btn { width: 100%; padding: 18px; text-decoration: none; text-align: center; font-family: 'JetBrains Mono'; font-size: 10px; opacity: 0; transform: translateY(20px); transition: 0.6s; background: transparent; border: 1px solid var(--border); }
-        
-        .btn-primary { border-color: var(--accent); color: var(--accent); }
-        .btn-secondary { color: var(--secondary); margin-top: 5px; }
+        .info-section {
+            padding: 60px; display: flex; flex-direction: column; justify-content: space-between;
+            border-right: 1px solid var(--border);
+        }
 
-        body.ui-active .info-card, body.ui-active .action-btn, body.ui-active #system-log { opacity: 1; transform: none; }
-        
-        /* v87 Ghost visibility increased */
-        .v87-ghost { font-family: 'Syncopate'; font-size: 8vw; opacity: 0.08; position: fixed; bottom: 35px; right: 35px; pointer-events: none; transition: 0.8s ease; }
-        body.ui-active .v87-ghost { opacity: 0.04; transform: scale(0.9); }
+        .brand-sub { font-family: 'Syne', sans-serif; font-size: 3.5rem; line-height: 0.9; text-transform: uppercase; }
+
+        .content-section {
+            padding: 60px; display: flex; flex-direction: column; justify-content: center;
+            gap: 30px; background: rgba(0,0,0,0.2);
+        }
+
+        .spec-text { font-size: 14px; line-height: 1.8; opacity: 0.6; font-weight: 300; }
+
+        .action-area { display: flex; flex-direction: column; gap: 10px; }
+
+        .nav-btn {
+            padding: 18px; text-decoration: none; color: var(--text);
+            font-family: 'JetBrains Mono'; font-size: 10px; text-align: center;
+            border: 1px solid var(--border); transition: 0.3s;
+        }
+
+        .nav-btn:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+        .btn-main { border-color: var(--accent); color: var(--accent); }
+
+        /* --- FOOTER ELEMENTS --- */
+        #system-log {
+            position: fixed; bottom: 40px; left: 40px;
+            font-family: 'JetBrains Mono'; font-size: 9px; text-transform: uppercase;
+        }
+        .log-entry { margin-top: 4px; border-left: 2px solid var(--accent); padding-left: 8px; }
+
+        .ghost-tag {
+            position: fixed; bottom: 40px; right: 40px;
+            font-family: 'Syne'; font-size: 5rem; opacity: 0.03; pointer-events: none;
+        }
+
+        @media (max-width: 800px) {
+            .prism-card { grid-template-columns: 1fr; height: auto; }
+            .info-section { padding: 40px; border-right: none; border-bottom: 1px solid var(--border); }
+            .content-section { padding: 40px; }
+            #cursor { display: none; }
+        }
     </style>
 </head>
-<body onwheel="handleScroll(event)" ontouchstart="handleTouchStart(event)" ontouchend="handleTouchEnd(event)">
+<body>
 
     <div id="loader">
-        <div class="scanner-line"></div>
-        <div id="pct" style="font-family:'JetBrains Mono'; font-size:10px; margin-top:20px;">0%</div>
+        <div class="prism-box"></div>
+        <p id="pct" style="margin-top: 20px; font-size: 10px; font-family: 'JetBrains Mono';">0%</p>
     </div>
 
     <div id="shutter"></div>
     <div id="cursor"></div>
-    <div id="scroll-hint">[ SCROLL / SWIPE TO ACCESS ]</div>
-    <div id="system-log"></div>
-    <div class="v87-ghost">v87</div>
+    <div id="mesh"></div>
 
-    <div class="content-layer">
-        <div class="btn-stack">
-            <div class="info-card">
-                <span style="font-family:'JetBrains Mono'; font-size:9px; color:var(--accent); letter-spacing: 2px;">// SYSTEM_SPEC</span>
-                <p style="font-size: 13px; line-height: 2; opacity: 0.6; margin-top: 15px;">v87 architecture provides the kinetic framework for ZIIPZY. Optimized for zero-latency session transitions.</p>
+    <div id="system-log"></div>
+    <div class="ghost-tag">v87</div>
+
+    <div class="container">
+        <div class="prism-card">
+            <div class="info-section">
+                <div>
+                    <p style="font-family: 'JetBrains Mono'; font-size: 10px; color: var(--accent);">// SYSTEM_ABOUT</p>
+                    <h1 class="brand-sub">CORE<br>SPECS</h1>
+                </div>
+                <p style="font-size: 11px; opacity: 0.5; font-family: 'JetBrains Mono';">ENCRYPTED_SESSION_87</p>
             </div>
-            <a href="index.html" class="action-btn btn-primary" onclick="exitTransition(event, this.href, 'TERMINATING_NODE')">[ DISCONNECT_SESSION ]</a>
-            <a href="old" class="action-btn btn-secondary" onclick="exitTransition(event, this.href, 'ROLLBACK_INIT')">[ ROLLBACK_PROTOCOL ]</a>
+            
+            <div class="content-section">
+                <p class="spec-text">
+                    v87 architecture provides the kinetic framework for ZIIPZY. 
+                    Optimized for high-fidelity interactive deployments and zero-latency session transitions.
+                </p>
+                <div class="action-area">
+                    <a href="index.html" class="nav-btn btn-main" onclick="exitTransition(event, this.href, 'TERMINATING_NODE')">[ DISCONNECT_SESSION ]</a>
+                    <a href="old" class="nav-btn" onclick="exitTransition(event, this.href, 'ROLLBACK_INIT')" style="opacity: 0.5;">[ ROLLBACK_PROTOCOL ]</a>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        const shutter = document.getElementById('shutter');
-        const loader = document.getElementById('loader');
-        const pctText = document.getElementById('pct');
-        const logBox = document.getElementById('system-log');
         const cursor = document.getElementById('cursor');
+        const mesh = document.getElementById('mesh');
+        const shutter = document.getElementById('shutter');
+        const logBox = document.getElementById('system-log');
 
-        // Only show cursor on Desktop
-        if (window.matchMedia("(pointer: fine)").matches) {
-            cursor.style.display = 'block';
-            document.addEventListener('mousemove', e => {
-                cursor.style.left = e.clientX + 'px';
-                cursor.style.top = e.clientY + 'px';
-            });
-        }
-
-        // TOUCH REVEAL LOGIC
-        let ts;
-        function handleTouchStart(e) { ts = e.touches[0].clientY; }
-        function handleTouchEnd(e) {
-            let te = e.changedTouches[0].clientY;
-            if (ts > te + 50) document.body.classList.add('ui-active');
-            else if (ts < te - 50) document.body.classList.remove('ui-active');
-        }
+        // PARALLAX MESH & CURSOR
+        document.addEventListener('mousemove', e => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            
+            const moveX = (e.clientX - window.innerWidth/2) / 50;
+            const moveY = (e.clientY - window.innerHeight/2) / 50;
+            mesh.style.transform = `translateX(${moveX}px) translateY(${moveY}px)`;
+        });
 
         function addLog(msg) {
             const entry = document.createElement('div');
             entry.className = 'log-entry';
             entry.innerText = `> ${msg}`;
             logBox.prepend(entry);
+            if(logBox.children.length > 5) logBox.lastChild.remove();
         }
 
+        // INITIALIZE BOOT
         window.onload = () => {
             setTimeout(() => { shutter.classList.add('reveal'); }, 100);
             let p = 0;
@@ -147,27 +201,37 @@
                 if (p >= 100) {
                     p = 100; clearInterval(loadInterval);
                     setTimeout(() => { 
-                        loader.classList.add('loaded'); 
+                        document.getElementById('loader').classList.add('loaded'); 
+                        document.body.classList.add('ready');
                         addLog('BOOT_v87_COMPLETE'); 
                     }, 400);
                 }
-                pctText.innerText = p + '%';
+                document.getElementById('pct').innerText = p + '%';
             }, 50);
         };
 
-        function handleScroll(e) {
-            if (e.deltaY > 0) document.body.classList.add('ui-active');
-            else if (e.deltaY < -15) document.body.classList.remove('ui-active');
-        }
-
+        // EXIT LOGIC
         function exitTransition(e, url, logMsg) {
             e.preventDefault();
             addLog(logMsg);
-            pctText.innerText = "0%";
-            loader.classList.add('active');
-            loader.classList.remove('loaded'); 
+            document.getElementById('loader').classList.remove('loaded');
+            document.getElementById('pct').innerText = "0%";
             setTimeout(() => { window.location.href = url; }, 750);
         }
+
+        // HOVER EFFECTS
+        document.querySelectorAll('.nav-btn').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursor.style.width = '40px'; cursor.style.height = '40px';
+                cursor.style.borderRadius = '50%'; cursor.style.background = 'transparent';
+                cursor.style.border = '2px solid var(--accent)';
+            });
+            el.addEventListener('mouseleave', () => {
+                cursor.style.width = '12px'; cursor.style.height = '12px';
+                cursor.style.borderRadius = '0'; cursor.style.background = 'var(--accent)';
+                cursor.style.border = 'none';
+            });
+        });
     </script>
 </body>
 </html>
