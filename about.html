@@ -2,235 +2,206 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZIIPZY // v87 ABOUT</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIRECTORY | ZIIPZY</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@800&family=Inter:wght@300;600&family=JetBrains+Mono&display=swap');
-
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         :root {
-            --bg: #050505;
-            --accent: #00ffaa;
-            --text: #ffffff;
-            --panel: rgba(255, 255, 255, 0.05);
-            --border: rgba(255, 255, 255, 0.1);
+            --accent-color: #000000;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none !important; }
+        html { scroll-behavior: smooth; background-color: #e5e5e5; }
+        body { font-family: 'Inter', sans-serif; background-color: #e5e5e5; color: #000000; overflow-x: hidden; }
 
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-            height: 100vh;
-            overflow: hidden;
-            transition: background 0.5s ease;
+        /* --- UI ELEMENTS --- */
+        #scroll-progress {
+            position: fixed; top: 0; left: 0; width: 0%; height: 4px;
+            background: var(--accent-color); z-index: 10002; transition: background 0.5s ease;
         }
 
-        /* --- BACKGROUND MESH --- */
-        #mesh {
-            position: fixed; inset: 0;
-            background-image: 
-                linear-gradient(var(--panel) 1px, transparent 1px),
-                linear-gradient(90deg, var(--panel) 1px, transparent 1px);
-            background-size: 50px 50px;
-            perspective: 1000px;
-            z-index: -1;
-            transition: transform 0.1s ease-out;
-        }
-
-        /* --- CURSOR --- */
-        #cursor {
-            position: fixed; width: 12px; height: 12px;
-            background: var(--accent);
-            z-index: 10000; pointer-events: none;
-            transform: translate(-50%, -50%);
-            transition: width 0.3s, height 0.3s, border-radius 0.3s;
-        }
-
-        /* --- TRANSITION LAYERS --- */
+        /* --- LOADING / EXIT SCREEN --- */
         #loader {
-            position: fixed; inset: 0; background: #000; z-index: 20000;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transition: opacity 0.5s ease;
-        }
-        #loader.loaded { opacity: 0; pointer-events: none; }
-
-        .prism-box {
-            width: 40px; height: 40px; border: 2px solid var(--accent);
-            animation: prism-spin 2s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55);
-        }
-        @keyframes prism-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        #shutter {
-            position: fixed; inset: 0; background: var(--bg); z-index: 25000;
-            transform: scaleX(1); transform-origin: left;
-            transition: transform 0.6s cubic-bezier(0.8, 0, 0.2, 1);
-        }
-        #shutter.reveal { transform: scaleX(0); transform-origin: right; }
-
-        /* --- MAIN UI --- */
-        .container {
-            height: 100vh; display: flex; align-items: center; justify-content: center;
-            padding: 40px;
+            position: fixed; inset: 0; background: #000; display: flex; justify-content: center; align-items: center;
+            z-index: 99999; transform-origin: top left; pointer-events: none;
         }
 
-        .prism-card {
-            display: grid; grid-template-columns: 1fr 1.2fr;
-            width: 100%; max-width: 900px; height: 500px;
-            background: var(--panel); backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            position: relative; overflow: hidden;
-            opacity: 0; transform: translateY(30px); transition: 1s cubic-bezier(0.16, 1, 0.3, 1);
+        /* Entry Animation */
+        .load-in { animation: reveal-crooked 1.2s cubic-bezier(0.87, 0, 0.13, 1) 1.5s forwards; }
+        
+        /* Exit Animation (The transition you'll see when clicking Return) */
+        .exit-out { 
+            animation: exit-crooked 1s cubic-bezier(0.87, 0, 0.13, 1) forwards !important; 
+            pointer-events: all !important;
+            visibility: visible !important;
         }
 
-        body.ready .prism-card { opacity: 1; transform: translateY(0); }
+        .loader-bar-container { width: 150px; height: 2px; background: rgba(255, 255, 255, 0.1); overflow: hidden; }
+        .loader-bar-fill { height: 100%; width: 0; background: #ffffff; }
+        .load-in .loader-bar-fill { animation: fill-bar 1.5s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
 
-        .info-section {
-            padding: 60px; display: flex; flex-direction: column; justify-content: space-between;
-            border-right: 1px solid var(--border);
+        @keyframes fill-bar { 0% { width: 0; } 100% { width: 100%; } }
+        
+        @keyframes reveal-crooked { 
+            0% { transform: translateY(0) rotate(0deg); } 
+            100% { transform: translateY(-110%) rotate(-5deg); visibility: hidden; } 
         }
 
-        .brand-sub { font-family: 'Syne', sans-serif; font-size: 3.5rem; line-height: 0.9; text-transform: uppercase; }
-
-        .content-section {
-            padding: 60px; display: flex; flex-direction: column; justify-content: center;
-            gap: 30px; background: rgba(0,0,0,0.2);
+        @keyframes exit-crooked {
+            0% { transform: translateY(110%) rotate(5deg); }
+            100% { transform: translateY(0) rotate(0deg); }
         }
 
-        .spec-text { font-size: 14px; line-height: 1.8; opacity: 0.6; font-weight: 300; }
-
-        .action-area { display: flex; flex-direction: column; gap: 10px; }
-
-        .nav-btn {
-            padding: 18px; text-decoration: none; color: var(--text);
-            font-family: 'JetBrains Mono'; font-size: 10px; text-align: center;
-            border: 1px solid var(--border); transition: 0.3s;
+        /* --- DIRECTORY STYLE --- */
+        .bg-watermark {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 20vw; font-weight: 900; color: rgba(0, 0, 0, 0.03); 
+            z-index: -1; text-transform: uppercase; white-space: nowrap; pointer-events: none;
         }
 
-        .nav-btn:hover { background: var(--accent); color: #000; border-color: var(--accent); }
-        .btn-main { border-color: var(--accent); color: var(--accent); }
+        section { min-height: 100vh; width: 100%; display: flex; flex-direction: column; padding: 120px 5% 100px 5%; }
 
-        /* --- FOOTER ELEMENTS --- */
-        #system-log {
-            position: fixed; bottom: 40px; left: 40px;
-            font-family: 'JetBrains Mono'; font-size: 9px; text-transform: uppercase;
-        }
-        .log-entry { margin-top: 4px; border-left: 2px solid var(--accent); padding-left: 8px; }
+        .dir-header { margin-bottom: 60px; }
+        .dir-header h1 { font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 900; text-transform: lowercase; }
 
-        .ghost-tag {
-            position: fixed; bottom: 40px; right: 40px;
-            font-family: 'Syne'; font-size: 5rem; opacity: 0.03; pointer-events: none;
+        .link-list { width: 100%; border-top: 1px solid rgba(0,0,0,0.1); }
+        
+        .link-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 30px 10px; border-bottom: 1px solid rgba(0,0,0,0.1);
+            text-decoration: none; color: inherit; transition: all 0.3s ease;
+            position: relative;
         }
 
-        @media (max-width: 800px) {
-            .prism-card { grid-template-columns: 1fr; height: auto; }
-            .info-section { padding: 40px; border-right: none; border-bottom: 1px solid var(--border); }
-            .content-section { padding: 40px; }
-            #cursor { display: none; }
+        .link-row:hover { padding-left: 20px; background: rgba(0,0,0,0.02); }
+
+        .link-info { display: flex; flex-direction: column; }
+        .link-name { font-size: 1.5rem; font-weight: 900; text-transform: lowercase; }
+        .link-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.2em; opacity: 0.5; margin-top: 4px; }
+
+        .copy-btn {
+            background: #000; color: #fff; border: none; padding: 8px 15px; 
+            font-size: 0.6rem; font-weight: 900; text-transform: uppercase; 
+            letter-spacing: 0.1em; cursor: pointer; opacity: 0; transition: 0.3s;
         }
+
+        .link-row:hover .copy-btn { opacity: 1; }
+
+        .back-link { 
+            margin-top: 60px; align-self: flex-start;
+            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.3em; 
+            text-decoration: none; color: #000; font-weight: 900; border-bottom: 2px solid #000;
+            padding-bottom: 5px; cursor: pointer;
+        }
+
+        /* Toast Notification */
+        #toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: #000; color: #fff; padding: 12px 25px; font-size: 0.7rem;
+            text-transform: uppercase; letter-spacing: 0.2em; font-weight: 900;
+            opacity: 0; visibility: hidden; transition: 0.4s; z-index: 10005;
+        }
+        #toast.show { opacity: 1; visibility: visible; bottom: 50px; }
+
+        @media (max-width: 768px) { .copy-btn { opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <div id="loader">
-        <div class="prism-box"></div>
-        <p id="pct" style="margin-top: 20px; font-size: 10px; font-family: 'JetBrains Mono';">0%</p>
+    <div id="scroll-progress"></div>
+    <div id="toast">Link Copied.</div>
+    
+    <div id="loader" class="load-in">
+        <div class="loader-bar-container"><div class="loader-bar-fill"></div></div>
     </div>
 
-    <div id="shutter"></div>
-    <div id="cursor"></div>
-    <div id="mesh"></div>
+    <div class="bg-watermark">CONNECT</div>
 
-    <div id="system-log"></div>
-    <div class="ghost-tag">v87</div>
+    <main>
+        <section>
+            <div class="dir-header">
+                <h1>directory.</h1>
+            </div>
 
-    <div class="container">
-        <div class="prism-card">
-            <div class="info-section">
-                <div>
-                    <p style="font-family: 'JetBrains Mono'; font-size: 10px; color: var(--accent);">// SYSTEM_ABOUT</p>
-                    <h1 class="brand-sub">CORE<br>SPECS</h1>
+            <div class="link-list">
+                <div class="link-row">
+                    <a href="https://www.tiktok.com/@ziipzy" class="link-info" target="_blank" style="text-decoration: none; color: inherit; flex-grow: 1;">
+                        <span class="link-name">tiktok</span>
+                        <span class="link-label">@ziipzy</span>
+                    </a>
+                    <button class="copy-btn" onclick="copyLink('https://www.tiktok.com/@ziipzy')">copy</button>
                 </div>
-                <p style="font-size: 11px; opacity: 0.5; font-family: 'JetBrains Mono';">ENCRYPTED_SESSION_87</p>
-            </div>
-            
-            <div class="content-section">
-                <p class="spec-text">
-                    v87 architecture provides the kinetic framework for ZIIPZY. 
-                    Optimized for high-fidelity interactive deployments and zero-latency session transitions.
-                </p>
-                <div class="action-area">
-                    <a href="index.html" class="nav-btn btn-main" onclick="exitTransition(event, this.href, 'TERMINATING_NODE')">[ DISCONNECT_SESSION ]</a>
-                    <a href="old" class="nav-btn" onclick="exitTransition(event, this.href, 'ROLLBACK_INIT')" style="opacity: 0.5;">[ ROLLBACK_PROTOCOL ]</a>
+
+                <div class="link-row">
+                    <a href="https://www.youtube.com/@ziipzygaming" class="link-info" target="_blank" style="text-decoration: none; color: inherit; flex-grow: 1;">
+                        <span class="link-name">youtube</span>
+                        <span class="link-label">ziipzy gaming</span>
+                    </a>
+                    <button class="copy-btn" onclick="copyLink('https://www.youtube.com/@ziipzygaming')">copy</button>
+                </div>
+
+                <div class="link-row">
+                    <a href="https://www.facebook.com/ziipzy" class="link-info" target="_blank" style="text-decoration: none; color: inherit; flex-grow: 1;">
+                        <span class="link-name">facebook</span>
+                        <span class="link-label">ziipzy official</span>
+                    </a>
+                    <button class="copy-btn" onclick="copyLink('https://www.facebook.com/ziipzy')">copy</button>
+                </div>
+
+                <div class="link-row">
+                    <a href="https://linktr.ee/ziipzygaming" class="link-info" target="_blank" style="text-decoration: none; color: inherit; flex-grow: 1;">
+                        <span class="link-name">linktree</span>
+                        <span class="link-label">gaming hub</span>
+                    </a>
+                    <button class="copy-btn" onclick="copyLink('https://linktr.ee/ziipzygaming')">copy</button>
+                </div>
+
+                <div class="link-row">
+                    <a href="https://docs.google.com/document/d/1Rc8XhseGJyoXKh5lqGMFQFIWeiuJ_GtDw-sDQeR39A8/" class="link-info" target="_blank" style="text-decoration: none; color: inherit; flex-grow: 1;">
+                        <span class="link-name">documentation</span>
+                        <span class="link-label">view document</span>
+                    </a>
+                    <button class="copy-btn" onclick="copyLink('https://docs.google.com/document/d/1Rc8XhseGJyoXKh5lqGMFQFIWeiuJ_GtDw-sDQeR39A8/')">copy</button>
                 </div>
             </div>
+
+            <a href="index.html" class="back-link" onclick="transitionToPage(event, this.href)">[ return ]</a>
+        </section>
+    </main>
+
+    <footer style="width: 100%; padding: 60px 5%; display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid rgba(0,0,0,0.05);">
+        <div style="font-weight: 400; font-size: 1.5rem; opacity: 0.6; text-transform: lowercase; line-height: 1.1; display: flex; flex-direction: column;">
+            <span>dont</span><span>stop</span><span>dreaming.</span>
         </div>
-    </div>
+        <div style="font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 900;">© 2026 ZIIPZY STUDIO</div>
+    </footer>
 
     <script>
-        const cursor = document.getElementById('cursor');
-        const mesh = document.getElementById('mesh');
-        const shutter = document.getElementById('shutter');
-        const logBox = document.getElementById('system-log');
-
-        // PARALLAX MESH & CURSOR
-        document.addEventListener('mousemove', e => {
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top = e.clientY + 'px';
-            
-            const moveX = (e.clientX - window.innerWidth/2) / 50;
-            const moveY = (e.clientY - window.innerHeight/2) / 50;
-            mesh.style.transform = `translateX(${moveX}px) translateY(${moveY}px)`;
-        });
-
-        function addLog(msg) {
-            const entry = document.createElement('div');
-            entry.className = 'log-entry';
-            entry.innerText = `> ${msg}`;
-            logBox.prepend(entry);
-            if(logBox.children.length > 5) logBox.lastChild.remove();
-        }
-
-        // INITIALIZE BOOT
-        window.onload = () => {
-            setTimeout(() => { shutter.classList.add('reveal'); }, 100);
-            let p = 0;
-            const loadInterval = setInterval(() => {
-                p += Math.floor(Math.random() * 15) + 5;
-                if (p >= 100) {
-                    p = 100; clearInterval(loadInterval);
-                    setTimeout(() => { 
-                        document.getElementById('loader').classList.add('loaded'); 
-                        document.body.classList.add('ready');
-                        addLog('BOOT_v87_COMPLETE'); 
-                    }, 400);
-                }
-                document.getElementById('pct').innerText = p + '%';
-            }, 50);
-        };
-
-        // EXIT LOGIC
-        function exitTransition(e, url, logMsg) {
+        function transitionToPage(e, href) {
             e.preventDefault();
-            addLog(logMsg);
-            document.getElementById('loader').classList.remove('loaded');
-            document.getElementById('pct').innerText = "0%";
-            setTimeout(() => { window.location.href = url; }, 750);
+            const loader = document.getElementById('loader');
+            // Remove entry state and trigger exit state
+            loader.classList.remove('load-in');
+            loader.classList.add('exit-out');
+            
+            setTimeout(() => { 
+                window.location.href = href; 
+            }, 1000);
         }
 
-        // HOVER EFFECTS
-        document.querySelectorAll('.nav-btn').forEach(el => {
-            el.addEventListener('mouseenter', () => {
-                cursor.style.width = '40px'; cursor.style.height = '40px';
-                cursor.style.borderRadius = '50%'; cursor.style.background = 'transparent';
-                cursor.style.border = '2px solid var(--accent)';
+        function copyLink(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                const toast = document.getElementById('toast');
+                toast.classList.add('show');
+                setTimeout(() => { toast.classList.remove('show'); }, 2000);
             });
-            el.addEventListener('mouseleave', () => {
-                cursor.style.width = '12px'; cursor.style.height = '12px';
-                cursor.style.borderRadius = '0'; cursor.style.background = 'var(--accent)';
-                cursor.style.border = 'none';
-            });
+        }
+
+        window.addEventListener('scroll', () => {
+            const top = window.pageYOffset || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - window.innerHeight;
+            document.getElementById('scroll-progress').style.width = (top / height) * 100 + "%";
         });
     </script>
 </body>
