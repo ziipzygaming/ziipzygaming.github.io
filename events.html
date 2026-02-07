@@ -9,7 +9,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; text-transform: lowercase; }
         :root { --bg: #e5e5e5; --card-bg: #ffffff; --accent: #000; }
 
-        .ziipzy-text, h1, .tab-btn, .exit-btn, .copyright, .reveal-box h1, .timer, .info, .tz-label, #utc-clock { text-transform: uppercase !important; }
+        .ziipzy-text, h1, .tab-btn, .exit-btn, .copyright, .reveal-box h1, .timer, .info, .tz-label, #utc-clock, .format-toggle-btn { text-transform: uppercase !important; }
 
         html, body { 
             background: var(--bg); 
@@ -72,12 +72,33 @@
         .exit-btn:hover { padding-left: 40px; background: #333; }
 
         /* --- CONTENT --- */
-        header { min-height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 100px 10%; }
+        header { min-height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 100px 10%; position: relative; }
         #local-clock { font-size: clamp(3.5rem, 15vw, 10rem); font-weight: 900; letter-spacing: -0.05em; line-height: 0.8; }
         .tz-label { font-size: 0.7rem; letter-spacing: 0.5em; opacity: 0.5; font-weight: 900; margin-bottom: 15px; }
         #utc-clock { font-family: monospace; font-size: 1.2rem; font-weight: 900; opacity: 0.3; margin-top: 20px; letter-spacing: 0.2em; }
 
-        .controls-container { background: #000; display: flex; justify-content: center; position: sticky; top: 0; z-index: 100; margin-bottom: 50px; }
+        /* NEW: FORMAT TOGGLE BUTTON STYLE */
+        .format-toggle-btn {
+            margin-top: 30px;
+            background: transparent;
+            border: 1px solid rgba(0,0,0,0.1);
+            padding: 8px 15px;
+            font-size: 0.6rem;
+            font-weight: 900;
+            letter-spacing: 0.2em;
+            cursor: pointer;
+            transition: 0.3s;
+            color: rgba(0,0,0,0.4);
+        }
+        .format-toggle-btn:hover { border-color: #000; color: #000; }
+
+        .controls-container { 
+            background: rgba(0,0,0,0.85); 
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex; justify-content: center; position: sticky; top: 0; z-index: 100; margin-bottom: 50px; 
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
         .tab-btn { background: none; border: none; color: #555; padding: 25px 25px; font-weight: 900; font-size: 0.7rem; letter-spacing: 0.2em; cursor: pointer; transition: 0.4s; }
         .tab-btn.active { color: #fff; box-shadow: inset 0 -4px 0 var(--accent); }
 
@@ -96,7 +117,15 @@
 
         .card h3 { font-weight: 900; font-size: 2rem; margin-bottom: 12px; line-height: 0.95; letter-spacing: -0.02em; }
         .card .info { font-size: 0.65rem; letter-spacing: 0.15em; opacity: 0.4; display: block; margin-bottom: 30px; font-weight: 900; }
-        .timer { font-family: monospace; font-size: 1.2rem; font-weight: 900; background: #000; color: #fff; padding: 18px; text-align: center; letter-spacing: 0.1em; }
+        
+        .timer { font-family: monospace; font-size: 1.2rem; font-weight: 900; background: #000; color: #fff; padding: 18px; text-align: center; letter-spacing: 0.1em; transition: background 0.3s ease; }
+        .timer.imminent { animation: pulse-red 2s infinite; }
+        @keyframes pulse-red {
+            0% { background: #000; }
+            50% { background: #ff0000; }
+            100% { background: #000; }
+        }
+
         .f-tag { position: absolute; top: 15px; right: 20px; font-weight: 900; font-size: 4rem; opacity: 0.04; pointer-events: none; }
 
         /* --- FOOTER --- */
@@ -158,6 +187,7 @@
                 <div class="tz-label">local / <span id="tz-name">...</span></div>
                 <div id="local-clock">00:00:00</div>
                 <div id="utc-clock">UTC 00:00:00</div>
+                <button class="format-toggle-btn" id="format-toggle" onclick="toggleTimeFormat()">format: 24h</button>
             </header>
 
             <div class="controls-container">
@@ -228,13 +258,23 @@
 
         const enduranceData = [{ name: "24 Hours of Le Mans", loc: "Le Mans", date: "Jun 13, 2026 16:00:00", color: "#002b5c", tag: "WEC" }];
 
-        // --- LERP SCROLL ENGINE ---
         let currentScroll = 0;
         let targetScroll = 0;
         const ease = 0.08; 
         const content = document.getElementById('smooth-content');
         const progress = document.getElementById('top-scroll-bar');
         const motto = document.getElementById('animated-motto');
+        const gridBg = document.querySelector('.grid-bg');
+
+        // PERSISTENT FORMAT LOGIC
+        let is24Hour = localStorage.getItem('timeFormat') !== '12h';
+
+        function toggleTimeFormat() {
+            is24Hour = !is24Hour;
+            localStorage.setItem('timeFormat', is24Hour ? '24h' : '12h');
+            document.getElementById('format-toggle').innerText = is24Hour ? 'format: 24h' : 'format: am/pm';
+            updateClocks();
+        }
 
         function lerp(start, end, t) { return start * (1 - t) + end * t; }
 
@@ -243,19 +283,14 @@
             targetScroll = window.scrollY;
             currentScroll = lerp(currentScroll, targetScroll, ease);
             content.style.transform = `translate3d(0, -${currentScroll}px, 0)`;
-            
+            if(gridBg) gridBg.style.transform = `translate3d(0, ${currentScroll * 0.2}px, 0)`;
             const maxScroll = document.body.scrollHeight - window.innerHeight;
-            if (maxScroll > 0) {
-                progress.style.width = (targetScroll / maxScroll) * 100 + "%";
-            }
-
+            if (maxScroll > 0) progress.style.width = (targetScroll / maxScroll) * 100 + "%";
             const mottoPos = motto.getBoundingClientRect().top;
             if (mottoPos < window.innerHeight - 50) motto.classList.add('visible');
-
             requestAnimationFrame(updateScroll);
         }
 
-        // --- UTILS ---
         function transitionTo(url) {
             document.getElementById('transition-curtain').classList.add('active');
             setTimeout(() => { window.location.href = url; }, 800);
@@ -281,14 +316,25 @@
 
         function updateClocks() {
             const now = new Date();
-            document.getElementById('local-clock').innerText = now.toLocaleTimeString('en-GB');
+            const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: !is24Hour };
+            document.getElementById('local-clock').innerText = now.toLocaleTimeString('en-GB', timeOptions);
             document.getElementById('tz-name').innerText = Intl.DateTimeFormat().resolvedOptions().timeZone;
             document.getElementById('utc-clock').innerText = `UTC ${now.getUTCHours().toString().padStart(2, '0')}:${now.getUTCMinutes().toString().padStart(2, '0')}:${now.getUTCSeconds().toString().padStart(2, '0')}`;
             
             const proc = (data, pref) => data.forEach((ev, i) => {
                 const diff = new Date(ev.date).getTime() - now.getTime();
                 const el = document.getElementById(`timer-${pref}-${i}`);
-                if (el) el.innerText = diff < 0 ? "FINISHED" : formatDiff(diff);
+                if (el) {
+                    if (diff < 0) {
+                        el.innerText = "FINISHED";
+                        el.classList.remove('imminent');
+                        el.style.opacity = "0.3";
+                    } else {
+                        el.innerText = formatDiff(diff);
+                        if (diff < 86400000) el.classList.add('imminent');
+                        else el.classList.remove('imminent');
+                    }
+                }
             });
             proc(globalEvents, 'global-grid');
             proc(f1Data, 'f1-grid');
@@ -307,13 +353,15 @@
             e.currentTarget.classList.add('active');
             document.documentElement.style.setProperty('--accent', color);
             window.scrollTo(0, 0);
-            currentScroll = 0;
+            currentScroll = 0; targetScroll = 0;
             document.querySelectorAll(`#${id} .card`).forEach((c, idx) => {
+                c.classList.remove('visible');
                 setTimeout(() => c.classList.add('visible'), idx * 50);
             });
         }
 
         window.addEventListener('load', () => {
+            document.getElementById('format-toggle').innerText = is24Hour ? 'format: 24h' : 'format: am/pm';
             renderGrid(globalEvents, 'global-grid', 'GLOB');
             renderGrid(f1Data, 'f1-grid', 'F1');
             renderGrid(enduranceData, 'endurance-grid', 'WEC');
