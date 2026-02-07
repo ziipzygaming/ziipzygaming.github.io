@@ -66,7 +66,6 @@
             margin-bottom: 80px;
         }
 
-        /* EASY STYLING FOR CARDS */
         .app-card {
             background: #fff;
             aspect-ratio: 1/1;
@@ -81,7 +80,6 @@
             position: relative;
         }
 
-        /* HOVER STATE - Redesign this easily */
         .app-card:not(.disabled):hover { 
             background: #000; 
             color: #fff; 
@@ -89,7 +87,6 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
 
-        /* DISABLED / COMING SOON STATE */
         .app-card.disabled {
             background: transparent;
             border: 1px dashed rgba(0,0,0,0.2);
@@ -166,6 +163,15 @@
                         </div>
                         <h2>vault<br>gen</h2>
                         <p>industrial strength cryptographic string generator.</p>
+                    </a>
+
+                    <a href="javascript:void(0)" onclick="transitionTo('draft.html')" class="app-card">
+                        <div class="card-meta">
+                            <span class="status-dot"></span>
+                            <p>utility / 04</p>
+                        </div>
+                        <h2>draft<br>pad</h2>
+                        <p>persistent markdown-ready scratchpad with auto-save.</p>
                     </a>
 
                     <div class="app-card disabled">
