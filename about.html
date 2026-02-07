@@ -82,14 +82,16 @@
             display: flex; justify-content: space-between; align-items: center;
             padding: 35px 10px; border-bottom: 1px solid rgba(0,0,0,0.1);
             text-decoration: none; color: inherit; transition: 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
         }
         .link-row:hover { padding-left: 30px; background: rgba(0,0,0,0.02); }
-        .link-name { font-size: 1.8rem; font-weight: 900; }
-        .link-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.2em; opacity: 0.5; margin-top: 6px; }
+        .link-name { font-size: 1.8rem; font-weight: 900; display: block; }
+        .link-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.2em; opacity: 0.5; margin-top: 6px; display: block; }
 
         .copy-btn {
             background: #000; color: #fff; border: none; padding: 10px 20px; 
             font-size: 0.6rem; font-weight: 900; letter-spacing: 0.1em; opacity: 0; transition: 0.3s; cursor: pointer;
+            flex-shrink: 0; z-index: 5;
         }
         .link-row:hover .copy-btn { opacity: 1; }
 
@@ -108,12 +110,11 @@
         }
         #toast.show { opacity: 1; visibility: visible; bottom: 50px; }
 
-        /* --- FOOTER (BLOCKS THE GRID) --- */
         footer { 
             padding: 80px 5% 0; 
             position: relative; 
             z-index: 10; 
-            background: var(--bg); /* Blocks grid from showing behind bottom elements */
+            background: var(--bg); 
             margin-top: 100px;
         }
         
@@ -126,7 +127,6 @@
         .footer-meta { display: flex; justify-content: flex-end; padding-bottom: 15px; }
         .copyright { font-size: 0.7rem; font-weight: 900; opacity: 0.4; text-align: right; }
 
-        /* --- REVEAL BOX (BLACK BACKGROUND) --- */
         .reveal-box { 
             background: #000; 
             height: 130px; 
@@ -157,7 +157,11 @@
         
         @keyframes jitter { 0% { transform: translate(0,0); } 50% { transform: translate(-1%, -1%); } }
 
-        @media (max-width: 768px) { .reveal-box { height: 80px; width: 120%; margin-left: -10%; } .reveal-box h1 { font-size: 15vw; } }
+        @media (max-width: 768px) { 
+            .reveal-box { height: 80px; width: 120%; margin-left: -10%; } 
+            .reveal-box h1 { font-size: 15vw; } 
+            .copy-btn { opacity: 1; padding: 8px 15px; } /* Visible on mobile since no hover */
+        }
     </style>
 </head>
 <body>
@@ -181,35 +185,35 @@
                                 <span class="link-name">tiktok</span>
                                 <span class="link-label">@ziipzy</span>
                             </a>
-                            <button class="copy-btn" onclick="copyLink('https://www.tiktok.com/@ziipzy')">copy</button>
+                            <button class="copy-btn" onclick="copyLink(event, 'https://www.tiktok.com/@ziipzy')">copy</button>
                         </div>
                         <div class="link-row">
                             <a href="https://www.youtube.com/@ziipzygaming" class="link-info" target="_blank" style="text-decoration: none; color: inherit; flex-grow: 1;">
                                 <span class="link-name">youtube</span>
                                 <span class="link-label">ziipzy gaming</span>
                             </a>
-                            <button class="copy-btn" onclick="copyLink('https://www.youtube.com/@ziipzygaming')">copy</button>
+                            <button class="copy-btn" onclick="copyLink(event, 'https://www.youtube.com/@ziipzygaming')">copy</button>
                         </div>
                         <div class="link-row">
                             <a href="https://www.facebook.com/ziipzy" class="link-info" target="_blank" style="text-decoration: none; color: inherit; flex-grow: 1;">
                                 <span class="link-name">facebook</span>
                                 <span class="link-label">ziipzy official</span>
                             </a>
-                            <button class="copy-btn" onclick="copyLink('https://www.facebook.com/ziipzy')">copy</button>
+                            <button class="copy-btn" onclick="copyLink(event, 'https://www.facebook.com/ziipzy')">copy</button>
                         </div>
                         <div class="link-row">
                             <a href="https://linktr.ee/ziipzygaming" class="link-info" target="_blank" style="text-decoration: none; color: inherit; flex-grow: 1;">
                                 <span class="link-name">linktree</span>
                                 <span class="link-label">gaming hub</span>
                             </a>
-                            <button class="copy-btn" onclick="copyLink('https://linktr.ee/ziipzygaming')">copy</button>
+                            <button class="copy-btn" onclick="copyLink(event, 'https://linktr.ee/ziipzygaming')">copy</button>
                         </div>
                         <div class="link-row">
                             <a href="https://docs.google.com/document/d/1Rc8XhseGJyoXKh5lqGMFQFIWeiuJ_GtDw-sDQeR39A8/" class="link-info" target="_blank" style="text-decoration: none; color: inherit; flex-grow: 1;">
                                 <span class="link-name">documentation</span>
                                 <span class="link-label">view document</span>
                             </a>
-                            <button class="copy-btn" onclick="copyLink('https://docs.google.com/document/d/1Rc8XhseGJyoXKh5lqGMFQFIWeiuJ_GtDw-sDQeR39A8/')">copy</button>
+                            <button class="copy-btn" onclick="copyLink(event, 'https://docs.google.com/document/d/1Rc8XhseGJyoXKh5lqGMFQFIWeiuJ_GtDw-sDQeR39A8/')">copy</button>
                         </div>
                     </div>
                     <span class="back-link" onclick="transitionTo('index.html')">[ return ]</span>
@@ -269,11 +273,29 @@
 
         window.addEventListener('load', () => { updateScroll(); });
 
-        function copyLink(url) {
+        // Implementation of Copy Functionality
+        function copyLink(event, url) {
+            event.preventDefault(); // Prevents link opening
+            event.stopPropagation(); // Prevents event bubbling to the row
+
+            const btn = event.currentTarget;
+            const originalText = btn.innerText;
+
             navigator.clipboard.writeText(url).then(() => {
                 const toast = document.getElementById('toast');
                 toast.classList.add('show');
-                setTimeout(() => { toast.classList.remove('show'); }, 2000);
+                
+                // Temporary button feedback
+                btn.innerText = "COPIED";
+                btn.style.background = "#fff";
+                btn.style.color = "#000";
+
+                setTimeout(() => { 
+                    toast.classList.remove('show'); 
+                    btn.innerText = originalText;
+                    btn.style.background = ""; // Revert to CSS
+                    btn.style.color = "";
+                }, 2000);
             });
         }
 
