@@ -101,7 +101,7 @@
 
         /* --- FOOTER --- */
         footer { 
-            padding: 80px 5% 0; position: relative; z-index: 10; background: var(--bg); margin-top: 150px;
+            padding: 80px 5% 0; position: relative; z-index: 10; background: var(--bg); margin-top: 100px;
         }
         .motto { font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 0.9; margin-bottom: 25px; }
         .motto span { display: block; transform: translateY(30px); opacity: 0; transition: 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -109,17 +109,27 @@
         .motto b { font-weight: 900; padding-left: 5%; display: block; }
         .motto i { font-style: normal; opacity: 0.2; padding-left: 10%; display: block; }
 
-        .footer-meta { display: flex; justify-content: flex-end; padding-bottom: 20px; }
+        .footer-meta { display: flex; justify-content: flex-end; padding-bottom: 15px; }
         .copyright { font-size: 0.7rem; font-weight: 900; opacity: 0.4; text-align: right; }
 
         .reveal-box { 
-            background: #000; height: 140px; width: 111%; margin-left: -5.5%; 
-            display: flex; align-items: center; justify-content: center; 
-            position: relative; overflow: hidden; 
+            background: #000; 
+            height: 130px; 
+            width: 111%; 
+            margin-left: -5.5%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            position: relative; 
+            overflow: hidden; 
         }
         .reveal-box h1 { 
-            font-size: 11vw; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.1); 
-            transition: 0.7s cubic-bezier(0.23, 1, 0.32, 1); z-index: 2; pointer-events: none; 
+            font-size: 11vw; 
+            color: transparent; 
+            -webkit-text-stroke: 1px rgba(255,255,255,0.1); 
+            transition: 0.7s; 
+            z-index: 2; 
+            pointer-events: none;  
         }
         .reveal-box:hover h1 { color: #fff; -webkit-text-stroke: 1px #fff; }
         
