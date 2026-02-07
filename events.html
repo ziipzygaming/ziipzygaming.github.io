@@ -3,267 +3,313 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZIIPZY EVENTS</title>
+    <title>ziipzy — events</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        :root { --bg: #e5e5e5; --card-bg: #ffffff; --f1-red: #e10600; --accent: #000; }
-        html { scroll-behavior: smooth; }
-        
-        body { 
+        * { box-sizing: border-box; margin: 0; padding: 0; text-transform: lowercase; }
+        :root { --bg: #e5e5e5; --card-bg: #ffffff; --accent: #000; }
+
+        .ziipzy-text, h1, .tab-btn, .exit-btn, .copyright, .reveal-box h1, .timer, .info, .tz-label, #utc-clock { text-transform: uppercase !important; }
+
+        html, body { 
+            background: var(--bg); 
             font-family: 'Inter', sans-serif; 
-            background-color: var(--bg); 
-            color: #000; 
-            overflow-x: hidden; 
-            opacity: 0; 
-            transition: opacity 0.5s ease;
+            color: #000;
+            overflow-x: hidden;
+            scrollbar-width: none; 
+        }
+        body::-webkit-scrollbar { display: none; }
+
+        /* --- TRANSITION CURTAIN --- */
+        #transition-curtain {
+            position: fixed; inset: 0; background: #000; z-index: 9999999;
+            transform: translateY(100%); transition: transform 0.8s cubic-bezier(0.87, 0, 0.13, 1);
+            pointer-events: none;
+        }
+        #transition-curtain.active { transform: translateY(0); }
+
+        /* --- SMOOTH SCROLL ENGINE --- */
+        #smooth-wrapper {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            overflow: hidden; 
+        }
+        #smooth-content {
+            width: 100%;
+            will-change: transform;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* --- CROOKED ANIMATIONS --- */
-        #shutter {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 120vh;
-            background: #000; z-index: 99999; pointer-events: none;
-            transform: translateY(-110%) skewY(-5deg);
-            transition: transform 0.8s cubic-bezier(0.83, 0, 0.17, 1);
+        /* --- UI ELEMENTS --- */
+        #top-scroll-bar { 
+            position: fixed; top: 0; left: 0; width: 0%; height: 4px; 
+            background: var(--accent); z-index: 1000000; transition: background 0.5s ease;
         }
-        #shutter.active { transform: translateY(0) skewY(0deg); }
-
-        @keyframes pageIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        body.loaded { opacity: 1; animation: pageIn 0.8s forwards; }
-
-        /* --- CLOCK HEADER --- */
-        header { 
-            min-height: 45vh; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; text-align: center; padding: 40px 5%; 
-        }
-        #local-clock { font-size: clamp(3.5rem, 15vw, 12rem); font-weight: 900; letter-spacing: -0.05em; line-height: 0.8; }
-        .tz-label { font-size: 0.7rem; letter-spacing: 0.5em; text-transform: uppercase; opacity: 0.5; font-weight: 900; margin-bottom: 10px; }
-        #utc-small { font-family: monospace; font-size: 1.2rem; font-weight: 900; opacity: 0.4; margin-top: 15px; }
-
-        /* --- CONTROLS & TABS --- */
-        .controls-container { 
-            background: #000; position: sticky; top: 0; z-index: 1000; 
-            display: flex; justify-content: space-between; align-items: center; padding: 0 8%; 
-        }
-        .tabs { display: flex; }
-        .tab-btn { 
-            background: none; border: none; color: #666; padding: 25px 20px; 
-            font-weight: 900; font-size: 0.7rem; letter-spacing: 0.2em; 
-            text-transform: uppercase; cursor: pointer; transition: 0.3s;
-        }
-        .tab-btn.active { color: #fff; border-bottom: 4px solid #fff; }
         
-        .formula-selector {
-            background: #222; color: #fff; border: 1px solid #444; padding: 8px 15px;
-            font-weight: 900; font-size: 0.7rem; text-transform: uppercase; outline: none; cursor: pointer;
+        #loader {
+            position: fixed; inset: 0; background: #000; z-index: 3000000;
+            display: flex; justify-content: center; align-items: center;
+            animation: reveal-crooked 1.2s cubic-bezier(0.87, 0, 0.13, 1) 2s forwards;
+            pointer-events: none;
         }
+        .bar { width: 150px; height: 2px; background: rgba(255,255,255,0.1); overflow: hidden; }
+        .fill { height: 100%; width: 0; background: #fff; animation: fill 2s forwards; }
+        @keyframes fill { to { width: 100%; } }
+        @keyframes reveal-crooked { to { transform: translateY(-110%) rotate(-5deg); visibility: hidden; } }
+
+        .grid-bg {
+            position: absolute; inset: 0;
+            background-image: linear-gradient(to right, rgba(0,0,0,0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.07) 1px, transparent 1px);
+            background-size: 50px 50px; z-index: -1;
+        }
+
+        .exit-btn { 
+            position: fixed; top: 30px; left: 30px; z-index: 1000;
+            background: #000; color: #fff; padding: 12px 20px; 
+            font-size: 0.6rem; font-weight: 900; letter-spacing: 0.2em; text-decoration: none;
+            transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1); cursor: pointer; border: none;
+        }
+        .exit-btn:hover { padding-left: 40px; background: #333; }
 
         /* --- CONTENT --- */
-        .tab-content { display: none; padding: 60px 8% 120px 8%; min-height: 60vh; }
-        .tab-content.active { display: block; animation: fadeIn 0.5s ease forwards; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        header { min-height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 100px 10%; }
+        #local-clock { font-size: clamp(3.5rem, 15vw, 10rem); font-weight: 900; letter-spacing: -0.05em; line-height: 0.8; }
+        .tz-label { font-size: 0.7rem; letter-spacing: 0.5em; opacity: 0.5; font-weight: 900; margin-bottom: 15px; }
+        #utc-clock { font-family: monospace; font-size: 1.2rem; font-weight: 900; opacity: 0.3; margin-top: 20px; letter-spacing: 0.2em; }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
+        .controls-container { background: #000; display: flex; justify-content: center; position: sticky; top: 0; z-index: 100; margin-bottom: 50px; }
+        .tab-btn { background: none; border: none; color: #555; padding: 25px 25px; font-weight: 900; font-size: 0.7rem; letter-spacing: 0.2em; cursor: pointer; transition: 0.4s; }
+        .tab-btn.active { color: #fff; box-shadow: inset 0 -4px 0 var(--accent); }
+
+        .tab-content { display: none; padding: 0 10% 100px; min-height: 60vh; }
+        .tab-content.active { display: block; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 40px; }
         
-        /* --- CARDS --- */
         .card { 
-            background: var(--card-bg); padding: 35px; border-left: 10px solid #000; 
-            box-shadow: 15px 15px 0px rgba(0,0,0,0.05); position: relative; transition: 0.4s; 
+            background: var(--card-bg); padding: 45px; border-left: 12px solid #000; 
+            box-shadow: 15px 15px 0px rgba(0,0,0,0.02); position: relative;
+            opacity: 0; transform: translateY(40px);
+            transition: transform 0.8s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.8s ease, box-shadow 0.4s ease;
         }
-        .card h3 { font-weight: 900; text-transform: lowercase; font-size: 1.5rem; margin-bottom: 5px; }
-        .card .info { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6; display: block; margin-bottom: 20px; }
-        .timer { font-family: monospace; font-size: 1.1rem; font-weight: 900; background: #000; color: #fff; padding: 12px; text-align: center; }
+        .card.visible { opacity: 1; transform: translateY(0); }
+        .card:hover { transform: scale(1.02) translateY(-5px); box-shadow: 25px 25px 0px rgba(0,0,0,0.04); }
 
-        .card.finished { opacity: 0.25; filter: grayscale(1); transform: scale(0.98); border-left-color: #777 !important; }
-        .card.finished .timer { background: #555; }
-        .f-tag { position: absolute; top: 10px; right: 20px; font-weight: 900; font-size: 3rem; opacity: 0.05; pointer-events: none; }
-
-        /* --- NAVIGATION --- */
-        .exit-btn { 
-            position: fixed; top: 20px; left: 20px; z-index: 10000; 
-            background: #000; color: #fff; padding: 12px 20px; text-decoration: none; 
-            font-weight: 900; font-size: 0.65rem; letter-spacing: 0.1em; 
-        }
+        .card h3 { font-weight: 900; font-size: 2rem; margin-bottom: 12px; line-height: 0.95; letter-spacing: -0.02em; }
+        .card .info { font-size: 0.65rem; letter-spacing: 0.15em; opacity: 0.4; display: block; margin-bottom: 30px; font-weight: 900; }
+        .timer { font-family: monospace; font-size: 1.2rem; font-weight: 900; background: #000; color: #fff; padding: 18px; text-align: center; letter-spacing: 0.1em; }
+        .f-tag { position: absolute; top: 15px; right: 20px; font-weight: 900; font-size: 4rem; opacity: 0.04; pointer-events: none; }
 
         /* --- FOOTER --- */
         footer { 
-            padding: 100px 8% 60px 8%; display: flex; justify-content: space-between; 
-            align-items: flex-end; border-top: 1px solid rgba(0,0,0,0.05); 
+            padding: 80px 5% 0; position: relative; z-index: 10; background: var(--bg); margin-top: 150px;
         }
-        .footer-logo { font-weight: 400; font-size: 2rem; opacity: 0.6; text-transform: lowercase; line-height: 1; display: flex; flex-direction: column; }
-        .footer-cr { font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 900; }
+        .motto { font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 0.9; margin-bottom: 25px; }
+        .motto span { display: block; transform: translateY(30px); opacity: 0; transition: 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
+        .motto.visible span { transform: translateY(0); opacity: 1; }
+        .motto b { font-weight: 900; padding-left: 5%; display: block; }
+        .motto i { font-style: normal; opacity: 0.2; padding-left: 10%; display: block; }
+
+        .footer-meta { display: flex; justify-content: flex-end; padding-bottom: 20px; }
+        .copyright { font-size: 0.7rem; font-weight: 900; opacity: 0.4; text-align: right; }
+
+        .reveal-box { 
+            background: #000; height: 140px; width: 111%; margin-left: -5.5%; 
+            display: flex; align-items: center; justify-content: center; 
+            position: relative; overflow: hidden; 
+        }
+        .reveal-box h1 { 
+            font-size: 11vw; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.1); 
+            transition: 0.7s cubic-bezier(0.23, 1, 0.32, 1); z-index: 2; pointer-events: none; 
+        }
+        .reveal-box:hover h1 { color: #fff; -webkit-text-stroke: 1px #fff; }
+        
+        .grain { 
+            position: absolute; inset: -50%; width: 200%; height: 200%; opacity: 0; pointer-events: none; z-index: 3; 
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); 
+        }
+        .reveal-box:hover .grain { opacity: 0.15; animation: jitter 0.15s steps(2) infinite; }
+        @keyframes jitter { 0% { transform: translate(0,0); } 50% { transform: translate(-1%, -1%); } }
+
+        @media (max-width: 768px) { .reveal-box { height: 90px; } .reveal-box h1 { font-size: 16vw; } }
     </style>
 </head>
-<body class="loaded">
+<body>
 
-    <div id="shutter"></div>
-    <a href="index.html" class="exit-btn" onclick="transitionOut(event, 'index.html')">← EXIT</a>
+    <div id="top-scroll-bar"></div>
+    <div id="transition-curtain"></div>
+    <div id="loader"><div class="bar"><div class="fill"></div></div></div>
 
-    <header>
-        <div class="tz-label">local / <span id="tz-name">...</span></div>
-        <div id="local-clock">00:00:00</div>
-        <div id="utc-small">UTC 00:00:00</div>
-    </header>
+    <div id="smooth-wrapper">
+        <div id="smooth-content">
+            <div class="grid-bg"></div>
+            <button onclick="transitionTo('index.html')" class="exit-btn">← return</button>
 
-    <div class="controls-container">
-        <div class="tabs">
-            <button class="tab-btn active" onclick="openTab(event, 'global-tab')">Global Events</button>
-            <button class="tab-btn" onclick="openTab(event, 'formula-tab')">Formula Series</button>
+            <header>
+                <div class="tz-label">local / <span id="tz-name">...</span></div>
+                <div id="local-clock">00:00:00</div>
+                <div id="utc-clock">UTC 00:00:00</div>
+            </header>
+
+            <div class="controls-container">
+                <button class="tab-btn active" onclick="openTab(event, 'global-tab', '#0081C8')">Global</button>
+                <button class="tab-btn" onclick="openTab(event, 'f1-tab', '#EE1C25')">Formula 1</button>
+                <button class="tab-btn" onclick="openTab(event, 'endurance-tab', '#002b5c')">Endurance</button>
+            </div>
+
+            <main>
+                <div id="global-tab" class="tab-content active"><div class="grid" id="global-grid"></div></div>
+                <div id="f1-tab" class="tab-content"><div class="grid" id="f1-grid"></div></div>
+                <div id="endurance-tab" class="tab-content"><div class="grid" id="endurance-grid"></div></div>
+            </main>
+
+            <footer>
+                <div class="motto" id="animated-motto">
+                    <span style="transition-delay: 0.1s;">dont</span> 
+                    <span style="transition-delay: 0.2s;"><b>stop</b></span> 
+                    <span style="transition-delay: 0.3s;"><i>dreaming.</i></span>
+                </div>
+                <div class="footer-meta">
+                    <div class="copyright">© 2026 <span class="ziipzy-text">ziipzy</span> — studio</div>
+                </div>
+                <div class="reveal-box">
+                    <div class="grain"></div>
+                    <h1>ziipzy</h1>
+                </div>
+            </footer>
         </div>
-        <div id="formula-filter-wrap" style="display:none; padding-right: 20px;">
-            <select class="formula-selector" id="series-select" onchange="renderFormula()">
-                <option value="F1">Formula 1</option>
-                <option value="F2">Formula 2</option>
-                <option value="F3">Formula 3</option>
-            </select>
-        </div>
     </div>
-
-    <div id="global-tab" class="tab-content active">
-        <div class="grid" id="global-grid"></div>
-    </div>
-
-    <div id="formula-tab" class="tab-content">
-        <div class="grid" id="formula-grid"></div>
-    </div>
-
-    <footer>
-        <div class="footer-logo"><span>dont</span><span>stop</span><span>dreaming.</span></div>
-        <div class="footer-cr">© 2026 ZIIPZY STUDIO</div>
-    </footer>
 
     <script>
-        // --- DATA ---
-        const globalData = [
-            { name: "Winter Olympics Opening", loc: "Milano Cortina", date: "Feb 06, 2026 00:00:00", color: "#0081C8" },
-            { name: "Lunar New Year", loc: "Global", date: "Feb 17, 2026 00:00:00", color: "#FFD700" },
-            { name: "FIFA World Cup Opener", loc: "Mexico City", date: "Jun 11, 2026 00:00:00", color: "#138808" },
-            { name: "Total Solar Eclipse", loc: "Iceland/Spain", date: "Aug 12, 2026 18:00:00", color: "#555" },
-            { name: "Rizal Day", loc: "Philippines", date: "Dec 30, 2026 00:00:00", color: "#004d33" },
-            { name: "Artemis III Target", loc: "Moon", date: "Dec 31, 2026 23:59:59", color: "#000" }
+        const globalEvents = [
+            { name: "Winter Olympics", loc: "Milano Cortina", date: "Feb 06, 2026 00:00:00", color: "#0081C8" },
+            { name: "Super Bowl LX", loc: "San Francisco", date: "Feb 08, 2026 18:30:00", color: "#633971" },
+            { name: "World Expo 2026", loc: "Osaka", date: "Apr 13, 2026 09:00:00", color: "#E60012" },
+            { name: "FIFA World Cup", loc: "North America", date: "Jun 11, 2026 12:00:00", color: "#009688" },
+            { name: "Total Solar Eclipse", loc: "Europe", date: "Aug 12, 2026 18:00:00", color: "#444444" },
+            { name: "Artemis III", loc: "Moon", date: "Dec 15, 2026 00:00:00", color: "#000000" }
         ];
 
-        const formulaData = {
-            F1: [
-                { n: "01", name: "Australian GP", loc: "Melbourne", date: "Mar 08, 2026 15:00:00" },
-                { n: "02", name: "Chinese GP", loc: "Shanghai", date: "Mar 15, 2026 15:00:00" },
-                { n: "03", name: "Japanese GP", loc: "Suzuka", date: "Mar 29, 2026 14:00:00" },
-                { n: "04", name: "Bahrain GP", loc: "Sakhir", date: "Apr 12, 2026 18:00:00" },
-                { n: "05", name: "Saudi Arabian GP", loc: "Jeddah", date: "Apr 19, 2026 20:00:00" },
-                { n: "06", name: "Miami GP", loc: "Miami", date: "May 03, 2026 16:00:00" },
-                { n: "07", name: "Emilia Romagna GP", loc: "Imola", date: "May 17, 2026 15:00:00" },
-                { n: "08", name: "Monaco GP", loc: "Monte Carlo", date: "May 24, 2026 15:00:00" },
-                { n: "09", name: "Spanish GP", loc: "Barcelona", date: "Jun 07, 2026 15:00:00" },
-                { n: "10", name: "Canadian GP", loc: "Montreal", date: "Jun 21, 2026 14:00:00" },
-                { n: "11", name: "Austrian GP", loc: "Spielberg", date: "Jul 05, 2026 15:00:00" },
-                { n: "12", name: "British GP", loc: "Silverstone", date: "Jul 12, 2026 15:00:00" },
-                { n: "13", name: "Belgian GP", loc: "Spa", date: "Jul 26, 2026 15:00:00" },
-                { n: "14", name: "Hungarian GP", loc: "Budapest", date: "Aug 02, 2026 15:00:00" },
-                { n: "15", name: "Dutch GP", loc: "Zandvoort", date: "Aug 30, 2026 15:00:00" },
-                { n: "16", name: "Italian GP", loc: "Monza", date: "Sep 06, 2026 15:00:00" },
-                { n: "17", name: "Madrid GP", loc: "Madrid", date: "Sep 20, 2026 15:00:00" },
-                { n: "18", name: "Singapore GP", loc: "Marina Bay", date: "Oct 04, 2026 20:00:00" },
-                { n: "19", name: "United States GP", loc: "Austin", date: "Oct 18, 2026 14:00:00" },
-                { n: "20", name: "Mexico City GP", loc: "Mexico City", date: "Oct 25, 2026 14:00:00" },
-                { n: "21", name: "Sao Paulo GP", loc: "Interlagos", date: "Nov 08, 2026 14:00:00" },
-                { n: "22", name: "Las Vegas GP", loc: "Las Vegas", date: "Nov 21, 2026 22:00:00" },
-                { n: "23", name: "Qatar GP", loc: "Lusail", date: "Nov 29, 2026 19:00:00" },
-                { n: "24", name: "Abu Dhabi GP", loc: "Yas Marina", date: "Dec 06, 2026 17:00:00" }
-            ],
-            F2: [
-                { n: "01", name: "Sakhir Round", loc: "Bahrain", date: "Apr 11, 2026 12:00:00" },
-                { n: "02", name: "Jeddah Round", loc: "Saudi Arabia", date: "Apr 18, 2026 13:00:00" },
-                { n: "03", name: "Imola Round", loc: "Italy", date: "May 16, 2026 14:00:00" },
-                { n: "04", name: "Monte Carlo Round", loc: "Monaco", date: "May 23, 2026 14:00:00" }
-            ],
-            F3: [
-                { n: "01", name: "Sakhir Opener", loc: "Bahrain", date: "Apr 11, 2026 09:00:00" },
-                { n: "02", name: "Melbourne Support", loc: "Australia", date: "Mar 08, 2026 08:00:00" },
-                { n: "03", name: "Imola Support", loc: "Italy", date: "May 16, 2026 10:00:00" }
-            ]
-        };
+        const f1Data = [
+            { n: "01", name: "Australian GP", loc: "Melbourne", date: "Mar 15, 2026 15:00:00", color: "#00008B" },
+            { n: "02", name: "Chinese GP", loc: "Shanghai", date: "Mar 22, 2026 15:00:00", color: "#EE1C25" },
+            { n: "03", name: "Japanese GP", loc: "Suzuka", date: "Apr 05, 2026 14:00:00", color: "#BC002D" },
+            { n: "04", name: "Bahrain GP", loc: "Sakhir", date: "Apr 19, 2026 18:00:00", color: "#CE1126" },
+            { n: "05", name: "Saudi Arabian GP", loc: "Jeddah", date: "Apr 26, 2026 20:00:00", color: "#006C35" },
+            { n: "06", name: "Miami GP", loc: "Miami", date: "May 10, 2026 16:00:00", color: "#00BFFF" },
+            { n: "07", name: "Emilia Romagna GP", loc: "Imola", date: "May 24, 2026 15:00:00", color: "#009246" },
+            { n: "08", name: "Monaco GP", loc: "Monte Carlo", date: "May 31, 2026 15:00:00", color: "#FF0000" },
+            { n: "09", name: "Spanish GP", loc: "Barcelona", date: "Jun 14, 2026 15:00:00", color: "#F1BF00" },
+            { n: "10", name: "Canadian GP", loc: "Montreal", date: "Jun 28, 2026 14:00:00", color: "#D80621" },
+            { n: "11", name: "Austrian GP", loc: "Spielberg", date: "Jul 12, 2026 15:00:00", color: "#EF3340" },
+            { n: "12", name: "British GP", loc: "Silverstone", date: "Jul 19, 2026 15:00:00", color: "#00247D" },
+            { n: "13", name: "Belgian GP", loc: "Spa", date: "Aug 02, 2026 15:00:00", color: "#2D2926" },
+            { n: "14", name: "Hungarian GP", loc: "Budapest", date: "Aug 09, 2026 15:00:00", color: "#436F4D" },
+            { n: "15", name: "Dutch GP", loc: "Zandvoort", date: "Aug 30, 2026 15:00:00", color: "#21468B" },
+            { n: "16", name: "Italian GP", loc: "Monza", date: "Sep 06, 2026 15:00:00", color: "#009246" },
+            { n: "17", name: "Azerbaijan GP", loc: "Baku", date: "Sep 20, 2026 15:00:00", color: "#3F9C35" },
+            { n: "18", name: "Singapore GP", loc: "Marina Bay", date: "Oct 04, 2026 20:00:00", color: "#EE1C25" },
+            { n: "19", name: "United States GP", loc: "Austin", date: "Oct 25, 2026 14:00:00", color: "#B22234" },
+            { n: "20", name: "Mexico City GP", loc: "Mexico City", date: "Nov 01, 2026 14:00:00", color: "#006847" },
+            { n: "21", name: "Sao Paulo GP", loc: "Interlagos", date: "Nov 15, 2026 14:00:00", color: "#009739" },
+            { n: "22", name: "Las Vegas GP", loc: "Las Vegas Strip", date: "Nov 21, 2026 22:00:00", color: "#C0C0C0" },
+            { n: "23", name: "Qatar GP", loc: "Lusail", date: "Nov 29, 2026 19:00:00", color: "#8D1919" },
+            { n: "24", name: "Abu Dhabi GP", loc: "Yas Marina", date: "Dec 06, 2026 17:00:00", color: "#00732F" }
+        ];
 
-        // --- CORE LOGIC ---
-        function transitionOut(e, href) {
-            e.preventDefault();
-            document.getElementById('shutter').classList.add('active');
-            setTimeout(() => { window.location.href = href; }, 800);
+        const enduranceData = [{ name: "24 Hours of Le Mans", loc: "Le Mans", date: "Jun 13, 2026 16:00:00", color: "#002b5c", tag: "WEC" }];
+
+        // --- LERP SCROLL ENGINE ---
+        let currentScroll = 0;
+        let targetScroll = 0;
+        const ease = 0.08; 
+        const content = document.getElementById('smooth-content');
+        const progress = document.getElementById('top-scroll-bar');
+        const motto = document.getElementById('animated-motto');
+
+        function lerp(start, end, t) { return start * (1 - t) + end * t; }
+
+        function updateScroll() {
+            document.body.style.height = content.getBoundingClientRect().height + 'px';
+            targetScroll = window.scrollY;
+            currentScroll = lerp(currentScroll, targetScroll, ease);
+            content.style.transform = `translate3d(0, -${currentScroll}px, 0)`;
+            
+            const maxScroll = document.body.scrollHeight - window.innerHeight;
+            if (maxScroll > 0) {
+                progress.style.width = (targetScroll / maxScroll) * 100 + "%";
+            }
+
+            const mottoPos = motto.getBoundingClientRect().top;
+            if (mottoPos < window.innerHeight - 50) motto.classList.add('visible');
+
+            requestAnimationFrame(updateScroll);
         }
 
-        function openTab(evt, tabName) {
-            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(tb => tb.classList.remove('active'));
-            document.getElementById(tabName).classList.add('active');
-            evt.currentTarget.classList.add('active');
-            document.getElementById('formula-filter-wrap').style.display = (tabName === 'formula-tab') ? 'block' : 'none';
-            if(tabName === 'formula-tab') renderFormula();
+        // --- UTILS ---
+        function transitionTo(url) {
+            document.getElementById('transition-curtain').classList.add('active');
+            setTimeout(() => { window.location.href = url; }, 800);
         }
 
-        function renderFormula() {
-            const series = document.getElementById('series-select').value;
-            const grid = document.getElementById('formula-grid');
-            grid.innerHTML = '';
-            formulaData[series].forEach(r => {
+        function renderGrid(data, containerId, tag) {
+            const grid = document.getElementById(containerId);
+            data.forEach((ev, i) => {
                 grid.innerHTML += `
-                    <div class="card" id="card-${series}-${r.n}" style="border-left-color:var(--f1-red)">
-                        <span class="f-tag">${series}</span>
-                        <span class="info">${r.loc} // ROUND ${r.n}</span>
-                        <h3>${r.name}</h3>
-                        <div class="timer" id="timer-${series}-${r.n}">00:00:00:00</div>
+                    <div class="card" style="border-left-color:${ev.color}">
+                        <span class="f-tag">${ev.tag || tag}</span>
+                        <span class="info">${ev.loc} // ${ev.n ? 'ROUND ' + ev.n : '2026'}</span>
+                        <h3>${ev.name}</h3>
+                        <div class="timer" id="timer-${containerId}-${i}">00:00:00:00</div>
                     </div>`;
             });
+            setTimeout(() => {
+                document.querySelectorAll(`#${containerId} .card`).forEach((c, idx) => {
+                    setTimeout(() => c.classList.add('visible'), idx * 50);
+                });
+            }, 300);
         }
 
-        function update() {
-            const now = new Date().getTime();
-            const d = new Date();
-            document.getElementById('local-clock').innerText = d.toLocaleTimeString('en-GB');
+        function updateClocks() {
+            const now = new Date();
+            document.getElementById('local-clock').innerText = now.toLocaleTimeString('en-GB');
             document.getElementById('tz-name').innerText = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            document.getElementById('utc-small').innerText = `UTC ${d.getUTCHours().toString().padStart(2,'0')}:${d.getUTCMinutes().toString().padStart(2,'0')}:${d.getUTCSeconds().toString().padStart(2,'0')}`;
-
-            // Global Timers
-            globalData.forEach((ev, i) => {
-                const diff = new Date(ev.date).getTime() - now;
-                const el = document.getElementById(`gtimer-${i}`);
-                const card = document.getElementById(`gcard-${i}`);
-                if(el) {
-                    if(diff < 0) { el.innerText = "EVENT PASSED"; card.classList.add('finished'); }
-                    else { el.innerText = formatDiff(diff); }
-                }
+            document.getElementById('utc-clock').innerText = `UTC ${now.getUTCHours().toString().padStart(2, '0')}:${now.getUTCMinutes().toString().padStart(2, '0')}:${now.getUTCSeconds().toString().padStart(2, '0')}`;
+            
+            const proc = (data, pref) => data.forEach((ev, i) => {
+                const diff = new Date(ev.date).getTime() - now.getTime();
+                const el = document.getElementById(`timer-${pref}-${i}`);
+                if (el) el.innerText = diff < 0 ? "FINISHED" : formatDiff(diff);
             });
-
-            // Formula Timers
-            const currentSeries = document.getElementById('series-select').value;
-            formulaData[currentSeries].forEach(r => {
-                const diff = new Date(r.date).getTime() - now;
-                const timerEl = document.getElementById(`timer-${currentSeries}-${r.n}`);
-                const cardEl = document.getElementById(`card-${currentSeries}-${r.n}`);
-                if(timerEl && cardEl) {
-                    if (diff < 0) { timerEl.innerText = "FINISHED"; cardEl.classList.add('finished'); }
-                    else { timerEl.innerText = formatDiff(diff); cardEl.classList.remove('finished'); }
-                }
-            });
+            proc(globalEvents, 'global-grid');
+            proc(f1Data, 'f1-grid');
+            proc(enduranceData, 'endurance-grid');
         }
 
-        function formatDiff(diff) {
-            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const s = Math.floor((diff % (1000 * 60)) / 1000);
+        function formatDiff(ms) {
+            const d = Math.floor(ms/86400000), h = Math.floor((ms%86400000)/3600000), m = Math.floor((ms%3600000)/60000), s = Math.floor((ms%60000)/1000);
             return `${d}D ${h}H ${m}M ${s}S`;
         }
 
-        // Init
-        const gGrid = document.getElementById('global-grid');
-        globalData.forEach((ev, i) => {
-            gGrid.innerHTML += `<div class="card" id="gcard-${i}" style="border-left-color:${ev.color}"><span class="info">${ev.loc} // ${ev.date.split(' ')[0]}</span><h3>${ev.name}</h3><div class="timer" id="gtimer-${i}">00:00:00:00</div></div>`;
-        });
+        function openTab(e, id, color) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            e.currentTarget.classList.add('active');
+            document.documentElement.style.setProperty('--accent', color);
+            window.scrollTo(0, 0);
+            currentScroll = 0;
+            document.querySelectorAll(`#${id} .card`).forEach((c, idx) => {
+                setTimeout(() => c.classList.add('visible'), idx * 50);
+            });
+        }
 
-        setInterval(update, 1000);
-        update();
+        window.addEventListener('load', () => {
+            renderGrid(globalEvents, 'global-grid', 'GLOB');
+            renderGrid(f1Data, 'f1-grid', 'F1');
+            renderGrid(enduranceData, 'endurance-grid', 'WEC');
+            updateScroll();
+            setInterval(updateClocks, 1000);
+        });
     </script>
 </body>
 </html>
