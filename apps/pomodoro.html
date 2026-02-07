@@ -6,6 +6,7 @@
     <title>ziipzy — focus timer</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap" rel="stylesheet">
     <style>
+        /* --- RESET & BASE --- */
         * { box-sizing: border-box; margin: 0; padding: 0; cursor: auto !important; text-transform: lowercase; }
         :root { --bg: #e5e5e5; }
 
@@ -19,6 +20,7 @@
         body::-webkit-scrollbar { display: none; }
         body { font-family: 'Inter', sans-serif; color: #000; min-height: 100vh; }
 
+        /* --- UI ELEMENTS --- */
         #top-scroll-bar {
             position: fixed; top: 0; left: 0; width: 0%; height: 4px;
             background: #000; z-index: 1000000;
@@ -67,6 +69,7 @@
         @keyframes fill { to { width: 100%; } }
         @keyframes reveal-crooked { to { transform: translateY(-110%) rotate(-5deg); visibility: hidden; } }
 
+        /* --- TIMER AREA --- */
         .content-zone { 
             padding: 160px 10% 120px; 
             text-align: center; 
@@ -110,6 +113,7 @@
         .back-nav a { text-decoration: none; color: #000; font-weight: 900; opacity: 0.3; transition: 0.3s; font-size: 0.7rem; letter-spacing: 2px; }
         .back-nav a:hover { opacity: 1; }
 
+        /* --- FOOTER --- */
         footer { padding: 120px 5% 0; position: relative; z-index: 10; background: var(--bg); }
         .motto { font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 0.9; margin-bottom: 25px; text-align: left; }
         .motto span { display: block; transform: translateY(30px); opacity: 0; transition: 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -175,7 +179,7 @@
     </div>
 
     <script>
-        // --- AUDIO ENGINE ---
+        // --- NOTHING OS AUDIO ENGINE ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let alarmInterval = null;
 
@@ -194,7 +198,7 @@
             });
         }
 
-        // --- TIMER STATE ---
+        // --- TIMER LOGIC ---
         let baseTime = 1500;
         let timeLeft = 1500;
         let timerId = null;
@@ -210,7 +214,7 @@
             let secs = timeLeft % 60;
             const timeString = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
             timeDisplay.textContent = timeString;
-            // Update Tab Title
+            // Update the tab title for the user
             document.title = isRunning ? `(${timeString}) ziipzy` : `ziipzy — focus timer`;
         }
 
@@ -237,13 +241,14 @@
                         clearInterval(timerId);
                         timerId = null;
                         playNothingAlarm();
+                        // Recursive alarm loop every 1s
                         alarmInterval = setInterval(playNothingAlarm, 1000);
                     }
                 }, 1000);
             }
         });
 
-        function clearAlarms() {
+        function stopAudio() {
             clearInterval(timerId);
             clearInterval(alarmInterval);
             timerId = null;
@@ -251,14 +256,14 @@
         }
 
         pauseBtn.addEventListener('click', () => {
-            clearAlarms();
+            stopAudio();
             isRunning = false;
             startBtn.textContent = 'start';
             updateTimerUI();
         });
 
         function resetTimer() {
-            clearAlarms();
+            stopAudio();
             isRunning = false;
             timeLeft = baseTime;
             startBtn.textContent = 'start';
@@ -267,7 +272,7 @@
 
         resetBtn.addEventListener('click', resetTimer);
 
-        // --- SMOOTH SCROLL ENGINE ---
+        // --- SMOOTH SCROLL ENGINE (PERFORMANCE OPTIMIZED) ---
         let currentScroll = 0, targetScroll = 0;
         const ease = 0.08;
         const content = document.getElementById('smooth-content');
@@ -278,20 +283,32 @@
         function lerp(s, e, t) { return s * (1 - t) + e * t; }
 
         function updateScroll() {
-            if (content) {
+            // Check visibilityState to stop processing when tab is hidden
+            if (document.visibilityState === 'visible' && content) {
                 document.body.style.height = content.getBoundingClientRect().height + 'px';
                 targetScroll = window.scrollY;
                 currentScroll = lerp(currentScroll, targetScroll, ease);
+                
+                // Snap to target if very close to save cycles
+                if (Math.abs(targetScroll - currentScroll) < 0.05) currentScroll = targetScroll;
+
                 content.style.transform = `translate3d(0, -${currentScroll}px, 0)`;
                 const max = document.body.scrollHeight - window.innerHeight;
                 if (max > 0) progress.style.width = (targetScroll / max) * 100 + "%";
                 if (grid) grid.style.transform = `translate3d(0, ${currentScroll * 0.15}px, 0)`;
                 if (motto && motto.getBoundingClientRect().top < window.innerHeight - 30) motto.classList.add('visible');
+            } else if (document.visibilityState === 'hidden') {
+                // If user leaves tab, sync current scroll instantly so no lag occurs on return
+                currentScroll = window.scrollY;
             }
             requestAnimationFrame(updateScroll);
         }
 
-        window.addEventListener('load', () => { updateScroll(); updateTimerUI(); });
+        window.addEventListener('load', () => { 
+            updateScroll(); 
+            updateTimerUI(); 
+        });
+
         function transitionTo(url) {
             document.getElementById('transition-curtain').classList.add('active');
             setTimeout(() => { window.location.href = url; }, 800);
