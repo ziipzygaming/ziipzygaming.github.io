@@ -142,7 +142,7 @@
                 </header>
 
                 <div class="app-grid">
-                    <a href="pomodoro.html" class="app-card">
+                    <a href="javascript:void(0)" onclick="transitionTo('pomodoro.html')" class="app-card">
                         <div class="card-meta">
                             <span class="status-dot"></span>
                             <p>utility / 01</p>
@@ -151,13 +151,13 @@
                         <p>minimalist pomodoro for deep work cycles.</p>
                     </a>
                     
-                    <a href="calculator.html" class="app-card">
+                    <a href="javascript:void(0)" onclick="transitionTo('calculator.html')" class="app-card">
                         <div class="card-meta">
                             <span class="status-dot"></span>
-                            <p>data / 02</p>
+                            <p>utility / 02</p>
                         </div>
-                        <h2>git<br>pulse</h2>
-                        <p>live visualization of repository activity.</p>
+                        <h2>calc<br>v1</h2>
+                        <p>minimalist calculator with custom transition.</p>
                     </a>
 
                     <a href="#" class="app-card" style="opacity: 0.3; cursor: not-allowed;">
@@ -202,10 +202,14 @@
         function lerp(start, end, t) { return start * (1 - t) + end * t; }
 
         function updateScroll() {
-            if (content) {
+            if (document.visibilityState === 'visible' && content) {
                 document.body.style.height = content.getBoundingClientRect().height + 'px';
                 targetScroll = window.scrollY;
                 currentScroll = lerp(currentScroll, targetScroll, ease);
+                
+                // Optimized snapping
+                if (Math.abs(targetScroll - currentScroll) < 0.05) currentScroll = targetScroll;
+
                 content.style.transform = `translate3d(0, -${currentScroll}px, 0)`;
                 
                 const maxScroll = document.body.scrollHeight - window.innerHeight;
@@ -223,6 +227,8 @@
                         motto.classList.add('visible');
                     }
                 }
+            } else {
+                currentScroll = window.scrollY;
             }
             requestAnimationFrame(updateScroll);
         }
