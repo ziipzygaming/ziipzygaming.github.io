@@ -67,14 +67,12 @@
         @keyframes fill { to { width: 100%; } }
         @keyframes reveal-crooked { to { transform: translateY(-110%) rotate(-5deg); visibility: hidden; } }
 
-        /* --- CONTENT ZONE --- */
         .content-zone { padding: 160px 10% 120px; text-align: left; position: relative; min-height: 100vh; }
         
         header { margin-bottom: 80px; }
         header p { letter-spacing: 0.3em; margin-bottom: 10px; opacity: 0.5; font-weight: 900; }
         header h1 { font-size: clamp(3rem, 8vw, 6rem); font-weight: 900; line-height: 0.8; }
 
-        /* The App Grid */
         .app-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
@@ -107,11 +105,9 @@
 
         .card-meta { display: flex; align-items: center; }
 
-        /* UI Return Button */
         .ui-btn { padding: 18px 35px; background: #000; color: #fff; border: none; font-weight: 900; letter-spacing: 2px; cursor: pointer; transition: 0.3s; text-decoration: none; font-size: 0.8rem; display: inline-block; margin-top: 40px; }
         .ui-btn:hover { opacity: 0.8; transform: translateY(-3px); }
 
-        /* Footer */
         footer { padding: 120px 5% 0; position: relative; z-index: 10; background: var(--bg); }
         .motto { font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 0.9; margin-bottom: 25px; }
         .motto span { display: block; transform: translateY(30px); opacity: 0; transition: 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -146,7 +142,7 @@
                 </header>
 
                 <div class="app-grid">
-                    <a href="focus-timer/index.html" class="app-card">
+                    <a href="apps/pomodoro.html" class="app-card">
                         <div class="card-meta">
                             <span class="status-dot"></span>
                             <p>utility / 01</p>
@@ -155,7 +151,7 @@
                         <p>minimalist pomodoro for deep work cycles.</p>
                     </a>
                     
-                    <a href="git-stats/index.html" class="app-card">
+                    <a href="git-pulse.html" class="app-card">
                         <div class="card-meta">
                             <span class="status-dot"></span>
                             <p>data / 02</p>
@@ -173,7 +169,7 @@
                     </a>
                 </div>
 
-                <span class="ui-btn" onclick="transitionTo('../index.html')">[ return home ]</span>
+                <span class="ui-btn" onclick="transitionTo('index.html')">[ return home ]</span>
             </section>
 
             <footer>
@@ -206,27 +202,28 @@
         function lerp(start, end, t) { return start * (1 - t) + end * t; }
 
         function updateScroll() {
-            document.body.style.height = content.getBoundingClientRect().height + 'px';
-            targetScroll = window.scrollY;
-            currentScroll = lerp(currentScroll, targetScroll, ease);
-            content.style.transform = `translate3d(0, -${currentScroll}px, 0)`;
-            
-            const maxScroll = document.body.scrollHeight - window.innerHeight;
-            if (maxScroll > 0) {
-                progress.style.width = (targetScroll / maxScroll) * 100 + "%";
-            }
+            if (content) {
+                document.body.style.height = content.getBoundingClientRect().height + 'px';
+                targetScroll = window.scrollY;
+                currentScroll = lerp(currentScroll, targetScroll, ease);
+                content.style.transform = `translate3d(0, -${currentScroll}px, 0)`;
+                
+                const maxScroll = document.body.scrollHeight - window.innerHeight;
+                if (maxScroll > 0) {
+                    progress.style.width = (targetScroll / maxScroll) * 100 + "%";
+                }
 
-            if (grid) {
-                grid.style.transform = `translate3d(0, ${currentScroll * 0.15}px, 0)`;
-            }
+                if (grid) {
+                    grid.style.transform = `translate3d(0, ${currentScroll * 0.15}px, 0)`;
+                }
 
-            if (motto) {
-                const mottoPos = motto.getBoundingClientRect().top;
-                if (mottoPos < window.innerHeight - 30) {
-                    motto.classList.add('visible');
+                if (motto) {
+                    const mottoPos = motto.getBoundingClientRect().top;
+                    if (mottoPos < window.innerHeight - 30) {
+                        motto.classList.add('visible');
+                    }
                 }
             }
-
             requestAnimationFrame(updateScroll);
         }
 
