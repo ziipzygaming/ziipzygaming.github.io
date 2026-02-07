@@ -3,99 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZIIPZY DIRECTORY</title>
+    <title>ziipzy directory</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        :root {
-            --accent-color: #000000;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; text-transform: lowercase; }
+        :root { --bg: #e5e5e5; }
 
-        html { scroll-behavior: smooth; background-color: #e5e5e5; }
-        body { font-family: 'Inter', sans-serif; background-color: #e5e5e5; color: #000000; overflow-x: hidden; }
+        /* Global caps for specific UI elements */
+        .ziipzy-text, h1, .final, .copy-btn, .back-link, .copyright, .reveal-box h1 { text-transform: uppercase !important; }
+
+        html, body { 
+            overflow-x: hidden;
+            background: var(--bg);
+            scrollbar-width: none; 
+        }
+        body::-webkit-scrollbar { display: none; }
+        body { font-family: 'Inter', sans-serif; color: #000; min-height: 100vh; }
 
         /* --- UI ELEMENTS --- */
-        #scroll-progress {
+        #top-scroll-bar {
             position: fixed; top: 0; left: 0; width: 0%; height: 4px;
-            background: var(--accent-color); z-index: 10002; transition: background 0.5s ease;
+            background: #000; z-index: 1000000;
         }
 
-        /* --- LOADING / EXIT SCREEN --- */
+        #smooth-wrapper {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            overflow: hidden; 
+        }
+
+        #smooth-content {
+            width: 100%;
+            will-change: transform;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- PARALLAX GRID --- */
+        .grid-bg {
+            position: absolute; 
+            top: 0; left: 0; width: 100%; height: 100%; 
+            background-image: 
+                linear-gradient(to right, rgba(0,0,0,0.07) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0,0,0,0.07) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+        }
+
+        #transition-curtain {
+            position: fixed; inset: 0; background: #000; z-index: 9999999;
+            transform: translateY(100%); transition: transform 0.8s cubic-bezier(0.87, 0, 0.13, 1);
+            pointer-events: none;
+        }
+        #transition-curtain.active { transform: translateY(0); }
+
         #loader {
-            position: fixed; inset: 0; background: #000; display: flex; justify-content: center; align-items: center;
-            z-index: 99999; transform-origin: top left; pointer-events: none;
+            position: fixed; inset: 0; background: #000; z-index: 3000000;
+            display: flex; justify-content: center; align-items: center;
+            transform-origin: top left;
+            animation: reveal-crooked 1.2s cubic-bezier(0.87, 0, 0.13, 1) 1.5s forwards;
+            pointer-events: none;
         }
+        .bar { width: 150px; height: 2px; background: rgba(255,255,255,0.1); overflow: hidden; }
+        .fill { height: 100%; width: 0; background: #fff; animation: fill 1.5s forwards; }
+        @keyframes fill { to { width: 100%; } }
+        @keyframes reveal-crooked { to { transform: translateY(-110%) rotate(-5deg); visibility: hidden; } }
 
-        /* Entry Animation */
-        .load-in { animation: reveal-crooked 1.2s cubic-bezier(0.87, 0, 0.13, 1) 1.5s forwards; }
-        
-        /* Exit Animation (The transition you'll see when clicking Return) */
-        .exit-out { 
-            animation: exit-crooked 1s cubic-bezier(0.87, 0, 0.13, 1) forwards !important; 
-            pointer-events: all !important;
-            visibility: visible !important;
-        }
-
-        .loader-bar-container { width: 150px; height: 2px; background: rgba(255, 255, 255, 0.1); overflow: hidden; }
-        .loader-bar-fill { height: 100%; width: 0; background: #ffffff; }
-        .load-in .loader-bar-fill { animation: fill-bar 1.5s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
-
-        @keyframes fill-bar { 0% { width: 0; } 100% { width: 100%; } }
-        
-        @keyframes reveal-crooked { 
-            0% { transform: translateY(0) rotate(0deg); } 
-            100% { transform: translateY(-110%) rotate(-5deg); visibility: hidden; } 
-        }
-
-        @keyframes exit-crooked {
-            0% { transform: translateY(110%) rotate(5deg); }
-            100% { transform: translateY(0) rotate(0deg); }
-        }
-
-        /* --- DIRECTORY STYLE --- */
         .bg-watermark {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             font-size: 20vw; font-weight: 900; color: rgba(0, 0, 0, 0.03); 
             z-index: -1; text-transform: uppercase; white-space: nowrap; pointer-events: none;
         }
 
-        section { min-height: 100vh; width: 100%; display: flex; flex-direction: column; padding: 120px 5% 100px 5%; }
-
-        .dir-header { margin-bottom: 60px; }
-        .dir-header h1 { font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 900; text-transform: lowercase; }
+        section { min-height: 100vh; width: 100%; display: flex; flex-direction: column; padding: 120px 10% 100px; position: relative; }
+        .dir-header h1 { font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 900; text-transform: lowercase !important; }
 
         .link-list { width: 100%; border-top: 1px solid rgba(0,0,0,0.1); }
-        
         .link-row {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 30px 10px; border-bottom: 1px solid rgba(0,0,0,0.1);
-            text-decoration: none; color: inherit; transition: all 0.3s ease;
-            position: relative;
+            padding: 35px 10px; border-bottom: 1px solid rgba(0,0,0,0.1);
+            text-decoration: none; color: inherit; transition: 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         }
-
-        .link-row:hover { padding-left: 20px; background: rgba(0,0,0,0.02); }
-
-        .link-info { display: flex; flex-direction: column; }
-        .link-name { font-size: 1.5rem; font-weight: 900; text-transform: lowercase; }
-        .link-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.2em; opacity: 0.5; margin-top: 4px; }
+        .link-row:hover { padding-left: 30px; background: rgba(0,0,0,0.02); }
+        .link-name { font-size: 1.8rem; font-weight: 900; }
+        .link-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.2em; opacity: 0.5; margin-top: 6px; }
 
         .copy-btn {
-            background: #000; color: #fff; border: none; padding: 8px 15px; 
-            font-size: 0.6rem; font-weight: 900; text-transform: uppercase; 
-            letter-spacing: 0.1em; cursor: pointer; opacity: 0; transition: 0.3s;
+            background: #000; color: #fff; border: none; padding: 10px 20px; 
+            font-size: 0.6rem; font-weight: 900; letter-spacing: 0.1em; opacity: 0; transition: 0.3s; cursor: pointer;
         }
-
         .link-row:hover .copy-btn { opacity: 1; }
 
         .back-link { 
-            margin-top: 60px; align-self: flex-start;
-            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.3em; 
+            margin-top: 80px; align-self: flex-start;
+            font-size: 0.7rem; letter-spacing: 0.3em; 
             text-decoration: none; color: #000; font-weight: 900; border-bottom: 2px solid #000;
             padding-bottom: 5px; cursor: pointer;
         }
 
-        /* Toast Notification */
         #toast {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
             background: #000; color: #fff; padding: 12px 25px; font-size: 0.7rem;
@@ -104,91 +108,166 @@
         }
         #toast.show { opacity: 1; visibility: visible; bottom: 50px; }
 
-        @media (max-width: 768px) { .copy-btn { opacity: 1; } }
+        /* --- FOOTER (BLOCKS THE GRID) --- */
+        footer { 
+            padding: 40px 5% 0; 
+            position: relative; 
+            z-index: 10; 
+            background: var(--bg); /* Blocks grid from showing behind bottom elements */
+            margin-top: 100px;
+        }
+        
+        .motto { font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 0.9; margin-bottom: 20px; }
+        .motto span { display: block; transform: translateY(30px); opacity: 0; transition: 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
+        .motto.visible span { transform: translateY(0); opacity: 1; }
+        .motto b { font-weight: 900; padding-left: 5%; display: block; }
+        .motto i { font-style: normal; opacity: 0.2; padding-left: 10%; display: block; }
+
+        .footer-meta { display: flex; justify-content: flex-end; padding-bottom: 15px; }
+        .copyright { font-size: 0.7rem; font-weight: 900; opacity: 0.4; text-align: right; }
+
+        /* --- REVEAL BOX (BLACK BACKGROUND) --- */
+        .reveal-box { 
+            background: #000; 
+            height: 130px; 
+            width: 111%; 
+            margin-left: -5.5%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            position: relative; 
+            overflow: hidden; 
+        }
+        .reveal-box h1 { 
+            font-size: 11vw; 
+            color: transparent; 
+            -webkit-text-stroke: 1px rgba(255,255,255,0.1); 
+            transition: 0.7s; 
+            z-index: 2; 
+            pointer-events: none; 
+        }
+        .reveal-box:hover h1 { color: #fff; }
+        
+        .grain { 
+            position: absolute; inset: -50%; width: 200%; height: 200%; 
+            opacity: 0; pointer-events: none; z-index: 3; 
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); 
+        }
+        .reveal-box:hover .grain { opacity: 0.15; animation: jitter 0.15s steps(2) infinite; }
+        
+        @keyframes jitter { 0% { transform: translate(0,0); } 50% { transform: translate(-1%, -1%); } }
+
+        @media (max-width: 768px) { .reveal-box { height: 80px; width: 120%; margin-left: -10%; } .reveal-box h1 { font-size: 15vw; } }
     </style>
 </head>
 <body>
 
-    <div id="scroll-progress"></div>
+    <div id="top-scroll-bar"></div>
+    <div id="transition-curtain"></div>
     <div id="toast">Link Copied.</div>
-    
-    <div id="loader" class="load-in">
-        <div class="loader-bar-container"><div class="loader-bar-fill"></div></div>
+    <div id="loader"><div class="bar"><div class="fill"></div></div></div>
+
+    <div id="smooth-wrapper">
+        <div id="smooth-content">
+            <div class="grid-bg" id="parallax-grid"></div>
+            <div class="bg-watermark">CONNECT</div>
+
+            <main>
+                <section>
+                    <div class="dir-header"><h1>directory.</h1></div>
+                    <div class="link-list">
+                        <div class="link-row">
+                            <a href="https://www.tiktok.com/@ziipzy" class="link-info" target="_blank" style="text-decoration: none; color: inherit; flex-grow: 1;">
+                                <span class="link-name">tiktok</span>
+                                <span class="link-label">@ziipzy</span>
+                            </a>
+                            <button class="copy-btn" onclick="copyLink('https://www.tiktok.com/@ziipzy')">copy</button>
+                        </div>
+                        <div class="link-row">
+                            <a href="https://www.youtube.com/@ziipzygaming" class="link-info" target="_blank" style="text-decoration: none; color: inherit; flex-grow: 1;">
+                                <span class="link-name">youtube</span>
+                                <span class="link-label">ziipzy gaming</span>
+                            </a>
+                            <button class="copy-btn" onclick="copyLink('https://www.youtube.com/@ziipzygaming')">copy</button>
+                        </div>
+                        <div class="link-row">
+                            <a href="https://www.facebook.com/ziipzy" class="link-info" target="_blank" style="text-decoration: none; color: inherit; flex-grow: 1;">
+                                <span class="link-name">facebook</span>
+                                <span class="link-label">ziipzy official</span>
+                            </a>
+                            <button class="copy-btn" onclick="copyLink('https://www.facebook.com/ziipzy')">copy</button>
+                        </div>
+                        <div class="link-row">
+                            <a href="https://linktr.ee/ziipzygaming" class="link-info" target="_blank" style="text-decoration: none; color: inherit; flex-grow: 1;">
+                                <span class="link-name">linktree</span>
+                                <span class="link-label">gaming hub</span>
+                            </a>
+                            <button class="copy-btn" onclick="copyLink('https://linktr.ee/ziipzygaming')">copy</button>
+                        </div>
+                        <div class="link-row">
+                            <a href="https://docs.google.com/document/d/1Rc8XhseGJyoXKh5lqGMFQFIWeiuJ_GtDw-sDQeR39A8/" class="link-info" target="_blank" style="text-decoration: none; color: inherit; flex-grow: 1;">
+                                <span class="link-name">documentation</span>
+                                <span class="link-label">view document</span>
+                            </a>
+                            <button class="copy-btn" onclick="copyLink('https://docs.google.com/document/d/1Rc8XhseGJyoXKh5lqGMFQFIWeiuJ_GtDw-sDQeR39A8/')">copy</button>
+                        </div>
+                    </div>
+                    <span class="back-link" onclick="transitionTo('index.html')">[ return ]</span>
+                </section>
+            </main>
+
+            <footer>
+                <div class="motto" id="animated-motto">
+                    <span class="motto-1">dont</span> 
+                    <span class="motto-2"><b>stop</b></span> 
+                    <span class="motto-3"><i>dreaming.</i></span>
+                </div>
+                <div class="footer-meta">
+                    <div class="copyright">© 2026 <span class="ziipzy-text">ziipzy</span> — studio</div>
+                </div>
+                
+                <div class="reveal-box">
+                    <div class="grain"></div>
+                    <h1>ziipzy</h1>
+                </div>
+            </footer>
+        </div>
     </div>
 
-    <div class="bg-watermark">CONNECT</div>
-
-    <main>
-        <section>
-            <div class="dir-header">
-                <h1>directory.</h1>
-            </div>
-
-            <div class="link-list">
-                <div class="link-row">
-                    <a href="https://www.tiktok.com/@ziipzy" class="link-info" target="_blank" style="text-decoration: none; color: inherit; flex-grow: 1;">
-                        <span class="link-name">tiktok</span>
-                        <span class="link-label">@ziipzy</span>
-                    </a>
-                    <button class="copy-btn" onclick="copyLink('https://www.tiktok.com/@ziipzy')">copy</button>
-                </div>
-
-                <div class="link-row">
-                    <a href="https://www.youtube.com/@ziipzygaming" class="link-info" target="_blank" style="text-decoration: none; color: inherit; flex-grow: 1;">
-                        <span class="link-name">youtube</span>
-                        <span class="link-label">ziipzy gaming</span>
-                    </a>
-                    <button class="copy-btn" onclick="copyLink('https://www.youtube.com/@ziipzygaming')">copy</button>
-                </div>
-
-                <div class="link-row">
-                    <a href="https://www.facebook.com/ziipzy" class="link-info" target="_blank" style="text-decoration: none; color: inherit; flex-grow: 1;">
-                        <span class="link-name">facebook</span>
-                        <span class="link-label">ziipzy official</span>
-                    </a>
-                    <button class="copy-btn" onclick="copyLink('https://www.facebook.com/ziipzy')">copy</button>
-                </div>
-
-                <div class="link-row">
-                    <a href="https://linktr.ee/ziipzygaming" class="link-info" target="_blank" style="text-decoration: none; color: inherit; flex-grow: 1;">
-                        <span class="link-name">linktree</span>
-                        <span class="link-label">gaming hub</span>
-                    </a>
-                    <button class="copy-btn" onclick="copyLink('https://linktr.ee/ziipzygaming')">copy</button>
-                </div>
-
-                <div class="link-row">
-                    <a href="https://docs.google.com/document/d/1Rc8XhseGJyoXKh5lqGMFQFIWeiuJ_GtDw-sDQeR39A8/" class="link-info" target="_blank" style="text-decoration: none; color: inherit; flex-grow: 1;">
-                        <span class="link-name">documentation</span>
-                        <span class="link-label">view document</span>
-                    </a>
-                    <button class="copy-btn" onclick="copyLink('https://docs.google.com/document/d/1Rc8XhseGJyoXKh5lqGMFQFIWeiuJ_GtDw-sDQeR39A8/')">copy</button>
-                </div>
-            </div>
-
-            <a href="index.html" class="back-link" onclick="transitionToPage(event, this.href)">[ return ]</a>
-        </section>
-    </main>
-
-    <footer style="width: 100%; padding: 60px 5%; display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid rgba(0,0,0,0.05);">
-        <div style="font-weight: 400; font-size: 1.5rem; opacity: 0.6; text-transform: lowercase; line-height: 1.1; display: flex; flex-direction: column;">
-            <span>dont</span><span>stop</span><span>dreaming.</span>
-        </div>
-        <div style="font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 900;">© 2026 ZIIPZY STUDIO</div>
-    </footer>
-
     <script>
-        function transitionToPage(e, href) {
-            e.preventDefault();
-            const loader = document.getElementById('loader');
-            // Remove entry state and trigger exit state
-            loader.classList.remove('load-in');
-            loader.classList.add('exit-out');
+        let currentScroll = 0;
+        let targetScroll = 0;
+        const ease = 0.08; 
+        const content = document.getElementById('smooth-content');
+        const progress = document.getElementById('top-scroll-bar');
+        const grid = document.getElementById('parallax-grid');
+        const motto = document.getElementById('animated-motto');
+
+        function lerp(start, end, t) { return start * (1 - t) + end * t; }
+
+        function updateScroll() {
+            document.body.style.height = content.getBoundingClientRect().height + 'px';
+            targetScroll = window.scrollY;
+            currentScroll = lerp(currentScroll, targetScroll, ease);
+            content.style.transform = `translate3d(0, -${currentScroll}px, 0)`;
             
-            setTimeout(() => { 
-                window.location.href = href; 
-            }, 1000);
+            const maxScroll = document.body.scrollHeight - window.innerHeight;
+            if (maxScroll > 0) {
+                progress.style.width = (targetScroll / maxScroll) * 100 + "%";
+            }
+
+            if (grid) {
+                grid.style.transform = `translate3d(0, ${currentScroll * 0.15}px, 0)`;
+            }
+
+            const mottoPos = motto.getBoundingClientRect().top;
+            if (mottoPos < window.innerHeight - 30) {
+                motto.classList.add('visible');
+            }
+            requestAnimationFrame(updateScroll);
         }
+
+        window.addEventListener('load', () => { updateScroll(); });
 
         function copyLink(url) {
             navigator.clipboard.writeText(url).then(() => {
@@ -198,11 +277,10 @@
             });
         }
 
-        window.addEventListener('scroll', () => {
-            const top = window.pageYOffset || document.documentElement.scrollTop;
-            const height = document.documentElement.scrollHeight - window.innerHeight;
-            document.getElementById('scroll-progress').style.width = (top / height) * 100 + "%";
-        });
+        function transitionTo(url) {
+            document.getElementById('transition-curtain').classList.add('active');
+            setTimeout(() => { window.location.href = url; }, 800);
+        }
     </script>
 </body>
 </html>
