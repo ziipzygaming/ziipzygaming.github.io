@@ -10,7 +10,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; cursor: auto !important; text-transform: lowercase; }
         :root { --bg: #e5e5e5; }
 
-        .ziipzy-text, h1, h2, .ui-btn, .copyright, .label, .gen-output, .stepper-btn, .copy-status { text-transform: uppercase !important; }
+        .ziipzy-text, h1, h2, .ui-btn, .copyright, .label, .gen-output, .stepper-btn, .copy-status, .exit-btn, .history-label { text-transform: uppercase !important; }
 
         html, body { overflow-x: hidden; background: var(--bg); scrollbar-width: none; }
         body::-webkit-scrollbar { display: none; }
@@ -26,6 +26,15 @@
             background-image: linear-gradient(to right, rgba(0,0,0,0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.07) 1px, transparent 1px);
             background-size: 50px 50px; z-index: -1;
         }
+
+        /* --- NAVIGATION --- */
+        .exit-btn { 
+            position: fixed; top: 30px; left: 30px; z-index: 1000;
+            background: #000; color: #fff; padding: 12px 20px; 
+            font-size: 0.6rem; font-weight: 900; letter-spacing: 0.2em; text-decoration: none;
+            transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1); cursor: pointer; border: none;
+        }
+        .exit-btn:hover { padding-left: 40px; background: #333; }
 
         /* --- THE CROOKED INTRO --- */
         #loader {
@@ -57,8 +66,9 @@
         }
 
         .output-box {
-            background: #f0f0f0; padding: 40px 30px; margin-bottom: 20px;
+            background: #f0f0f0; padding: 40px 30px; margin-bottom: 5px;
             border: 1px solid rgba(0,0,0,0.1); text-align: center;
+            transition: background 0.6s ease;
         }
 
         .gen-output {
@@ -66,6 +76,9 @@
             letter-spacing: 2px; word-break: break-all; color: #000; min-height: 2rem;
             text-transform: none !important;
         }
+
+        .strength-meta { width: 100%; display: flex; justify-content: space-between; margin-bottom: 20px; }
+        #strength-label { font-size: 0.55rem; font-weight: 900; letter-spacing: 1px; opacity: 0.4; }
 
         .copy-trigger {
             width: 100%; padding: 10px; border: 1px solid #000; margin-bottom: 30px;
@@ -102,6 +115,22 @@
         }
         .gen-button:hover { letter-spacing: 6px; }
 
+        /* --- VAULT HISTORY --- */
+        .history-container { width: 100%; max-width: 600px; margin-top: 40px; padding-top: 30px; border-top: 1px solid rgba(0,0,0,0.1); }
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .history-label { font-size: 0.6rem; font-weight: 900; letter-spacing: 2px; opacity: 0.4; }
+        .clear-history { font-size: 0.5rem; font-weight: 900; opacity: 0.3; cursor: pointer; transition: 0.3s; border-bottom: 1px solid transparent; }
+        .clear-history:hover { opacity: 1; border-color: #000; }
+        
+        .history-list { display: flex; flex-direction: column; gap: 10px; }
+        .history-item { 
+            background: rgba(255,255,255,0.6); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid transparent; transition: 0.3s; cursor: pointer;
+        }
+        .history-item:hover { background: #fff; border-color: #000; }
+        .history-string { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80%; }
+        .history-time { font-size: 0.55rem; font-weight: 900; opacity: 0.3; }
+
         .back-nav { margin-top: 50px; }
         .back-nav span { text-decoration: none; color: #000; font-weight: 900; opacity: 0.2; transition: 0.3s; font-size: 0.7rem; letter-spacing: 2px; cursor: pointer; }
         .back-nav span:hover { opacity: 1; }
@@ -125,14 +154,19 @@
     <div id="transition-curtain"></div>
     <div id="loader"><div class="bar"><div class="fill"></div></div></div>
 
+    <button onclick="transitionTo('index.html')" class="exit-btn">← return</button>
+
     <div id="smooth-wrapper">
         <div id="smooth-content">
             <section class="content-zone">
                 <div class="grid-bg"></div>
 
                 <div class="vault-container">
-                    <div class="output-box">
+                    <div class="output-box" id="output-box">
                         <div class="gen-output" id="password-display">LOCKED</div>
+                    </div>
+                    <div class="strength-meta">
+                        <span id="strength-label">status: idle</span>
                     </div>
 
                     <button class="copy-trigger" id="copy-btn" onclick="copyPassword()">
@@ -156,6 +190,14 @@
                     </div>
 
                     <button class="gen-button" onclick="scrambleGenerate()">GENERATE STRING</button>
+                </div>
+
+                <div class="history-container">
+                    <div class="history-header">
+                        <span class="history-label">vault archives</span>
+                        <span class="clear-history" onclick="clearArchives()">[ wipe data ]</span>
+                    </div>
+                    <div class="history-list" id="history-list"></div>
                 </div>
 
                 <div class="back-nav">
@@ -182,6 +224,9 @@
         const progress = document.getElementById('top-scroll-bar');
         const motto = document.getElementById('animated-motto');
         const output = document.getElementById('password-display');
+        const outputBox = document.getElementById('output-box');
+        const strengthLabel = document.getElementById('strength-label');
+        const historyList = document.getElementById('history-list');
         let currentPass = "";
 
         function lerp(s, e, t) { return s * (1 - t) + e * t; }
@@ -209,15 +254,27 @@
             document.getElementById('length-label').textContent = `length: ${e.target.value}`;
         });
 
-        function copyPassword() {
-            if (!currentPass) return;
-            navigator.clipboard.writeText(currentPass).then(() => {
+        function copyPassword(text = currentPass) {
+            if (!text) return;
+            navigator.clipboard.writeText(text).then(() => {
                 const btn = document.getElementById('copy-btn');
                 const txt = document.getElementById('copy-text');
                 btn.classList.add('copied');
                 txt.textContent = "✓ [ secured ]";
                 setTimeout(() => { btn.classList.remove('copied'); txt.textContent = "copy to clipboard"; }, 2000);
             });
+        }
+
+        function getStrength(pass) {
+            let score = 0;
+            if (pass.length > 12) score++;
+            if (pass.length > 20) score++;
+            if (/[A-Z]/.test(pass)) score++;
+            if (/[0-9]/.test(pass)) score++;
+            if (/[^A-Za-z0-9]/.test(pass)) score++;
+            if (score < 3) return { label: 'weak', color: '#ffdada' };
+            if (score < 5) return { label: 'moderate', color: '#ffead0' };
+            return { label: 'secure', color: '#d8f3dc' };
         }
 
         function generatePassword() {
@@ -239,11 +296,45 @@
             let i = 0;
             const target = generatePassword();
             const pool = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+            const strength = getStrength(target);
+            
+            strengthLabel.textContent = "status: encrypting...";
+            outputBox.style.background = "#f0f0f0";
+
             const interval = setInterval(() => {
                 output.innerText = target.split('').map((c, idx) => idx < i ? target[idx] : pool.charAt(Math.floor(Math.random() * pool.length))).join('');
-                if(i >= target.length) clearInterval(interval);
+                if(i >= target.length) {
+                    clearInterval(interval);
+                    strengthLabel.textContent = `status: ${strength.label}`;
+                    outputBox.style.background = strength.color;
+                    saveToArchives(target);
+                }
                 i++;
             }, 30);
+        }
+
+        function saveToArchives(str) {
+            let archives = JSON.parse(localStorage.getItem('ziipzy_vault')) || [];
+            const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            archives.unshift({str, timestamp});
+            if(archives.length > 5) archives.pop();
+            localStorage.setItem('ziipzy_vault', JSON.stringify(archives));
+            renderArchives();
+        }
+
+        function renderArchives() {
+            let archives = JSON.parse(localStorage.getItem('ziipzy_vault')) || [];
+            historyList.innerHTML = archives.map(item => `
+                <div class="history-item" onclick="copyPassword('${item.str}')">
+                    <span class="history-string">${item.str}</span>
+                    <span class="history-time">${item.timestamp}</span>
+                </div>
+            `).join('');
+        }
+
+        function clearArchives() {
+            localStorage.removeItem('ziipzy_vault');
+            renderArchives();
         }
 
         function transitionTo(url) {
@@ -251,7 +342,10 @@
             setTimeout(() => { window.location.href = url; }, 800);
         }
 
-        window.addEventListener('load', updateScroll);
+        window.addEventListener('load', () => {
+            renderArchives();
+            updateScroll();
+        });
     </script>
 </body>
 </html>
