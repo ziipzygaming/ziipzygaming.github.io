@@ -8,9 +8,9 @@
     <style>
         /* --- CORE ARCHITECTURE --- */
         * { box-sizing: border-box; margin: 0; padding: 0; cursor: auto !important; text-transform: lowercase; }
-        :root { --bg: #e5e5e5; --accent: #000; --glass: rgba(255, 255, 255, 0.8); }
+        :root { --bg: #e5e5e5; --accent: #000; --panel: #ffffff; }
 
-        .ziipzy-text, h1, h2, .ui-btn, .copyright, .calc-btn, .mode-label { text-transform: uppercase !important; }
+        .ziipzy-text, h1, h2, .ui-btn, .copyright, .calc-btn, .mode-label, .exit-btn, .log-label { text-transform: uppercase !important; }
 
         html, body { overflow-x: hidden; background: var(--bg); scrollbar-width: none; }
         body::-webkit-scrollbar { display: none; }
@@ -29,7 +29,7 @@
             mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
         }
 
-        /* --- SIGNATURE INTRO & LOADER --- */
+        /* --- TRANSITIONS --- */
         #transition-curtain { position: fixed; inset: 0; background: #000; z-index: 9999999; transform: translateY(100%); transition: transform 0.8s cubic-bezier(0.87, 0, 0.13, 1); pointer-events: none; }
         #transition-curtain.active { transform: translateY(0); }
 
@@ -45,75 +45,96 @@
         @keyframes fill { to { width: 100%; } }
         @keyframes reveal-crooked { to { transform: translateY(-110%) rotate(-5deg); visibility: hidden; } }
 
-        /* --- WORKSTATION CALC --- */
+        /* --- NAVIGATION --- */
+        .exit-btn { 
+            position: fixed; top: 30px; left: 30px; z-index: 1000;
+            background: #000; color: #fff; padding: 12px 20px; 
+            font-size: 0.6rem; font-weight: 900; letter-spacing: 0.2em; text-decoration: none;
+            transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1); cursor: pointer; border: none;
+        }
+        .exit-btn:hover { padding-left: 40px; background: #333; }
+
+        /* --- WORKSTATION --- */
         .content-zone { padding: 160px 5% 80px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
 
-        header { width: 100%; max-width: 400px; margin-bottom: 40px; text-align: left; transition: 0.6s cubic-bezier(0.87, 0, 0.13, 1); }
-        .sci-active + .back-nav, .sci-active ~ header { max-width: 700px; } /* Syncs header width with calc width */
-        
-        header p { letter-spacing: 0.3em; margin-bottom: 10px; opacity: 0.5; font-weight: 900; }
-        header h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; line-height: 0.8; }
+        .calc-container {
+            width: 100%;
+            max-width: 360px;
+            transition: max-width 0.6s cubic-bezier(0.87, 0, 0.13, 1);
+        }
+        .calc-container.sci-mode { max-width: 680px; }
 
-        .workstation-outer {
-            position: relative;
+        .calc-card {
             background: #fff;
-            padding: 10px;
             border: 1px solid #000;
-            box-shadow: 20px 20px 0px rgba(0,0,0,0.05);
-            transition: all 0.6s cubic-bezier(0.87, 0, 0.13, 1);
-            max-width: 400px;
-            width: 95%;
-            z-index: 2;
+            box-shadow: 30px 30px 0px rgba(0,0,0,0.03);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
-        .workstation-outer.sci-active { max-width: 700px; }
 
-        .calc-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 10px; border-bottom: 1px solid #eee; margin-bottom: 20px;
-        }
-        .mode-label { font-size: 0.6rem; font-weight: 900; letter-spacing: 2px; opacity: 0.4; }
-
-        .display-area {
-            background: #f9f9f9;
-            padding: 30px;
-            margin-bottom: 10px;
+        .calc-display-section {
+            padding: 40px 30px;
+            background: #fff;
             text-align: right;
-            border: 1px inset rgba(0,0,0,0.05);
+            border-bottom: 1px solid #f0f0f0;
         }
         .calc-display {
-            width: 100%; background: none; border: none; font-family: 'Inter', sans-serif;
-            font-weight: 900; font-size: 3rem; color: #000; outline: none;
+            width: 100%;
+            border: none;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+            font-weight: 900;
+            font-size: 3.5rem;
+            color: #000;
+            background: transparent;
             font-variant-numeric: tabular-nums;
+            letter-spacing: -0.05em;
         }
 
-        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-        .workstation-outer.sci-active .calc-grid { grid-template-columns: repeat(7, 1fr); }
+        .calc-body { display: flex; background: #fff; }
+
+        .sci-panel {
+            width: 0; opacity: 0; display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 1px; background: #f9f9f9; transition: 0.6s cubic-bezier(0.87, 0, 0.13, 1);
+            border-right: 1px solid #eee; overflow: hidden;
+        }
+        .sci-mode .sci-panel { width: 320px; opacity: 1; }
+
+        .main-panel { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #eee; }
 
         .calc-btn {
-            background: #fff; border: 1px solid #eee; padding: 25px 5px;
-            font-weight: 900; font-size: 0.75rem; transition: 0.2s;
+            background: #fff; border: none; height: 80px; font-weight: 900;
+            font-size: 0.8rem; cursor: pointer; transition: 0.2s;
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer;
         }
-        .calc-btn:hover { background: #000; color: #fff; border-color: #000; transform: scale(0.98); }
-        .calc-btn.op { background: #fdfdfd; opacity: 0.7; }
-        .calc-btn.action { background: #000; color: #fff; grid-column: span 1; }
-        .calc-btn.wide { grid-column: span 2; }
-
-        .sci-key { display: none; background: #fafafa !important; font-size: 0.65rem; color: #888; }
-        .sci-active .sci-key { display: flex; }
-
-        .toggle-switch {
-            cursor: pointer; padding: 5px 12px; border: 1px solid #000; font-size: 0.6rem;
-            font-weight: 900; transition: 0.3s;
+        .calc-btn:hover { background: #000; color: #fff; }
+        .calc-btn.op { background: #fafafa; color: #888; }
+        .calc-btn.action { background: #000; color: #fff; }
+        .calc-btn.double { grid-column: span 2; }
+        
+        /* --- HISTORY LOG --- */
+        .history-section {
+            width: 100%; margin-top: 40px; text-align: left;
+            border-top: 1px solid rgba(0,0,0,0.1); padding-top: 30px;
         }
-        .toggle-switch:hover { background: #000; color: #fff; }
+        .log-label { font-size: 0.6rem; font-weight: 900; letter-spacing: 0.2em; opacity: 0.4; margin-bottom: 20px; display: block; }
+        .history-list { display: flex; flex-direction: column; gap: 10px; }
+        .history-item {
+            display: flex; justify-content: space-between; align-items: baseline;
+            padding: 15px; background: rgba(255,255,255,0.5); border: 1px solid transparent;
+            font-size: 0.8rem; transition: 0.3s;
+        }
+        .history-item:hover { background: #fff; border-color: #000; }
+        .history-item .expr { font-weight: 400; opacity: 0.5; }
+        .history-item .res { font-weight: 900; }
+        .history-item .time { font-size: 0.6rem; opacity: 0.3; font-weight: 900; }
 
-        .back-nav { margin-top: 50px; width: 100%; max-width: 400px; text-align: left; }
-        .back-nav a { text-decoration: none; color: #000; font-weight: 900; opacity: 0.2; transition: 0.3s; font-size: 0.7rem; letter-spacing: 2px; }
-        .back-nav a:hover { opacity: 1; }
+        .calc-meta { display: flex; justify-content: space-between; padding: 15px 0; font-weight: 900; font-size: 0.6rem; letter-spacing: 0.2em; opacity: 0.4; }
+        .expand-toggle { cursor: pointer; transition: 0.3s; border-bottom: 1px solid transparent; }
+        .expand-toggle:hover { opacity: 1; border-color: #000; }
 
-        /* --- GLOBAL FOOTER --- */
+        /* --- FOOTER --- */
         footer { padding: 120px 5% 0; position: relative; z-index: 10; background: var(--bg); }
         .motto { font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 0.9; margin-bottom: 25px; text-align: left; }
         .motto span { display: block; transform: translateY(30px); opacity: 0; transition: 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -133,75 +154,73 @@
     <div id="transition-curtain"></div>
     <div id="loader"><div class="bar"><div class="fill"></div></div></div>
 
+    <button onclick="transitionTo('index.html')" class="exit-btn">← return</button>
+
     <div id="smooth-wrapper">
         <div id="smooth-content">
             <section class="content-zone">
                 <div class="grid-bg" id="parallax-grid"></div>
 
-                <header id="calc-header-text">
-                    <p>[ processing unit ]</p>
-                    <h1>workstation.</h1>
-                </header>
-
-                <div class="workstation-outer" id="calc-shell">
-                    <div class="calc-header">
-                        <span class="mode-label" id="label-text">Standard v1.0</span>
-                        <div class="toggle-switch" id="mode-toggle">EXPAND</div>
+                <div class="calc-container" id="calc-container">
+                    <div class="calc-meta">
+                        <span>Unit: Ziipzy-OS v2.0</span>
+                        <span class="expand-toggle" id="mode-toggle">Scientific Mode [+]</span>
                     </div>
 
-                    <div class="display-area">
-                        <input type="text" class="calc-display" id="display" readonly value="0">
+                    <div class="calc-card">
+                        <div class="calc-display-section">
+                            <input type="text" class="calc-display" id="display" readonly value="0">
+                        </div>
+
+                        <div class="calc-body">
+                            <div class="sci-panel">
+                                <button class="calc-btn op" onclick="append('sin(')">sin</button>
+                                <button class="calc-btn op" onclick="append('cos(')">cos</button>
+                                <button class="calc-btn op" onclick="append('tan(')">tan</button>
+                                <button class="calc-btn op" onclick="append('sqrt(')">sqrt</button>
+                                <button class="calc-btn op" onclick="append('^')">pow</button>
+                                <button class="calc-btn op" onclick="append('log(')">log</button>
+                                <button class="calc-btn op" onclick="append('π')">pi</button>
+                                <button class="calc-btn op" onclick="append('e')">e</button>
+                                <button class="calc-btn op" onclick="append('(')">(</button>
+                                <button class="calc-btn op" onclick="append(')')">)</button>
+                                <button class="calc-btn op" style="visibility:hidden"></button>
+                                <button class="calc-btn op" style="visibility:hidden"></button>
+                            </div>
+
+                            <div class="main-panel">
+                                <button class="calc-btn op" onclick="clearDisplay()">AC</button>
+                                <button class="calc-btn op" onclick="deleteLast()">DEL</button>
+                                <button class="calc-btn op" onclick="append('/')">÷</button>
+                                <button class="calc-btn op" onclick="append('*')">×</button>
+
+                                <button class="calc-btn" onclick="append('7')">7</button>
+                                <button class="calc-btn" onclick="append('8')">8</button>
+                                <button class="calc-btn" onclick="append('9')">9</button>
+                                <button class="calc-btn op" onclick="append('-')">-</button>
+
+                                <button class="calc-btn" onclick="append('4')">4</button>
+                                <button class="calc-btn" onclick="append('5')">5</button>
+                                <button class="calc-btn" onclick="append('6')">6</button>
+                                <button class="calc-btn op" onclick="append('+')">+</button>
+
+                                <button class="calc-btn" onclick="append('1')">1</button>
+                                <button class="calc-btn" onclick="append('2')">2</button>
+                                <button class="calc-btn" onclick="append('3')">3</button>
+                                <button class="calc-btn action" onclick="calculate()">=</button>
+
+                                <button class="calc-btn double" onclick="append('0')">0</button>
+                                <button class="calc-btn" onclick="append('.')">.</button>
+                                <button class="calc-btn op" style="visibility:hidden"></button>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="calc-grid">
-                        <button class="calc-btn sci-key" onclick="append('sin(')">sin</button>
-                        <button class="calc-btn sci-key" onclick="append('cos(')">cos</button>
-                        <button class="calc-btn sci-key" onclick="append('tan(')">tan</button>
-                        
-                        <button class="calc-btn op" onclick="clearDisplay()">AC</button>
-                        <button class="calc-btn op" onclick="deleteLast()">DEL</button>
-                        <button class="calc-btn op" onclick="append('/')">÷</button>
-                        <button class="calc-btn op" onclick="append('*')">×</button>
-
-                        <button class="calc-btn sci-key" onclick="append('sqrt(')">sqrt</button>
-                        <button class="calc-btn sci-key" onclick="append('^')">pow</button>
-                        <button class="calc-btn sci-key" onclick="append('log(')">log</button>
-
-                        <button class="calc-btn" onclick="append('7')">7</button>
-                        <button class="calc-btn" onclick="append('8')">8</button>
-                        <button class="calc-btn" onclick="append('9')">9</button>
-                        <button class="calc-btn op" onclick="append('-')">-</button>
-
-                        <button class="calc-btn sci-key" onclick="append('π')">pi</button>
-                        <button class="calc-btn sci-key" onclick="append('e')">e</button>
-                        <button class="calc-btn sci-key" onclick="append('(')">(</button>
-
-                        <button class="calc-btn" onclick="append('4')">4</button>
-                        <button class="calc-btn" onclick="append('5')">5</button>
-                        <button class="calc-btn" onclick="append('6')">6</button>
-                        <button class="calc-btn op" onclick="append('+')">+</button>
-
-                        <button class="calc-btn sci-key" onclick="append(')')">)</button>
-                        <button class="calc-btn sci-key" style="opacity:0; pointer-events:none">.</button>
-                        <button class="calc-btn sci-key" style="opacity:0; pointer-events:none">.</button>
-
-                        <button class="calc-btn" onclick="append('1')">1</button>
-                        <button class="calc-btn" onclick="append('2')">2</button>
-                        <button class="calc-btn" onclick="append('3')">3</button>
-                        <button class="calc-btn action" onclick="calculate()">=</button>
-
-                        <button class="calc-btn sci-key" style="opacity:0; pointer-events:none">.</button>
-                        <button class="calc-btn sci-key" style="opacity:0; pointer-events:none">.</button>
-                        <button class="calc-btn sci-key" style="opacity:0; pointer-events:none">.</button>
-
-                        <button class="calc-btn wide" onclick="append('0')">0</button>
-                        <button class="calc-btn" onclick="append('.')">.</button>
-                        <button class="calc-btn" style="visibility:hidden"></button>
+                    <div class="history-section">
+                        <span class="log-label">Calculation History</span>
+                        <div class="history-list" id="history-list">
+                            </div>
                     </div>
-                </div>
-
-                <div class="back-nav" id="calc-nav">
-                    <a href="javascript:void(0)" onclick="transitionTo('index.html')">[ abort task ]</a>
                 </div>
             </section>
 
@@ -221,21 +240,14 @@
 
     <script>
         const display = document.getElementById('display');
-        const shell = document.getElementById('calc-shell');
+        const container = document.getElementById('calc-container');
         const toggle = document.getElementById('mode-toggle');
-        const label = document.getElementById('label-text');
-        const headerText = document.getElementById('calc-header-text');
-        const backNav = document.getElementById('calc-nav');
+        const historyList = document.getElementById('history-list');
 
         toggle.addEventListener('click', () => {
-            shell.classList.toggle('sci-active');
-            const isActive = shell.classList.contains('sci-active');
-            toggle.textContent = isActive ? "MINIMIZE" : "EXPAND";
-            label.textContent = isActive ? "Scientific v1.0" : "Standard v1.0";
-            
-            // Adjust widths of header and nav to match expanded calc
-            headerText.style.maxWidth = isActive ? "700px" : "400px";
-            backNav.style.maxWidth = isActive ? "700px" : "400px";
+            container.classList.toggle('sci-mode');
+            toggle.textContent = container.classList.contains('sci-mode') ? "Standard Mode [-]" : "Scientific Mode [+]";
+            syncHeight();
         });
 
         function append(val) {
@@ -244,9 +256,7 @@
         }
 
         function clearDisplay() { display.value = '0'; }
-        function deleteLast() {
-            display.value = display.value.slice(0, -1) || '0';
-        }
+        function deleteLast() { display.value = display.value.slice(0, -1) || '0'; }
 
         function calculate() {
             try {
@@ -266,49 +276,58 @@
                     .replace(/e/g, 'Math.E');
 
                 let result = eval(processed);
-                display.value = Number.isInteger(result) ? result : parseFloat(result.toFixed(8)).toString();
+                let finalRes = Number.isInteger(result) ? result : parseFloat(result.toFixed(6)).toString();
+                
+                addHistory(expr, finalRes);
+                display.value = finalRes;
             } catch (e) {
-                display.value = 'ERR';
+                display.value = 'ERROR';
                 setTimeout(clearDisplay, 1000);
             }
         }
 
-        window.addEventListener('keydown', (e) => {
-            if (e.key >= '0' && e.key <= '9') append(e.key);
-            if ("+-*/.^()".includes(e.key)) append(e.key);
-            if (e.key === 'Enter') { e.preventDefault(); calculate(); }
-            if (e.key === 'Backspace') deleteLast();
-            if (e.key === 'Escape') clearDisplay();
-        });
+        function addHistory(expr, res) {
+            const item = document.createElement('div');
+            item.className = 'history-item';
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+            
+            item.innerHTML = `
+                <div><span class="expr">${expr} =</span> <span class="res">${res}</span></div>
+                <div class="time">${timeStr}</div>
+            `;
+            historyList.prepend(item);
+            if(historyList.children.length > 5) historyList.lastElementChild.remove();
+            syncHeight();
+        }
 
-        /* --- SMOOTH SCROLL ENGINE --- */
+        function syncHeight() {
+            setTimeout(() => {
+                document.body.style.height = document.getElementById('smooth-content').getBoundingClientRect().height + 'px';
+            }, 100);
+        }
+
+        // Global Scroll Logic
         let currentScroll = 0, targetScroll = 0;
-        const ease = 0.08;
         const content = document.getElementById('smooth-content');
+        const progress = document.getElementById('top-scroll-bar');
         const motto = document.getElementById('animated-motto');
-
-        function lerp(s, e, t) { return s * (1 - t) + e * t; }
 
         function updateScroll() {
             if (document.visibilityState === 'visible' && content) {
                 document.body.style.height = content.getBoundingClientRect().height + 'px';
                 targetScroll = window.scrollY;
-                currentScroll = lerp(currentScroll, targetScroll, ease);
+                currentScroll = currentScroll * 0.92 + targetScroll * 0.08;
                 content.style.transform = `translate3d(0, -${currentScroll}px, 0)`;
+                const max = document.body.scrollHeight - window.innerHeight;
+                if (max > 0) progress.style.width = (targetScroll / max) * 100 + "%";
                 if (motto && motto.getBoundingClientRect().top < window.innerHeight - 30) motto.classList.add('visible');
             }
             requestAnimationFrame(updateScroll);
         }
 
-        window.addEventListener('load', () => {
-            // Force scroll update to set body height correctly
-            setTimeout(updateScroll, 100);
-        });
-
-        function transitionTo(url) {
-            document.getElementById('transition-curtain').classList.add('active');
-            setTimeout(() => { window.location.href = url; }, 800);
-        }
+        window.addEventListener('load', () => { updateScroll(); });
+        function transitionTo(url) { document.getElementById('transition-curtain').classList.add('active'); setTimeout(() => { window.location.href = url; }, 800); }
     </script>
 </body>
 </html>
