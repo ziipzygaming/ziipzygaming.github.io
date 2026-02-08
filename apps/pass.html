@@ -72,7 +72,7 @@
         .gen-output {
             font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; font-weight: 800;
             letter-spacing: 2px; word-break: break-all; color: #000; min-height: 2rem;
-            text-transform: none !important;
+            text-transform: none !important; /* Already fixed here */
         }
 
         .strength-meta { width: 100%; display: flex; justify-content: space-between; margin-bottom: 20px; }
@@ -114,7 +114,7 @@
         }
         .gen-button:hover { letter-spacing: 6px; }
 
-        /* --- HISTORY --- */
+        /* --- HISTORY (FIXED CASING) --- */
         .history-container { width: 100%; max-width: 600px; margin-top: 40px; padding-top: 30px; border-top: 1px solid rgba(0,0,0,0.1); }
         .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .history-label { font-size: 0.6rem; font-weight: 900; letter-spacing: 2px; opacity: 0.4; }
@@ -127,7 +127,19 @@
             border: 1px solid transparent; transition: 0.3s; cursor: pointer;
         }
         .history-item:hover { background: #fff; border-color: #000; }
-        .history-string { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80%; }
+        
+        /* THIS IS THE FIX */
+        .history-string { 
+            font-family: 'JetBrains Mono', monospace; 
+            font-size: 0.75rem; 
+            font-weight: 600; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            white-space: nowrap; 
+            max-width: 80%; 
+            text-transform: none !important; 
+        }
+
         .history-time { font-size: 0.55rem; font-weight: 900; opacity: 0.3; }
 
         .back-nav { margin-top: 50px; }
@@ -250,7 +262,6 @@
             document.getElementById('length-label').textContent = `length: ${e.target.value}`;
         });
 
-        /* --- UPDATED COPY WITH FALLBACK --- */
         function copyPassword(text = currentPass) {
             if (!text || text === "LOCKED") return;
 
@@ -265,11 +276,9 @@
                 }, 2000);
             };
 
-            // Main API
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(text).then(executeCopy);
             } else {
-                // Fallback for non-secure contexts or GitHub repo quirks
                 const textArea = document.createElement("textarea");
                 textArea.value = text;
                 textArea.style.position = "fixed";
@@ -281,9 +290,7 @@
                 try {
                     document.execCommand('copy');
                     executeCopy();
-                } catch (err) {
-                    console.error('Fallback copy failed', err);
-                }
+                } catch (err) {}
                 document.body.removeChild(textArea);
             }
         }
