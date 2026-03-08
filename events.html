@@ -10,7 +10,15 @@
         * { box-sizing: border-box; margin: 0; padding: 0; text-transform: lowercase; }
         :root { --bg: #080808; --card-bg: #111; --text: #ffffff; --accent: #ff3e00; }
 
-        .ziipzy-text, h1, .tab-btn, .exit-btn, .copyright, .reveal-box h1, .timer, .info, .tz-label, #utc-clock, .format-toggle-btn, .motto b { text-transform: lowercase !important; }
+        /* Preserve uppercase for main content UI and data */
+        .ziipzy-text, h1:not(footer h1), .tab-btn, .exit-btn, .timer, .info, .tz-label, #utc-clock, .format-toggle-btn, .card h3 { 
+            text-transform: uppercase !important; 
+        }
+
+        /* --- FOOTER LOWERCASE ENFORCEMENT --- */
+        footer, footer *, footer .motto b, footer .reveal-box h1, footer .copyright, footer .footer-meta div { 
+            text-transform: lowercase !important; 
+        }
 
         body { 
             background: var(--bg); color: var(--text); 
@@ -95,9 +103,9 @@
         .timer { font-family: monospace; font-size: 1.1rem; font-weight: 900; background: #000; color: #fff; padding: 15px; text-align: center; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.05); }
         .timer.imminent { border-color: var(--accent); color: var(--accent); }
 
-        .f-tag { position: absolute; bottom: 20px; right: 20px; font-weight: 900; font-size: 3rem; opacity: 0.03; pointer-events: none; }
+        .f-tag { position: absolute; bottom: 20px; right: 20px; font-weight: 900; font-size: 3rem; opacity: 0.03; pointer-events: none; text-transform: uppercase !important; }
 
-        /* --- FOOTER (MATCHED TO DIRECTORY) --- */
+        /* --- FOOTER --- */
         footer { 
             padding: 150px 5% 50px; margin-top: 10vh;
             border-top: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; 
@@ -177,7 +185,6 @@
     </div>
 
     <script>
-        // ... [Keep your event data arrays here unchanged] ...
         const globalEvents = [
             { name: "Winter Olympics", loc: "Milano Cortina", date: "Feb 06, 2026 00:00:00", color: "#0081C8" },
             { name: "The Oscars", loc: "Los Angeles", date: "Mar 15, 2026 17:00:00", color: "#D4AF37" },
@@ -229,7 +236,6 @@
         const footerTrigger = document.getElementById('footer-trigger');
         let is24Hour = localStorage.getItem('timeFormat') !== '12h';
 
-        // --- MOUSE PARALLAX (DIRECTORY MATCH) ---
         document.addEventListener('mousemove', (e) => {
             const x = e.clientX;
             const y = e.clientY;
