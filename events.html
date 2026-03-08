@@ -6,21 +6,20 @@
     <title>ziipzy — events</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap" rel="stylesheet">
     <style>
+        /* --- CORE SYSTEM --- */
         * { box-sizing: border-box; margin: 0; padding: 0; text-transform: lowercase; }
-        :root { --bg: #e5e5e5; --card-bg: #ffffff; --accent: #000; }
+        :root { --bg: #080808; --card-bg: #111; --text: #ffffff; --accent: #ff3e00; }
 
-        .ziipzy-text, h1, .tab-btn, .exit-btn, .copyright, .reveal-box h1, .timer, .info, .tz-label, #utc-clock, .format-toggle-btn { text-transform: uppercase !important; }
+        .ziipzy-text, h1, .tab-btn, .exit-btn, .copyright, .reveal-box h1, .timer, .info, .tz-label, #utc-clock, .format-toggle-btn, .motto b { text-transform: uppercase !important; }
 
-        html, body { 
-            background: var(--bg); 
-            font-family: 'Inter', sans-serif; 
-            color: #000;
-            overflow-x: hidden;
-            scrollbar-width: none; 
+        body { 
+            background: var(--bg); color: var(--text); 
+            font-family: 'Inter', sans-serif; overflow-x: hidden;
+            line-height: 1.1; scrollbar-width: none; 
         }
         body::-webkit-scrollbar { display: none; }
 
-        /* --- TRANSITION CURTAIN --- */
+        /* --- TRANSITIONS --- */
         #transition-curtain {
             position: fixed; inset: 0; background: #000; z-index: 9999999;
             transform: translateY(100%); transition: transform 0.8s cubic-bezier(0.87, 0, 0.13, 1);
@@ -28,27 +27,10 @@
         }
         #transition-curtain.active { transform: translateY(0); }
 
-        /* --- SMOOTH SCROLL ENGINE --- */
-        #smooth-wrapper {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-            overflow: hidden; 
-        }
-        #smooth-content {
-            width: 100%;
-            will-change: transform;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* --- UI ELEMENTS --- */
-        #top-scroll-bar { 
-            position: fixed; top: 0; left: 0; width: 0%; height: 4px; 
-            background: var(--accent); z-index: 1000000; transition: background 0.5s ease;
-        }
-        
         #loader {
             position: fixed; inset: 0; background: #000; z-index: 3000000;
             display: flex; justify-content: center; align-items: center;
+            transform-origin: top left;
             animation: reveal-crooked 1.2s cubic-bezier(0.87, 0, 0.13, 1) 2s forwards;
             pointer-events: none;
         }
@@ -57,119 +39,93 @@
         @keyframes fill { to { width: 100%; } }
         @keyframes reveal-crooked { to { transform: translateY(-110%) rotate(-5deg); visibility: hidden; } }
 
-        .grid-bg {
-            position: absolute; inset: 0;
-            background-image: linear-gradient(to right, rgba(0,0,0,0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.07) 1px, transparent 1px);
-            background-size: 50px 50px; z-index: -1;
-        }
+        /* --- SMOOTH SCROLL --- */
+        #smooth-wrapper { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; overflow: hidden; }
+        #smooth-content { width: 100%; will-change: transform; display: flex; flex-direction: column; }
+
+        /* --- UI ELEMENTS --- */
+        #top-scroll-bar { position: fixed; top: 0; left: 0; width: 0%; height: 4px; background: var(--accent); z-index: 1000000; }
 
         .exit-btn { 
             position: fixed; top: 30px; left: 30px; z-index: 1000;
-            background: #000; color: #fff; padding: 12px 20px; 
-            font-size: 0.6rem; font-weight: 900; letter-spacing: 0.2em; text-decoration: none;
-            transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1); cursor: pointer; border: none;
+            background: #fff; color: #000; padding: 12px 20px; 
+            font-size: 0.6rem; font-weight: 900; letter-spacing: 0.2em; border: none;
+            transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1); cursor: pointer;
         }
-        .exit-btn:hover { padding-left: 40px; background: #333; }
+        .exit-btn:hover { background: var(--accent); color: #fff; transform: translateX(10px); }
 
-        /* --- CONTENT --- */
+        /* --- HEADER & CLOCKS --- */
         header { min-height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 100px 10%; position: relative; }
-        #local-clock { font-size: clamp(3.5rem, 15vw, 10rem); font-weight: 900; letter-spacing: -0.05em; line-height: 0.8; }
-        .tz-label { font-size: 0.7rem; letter-spacing: 0.5em; opacity: 0.5; font-weight: 900; margin-bottom: 15px; }
-        #utc-clock { font-family: monospace; font-size: 1.2rem; font-weight: 900; opacity: 0.3; margin-top: 20px; letter-spacing: 0.2em; }
+        #local-clock { font-size: clamp(3.5rem, 15vw, 10rem); font-weight: 900; letter-spacing: -0.05em; line-height: 0.8; margin: 20px 0; }
+        .tz-label { font-size: 0.7rem; letter-spacing: 0.5em; opacity: 0.3; font-weight: 900; }
+        #utc-clock { font-family: monospace; font-size: 1.1rem; font-weight: 900; opacity: 0.2; letter-spacing: 0.2em; }
 
-        /* NEW: FORMAT TOGGLE BUTTON STYLE */
         .format-toggle-btn {
-            margin-top: 30px;
-            background: transparent;
-            border: 1px solid rgba(0,0,0,0.1);
-            padding: 8px 15px;
-            font-size: 0.6rem;
-            font-weight: 900;
-            letter-spacing: 0.2em;
-            cursor: pointer;
-            transition: 0.3s;
-            color: rgba(0,0,0,0.4);
+            margin-top: 40px; background: transparent; border: 1px solid rgba(255,255,255,0.1);
+            padding: 10px 20px; font-size: 0.6rem; font-weight: 900; letter-spacing: 0.2em;
+            cursor: pointer; transition: 0.3s; color: rgba(255,255,255,0.4);
         }
-        .format-toggle-btn:hover { border-color: #000; color: #000; }
+        .format-toggle-btn:hover { border-color: #fff; color: #fff; }
 
+        /* --- TABS --- */
         .controls-container { 
-            background: rgba(0,0,0,0.85); 
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            display: flex; justify-content: center; position: sticky; top: 0; z-index: 100; margin-bottom: 50px; 
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: rgba(8,8,8,0.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            display: flex; justify-content: center; position: sticky; top: 0; z-index: 100; 
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-        .tab-btn { background: none; border: none; color: #555; padding: 25px 25px; font-weight: 900; font-size: 0.7rem; letter-spacing: 0.2em; cursor: pointer; transition: 0.4s; }
+        .tab-btn { background: none; border: none; color: rgba(255,255,255,0.3); padding: 25px; font-weight: 900; font-size: 0.7rem; letter-spacing: 0.2em; cursor: pointer; transition: 0.4s; }
         .tab-btn.active { color: #fff; box-shadow: inset 0 -4px 0 var(--accent); }
 
-        .tab-content { display: none; padding: 0 10% 100px; min-height: 60vh; }
+        /* --- GRID & CARDS --- */
+        .tab-content { display: none; padding: 80px 10%; min-height: 60vh; }
         .tab-content.active { display: block; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 40px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
         
         .card { 
-            background: var(--card-bg); padding: 45px; border-left: 12px solid #000; 
-            box-shadow: 15px 15px 0px rgba(0,0,0,0.02); position: relative;
-            opacity: 0; transform: translateY(40px);
-            transition: transform 0.8s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.8s ease, box-shadow 0.4s ease;
+            background: var(--card-bg); padding: 40px; border-left: 4px solid var(--accent); 
+            position: relative; opacity: 0; transform: translateY(30px);
+            transition: 0.8s cubic-bezier(0.2, 1, 0.3, 1);
         }
         .card.visible { opacity: 1; transform: translateY(0); }
-        .card:hover { transform: scale(1.02) translateY(-5px); box-shadow: 25px 25px 0px rgba(0,0,0,0.04); }
+        .card:hover { background: #161616; }
 
-        .card h3 { font-weight: 900; font-size: 2rem; margin-bottom: 12px; line-height: 0.95; letter-spacing: -0.02em; }
-        .card .info { font-size: 0.65rem; letter-spacing: 0.15em; opacity: 0.4; display: block; margin-bottom: 30px; font-weight: 900; }
+        .card h3 { font-weight: 900; font-size: 1.8rem; margin-bottom: 10px; line-height: 1; letter-spacing: -0.02em; }
+        .card .info { font-size: 0.6rem; letter-spacing: 0.15em; opacity: 0.3; display: block; margin-bottom: 25px; font-weight: 900; }
         
-        .timer { font-family: monospace; font-size: 1.2rem; font-weight: 900; background: #000; color: #fff; padding: 18px; text-align: center; letter-spacing: 0.1em; transition: background 0.3s ease; }
-        .timer.imminent { animation: pulse-red 2s infinite; }
-        @keyframes pulse-red {
-            0% { background: #000; }
-            50% { background: #ff0000; }
-            100% { background: #000; }
-        }
+        .timer { font-family: monospace; font-size: 1.1rem; font-weight: 900; background: #000; color: #fff; padding: 15px; text-align: center; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.05); }
+        .timer.imminent { border-color: var(--accent); color: var(--accent); }
 
-        .f-tag { position: absolute; top: 15px; right: 20px; font-weight: 900; font-size: 4rem; opacity: 0.04; pointer-events: none; }
+        .f-tag { position: absolute; bottom: 20px; right: 20px; font-weight: 900; font-size: 3rem; opacity: 0.03; pointer-events: none; }
 
-        /* --- FOOTER --- */
+        /* --- FOOTER (MATCHED) --- */
         footer { 
-            padding: 80px 5% 0; position: relative; z-index: 10; background: var(--bg); margin-top: 100px;
+            padding: 150px 5% 50px; margin-top: 10vh;
+            border-top: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; 
         }
-        .motto { font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 0.9; margin-bottom: 25px; }
+        .motto { font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 0.9; margin-bottom: 60px; color: #fff; }
         .motto span { display: block; transform: translateY(30px); opacity: 0; transition: 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
         .motto.visible span { transform: translateY(0); opacity: 1; }
-        .motto b { font-weight: 900; padding-left: 5%; display: block; }
+        .motto b { font-weight: 900; padding-left: 5%; display: block; color: var(--accent); }
         .motto i { font-style: normal; opacity: 0.2; padding-left: 10%; display: block; }
 
-        .footer-meta { display: flex; justify-content: flex-end; padding-bottom: 15px; }
-        .copyright { font-size: 0.7rem; font-weight: 900; opacity: 0.4; text-align: right; }
-
         .reveal-box { 
-            background: #000; 
-            height: 130px; 
-            width: 111%; 
-            margin-left: -5.5%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            position: relative; 
-            overflow: hidden; 
+            background: #111; height: 180px; width: 100%; margin: 50px 0;
+            display: flex; align-items: center; justify-content: center;
+            position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.03);
         }
         .reveal-box h1 { 
-            font-size: 11vw; 
-            color: transparent; 
-            -webkit-text-stroke: 1px rgba(255,255,255,0.1); 
-            transition: 0.7s; 
-            z-index: 2; 
-            pointer-events: none;  
+            font-size: 12vw; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.1); 
+            transition: 0.5s; z-index: 2; pointer-events: none;
         }
-        .reveal-box:hover h1 { color: #fff; -webkit-text-stroke: 1px #fff; }
-        
+        .reveal-box:hover h1 { color: #fff; }
         .grain { 
             position: absolute; inset: -50%; width: 200%; height: 200%; opacity: 0; pointer-events: none; z-index: 3; 
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); 
         }
-        .reveal-box:hover .grain { opacity: 0.15; animation: jitter 0.15s steps(2) infinite; }
+        .reveal-box:hover .grain { opacity: 0.1; animation: jitter 0.15s steps(2) infinite; }
         @keyframes jitter { 0% { transform: translate(0,0); } 50% { transform: translate(-1%, -1%); } }
 
-        @media (max-width: 768px) { .reveal-box { height: 90px; } .reveal-box h1 { font-size: 16vw; } }
+        .footer-meta { display: flex; justify-content: space-between; align-items: flex-end; opacity: 0.4; font-size: 0.7rem; font-weight: 900; }
     </style>
 </head>
 <body>
@@ -180,20 +136,19 @@
 
     <div id="smooth-wrapper">
         <div id="smooth-content">
-            <div class="grid-bg"></div>
             <button onclick="transitionTo('index.html')" class="exit-btn">← return</button>
 
             <header>
-                <div class="tz-label">local / <span id="tz-name">...</span></div>
+                <div class="tz-label">system time / <span id="tz-name">...</span></div>
                 <div id="local-clock">00:00:00</div>
                 <div id="utc-clock">UTC 00:00:00</div>
                 <button class="format-toggle-btn" id="format-toggle" onclick="toggleTimeFormat()">format: 24h</button>
             </header>
 
             <div class="controls-container">
-                <button class="tab-btn active" onclick="openTab(event, 'global-tab', '#0081C8')">Global</button>
-                <button class="tab-btn" onclick="openTab(event, 'f1-tab', '#EE1C25')">Formula 1</button>
-                <button class="tab-btn" onclick="openTab(event, 'endurance-tab', '#002b5c')">Endurance</button>
+                <button class="tab-btn active" onclick="openTab(event, 'global-tab', '#ff3e00')">Global</button>
+                <button class="tab-btn" onclick="openTab(event, 'f1-tab', '#ff0000')">Formula 1</button>
+                <button class="tab-btn" onclick="openTab(event, 'endurance-tab', '#0044ff')">Endurance</button>
             </div>
 
             <main>
@@ -209,7 +164,8 @@
                     <span style="transition-delay: 0.3s;"><i>dreaming.</i></span>
                 </div>
                 <div class="footer-meta">
-                    <div class="copyright">© 2026 <span class="ziipzy-text">ziipzy</span> — studio</div>
+                    <div>est. 2026 / events_module</div>
+                    <div class="copyright">© ziipzy studio</div>
                 </div>
                 <div class="reveal-box">
                     <div class="grain"></div>
@@ -222,51 +178,51 @@
     <script>
         const globalEvents = [
             { name: "Winter Olympics", loc: "Milano Cortina", date: "Feb 06, 2026 00:00:00", color: "#0081C8" },
-            { name: "Super Bowl LX", loc: "San Francisco", date: "Feb 08, 2026 18:30:00", color: "#633971" },
-            { name: "World Expo 2026", loc: "Osaka", date: "Apr 13, 2026 09:00:00", color: "#E60012" },
-            { name: "FIFA World Cup", loc: "North America", date: "Jun 11, 2026 12:00:00", color: "#009688" },
-            { name: "Total Solar Eclipse", loc: "Europe", date: "Aug 12, 2026 18:00:00", color: "#444444" },
-            { name: "Artemis III", loc: "Moon", date: "Dec 15, 2026 00:00:00", color: "#000000" }
+            { name: "The Oscars", loc: "Los Angeles", date: "Mar 15, 2026 17:00:00", color: "#D4AF37" },
+            { name: "Eurovision Final", loc: "Vienna", date: "May 16, 2026 21:00:00", color: "#6A0DAD" },
+            { name: "FIFA World Cup Opener", loc: "Mexico City", date: "Jun 11, 2026 12:00:00", color: "#009688" },
+            { name: "USA 250th Anniv.", loc: "Philadelphia", date: "Jul 04, 2026 00:00:00", color: "#B22234" },
+            { name: "World Cup Final", loc: "New York NJ", date: "Jul 19, 2026 15:00:00", color: "#009688" },
+            { name: "Asian Games", loc: "Nagoya", date: "Sep 19, 2026 09:00:00", color: "#EE1C25" },
+            { name: "US Elections", loc: "Washington DC", date: "Nov 03, 2026 07:00:00", color: "#002868" }
         ];
 
         const f1Data = [
-            { n: "01", name: "Australian GP", loc: "Melbourne", date: "Mar 15, 2026 15:00:00", color: "#00008B" },
-            { n: "02", name: "Chinese GP", loc: "Shanghai", date: "Mar 22, 2026 15:00:00", color: "#EE1C25" },
-            { n: "03", name: "Japanese GP", loc: "Suzuka", date: "Apr 05, 2026 14:00:00", color: "#BC002D" },
-            { n: "04", name: "Bahrain GP", loc: "Sakhir", date: "Apr 19, 2026 18:00:00", color: "#CE1126" },
-            { n: "05", name: "Saudi Arabian GP", loc: "Jeddah", date: "Apr 26, 2026 20:00:00", color: "#006C35" },
-            { n: "06", name: "Miami GP", loc: "Miami", date: "May 10, 2026 16:00:00", color: "#00BFFF" },
-            { n: "07", name: "Emilia Romagna GP", loc: "Imola", date: "May 24, 2026 15:00:00", color: "#009246" },
-            { n: "08", name: "Monaco GP", loc: "Monte Carlo", date: "May 31, 2026 15:00:00", color: "#FF0000" },
-            { n: "09", name: "Spanish GP", loc: "Barcelona", date: "Jun 14, 2026 15:00:00", color: "#F1BF00" },
-            { n: "10", name: "Canadian GP", loc: "Montreal", date: "Jun 28, 2026 14:00:00", color: "#D80621" },
-            { n: "11", name: "Austrian GP", loc: "Spielberg", date: "Jul 12, 2026 15:00:00", color: "#EF3340" },
-            { n: "12", name: "British GP", loc: "Silverstone", date: "Jul 19, 2026 15:00:00", color: "#00247D" },
-            { n: "13", name: "Belgian GP", loc: "Spa", date: "Aug 02, 2026 15:00:00", color: "#2D2926" },
-            { n: "14", name: "Hungarian GP", loc: "Budapest", date: "Aug 09, 2026 15:00:00", color: "#436F4D" },
-            { n: "15", name: "Dutch GP", loc: "Zandvoort", date: "Aug 30, 2026 15:00:00", color: "#21468B" },
-            { n: "16", name: "Italian GP", loc: "Monza", date: "Sep 06, 2026 15:00:00", color: "#009246" },
-            { n: "17", name: "Azerbaijan GP", loc: "Baku", date: "Sep 20, 2026 15:00:00", color: "#3F9C35" },
-            { n: "18", name: "Singapore GP", loc: "Marina Bay", date: "Oct 04, 2026 20:00:00", color: "#EE1C25" },
-            { n: "19", name: "United States GP", loc: "Austin", date: "Oct 25, 2026 14:00:00", color: "#B22234" },
-            { n: "20", name: "Mexico City GP", loc: "Mexico City", date: "Nov 01, 2026 14:00:00", color: "#006847" },
-            { n: "21", name: "Sao Paulo GP", loc: "Interlagos", date: "Nov 15, 2026 14:00:00", color: "#009739" },
-            { n: "22", name: "Las Vegas GP", loc: "Las Vegas Strip", date: "Nov 21, 2026 22:00:00", color: "#C0C0C0" },
-            { n: "23", name: "Qatar GP", loc: "Lusail", date: "Nov 29, 2026 19:00:00", color: "#8D1919" },
-            { n: "24", name: "Abu Dhabi GP", loc: "Yas Marina", date: "Dec 06, 2026 17:00:00", color: "#00732F" }
+            { n: "01", name: "Australian GP", loc: "Melbourne", date: "Mar 08, 2026 15:00:00", color: "#ff0000" },
+            { n: "02", name: "Chinese GP", loc: "Shanghai", date: "Mar 15, 2026 15:00:00", color: "#ff0000" },
+            { n: "03", name: "Japanese GP", loc: "Suzuka", date: "Mar 29, 2026 14:00:00", color: "#ff0000" },
+            { n: "04", name: "Bahrain GP", loc: "Sakhir", date: "Apr 12, 2026 18:00:00", color: "#ff0000" },
+            { n: "05", name: "Saudi Arabian GP", loc: "Jeddah", date: "Apr 19, 2026 20:00:00", color: "#ff0000" },
+            { n: "06", name: "Miami GP", loc: "Miami", date: "May 03, 2026 15:30:00", color: "#ff0000" },
+            { n: "07", name: "Emilia Romagna GP", loc: "Imola", date: "May 17, 2026 15:00:00", color: "#ff0000" },
+            { n: "08", name: "Monaco GP", loc: "Monte Carlo", date: "May 24, 2026 15:00:00", color: "#ff0000" },
+            { n: "09", name: "Spanish GP", loc: "Barcelona", date: "Jun 07, 2026 15:00:00", color: "#ff0000" },
+            { n: "10", name: "Canadian GP", loc: "Montreal", date: "Jun 14, 2026 14:00:00", color: "#ff0000" },
+            { n: "11", name: "Austrian GP", loc: "Spielberg", date: "Jun 28, 2026 15:00:00", color: "#ff0000" },
+            { n: "12", name: "British GP", loc: "Silverstone", date: "Jul 05, 2026 15:00:00", color: "#ff0000" },
+            { n: "13", name: "Belgian GP", loc: "Spa", date: "Jul 19, 2026 15:00:00", color: "#ff0000" },
+            { n: "14", name: "Hungarian GP", loc: "Budapest", date: "Jul 26, 2026 15:00:00", color: "#ff0000" },
+            { n: "15", name: "Dutch GP", loc: "Zandvoort", date: "Aug 23, 2026 15:00:00", color: "#ff0000" },
+            { n: "16", name: "Italian GP", loc: "Monza", date: "Sep 06, 2026 15:00:00", color: "#ff0000" },
+            { n: "17", name: "Azerbaijan GP", loc: "Baku", date: "Sep 20, 2026 15:00:00", color: "#ff0000" },
+            { n: "18", name: "Singapore GP", loc: "Marina Bay", date: "Oct 04, 2026 20:00:00", color: "#ff0000" },
+            { n: "19", name: "United States GP", loc: "Austin", date: "Oct 18, 2026 14:00:00", color: "#ff0000" },
+            { n: "20", name: "Mexico City GP", loc: "Mexico City", date: "Oct 25, 2026 14:00:00", color: "#ff0000" },
+            { n: "21", name: "Sao Paulo GP", loc: "Interlagos", date: "Nov 08, 2026 14:00:00", color: "#ff0000" },
+            { n: "22", name: "Las Vegas GP", loc: "Las Vegas Strip", date: "Nov 21, 2026 22:00:00", color: "#ff0000" },
+            { n: "23", name: "Qatar GP", loc: "Lusail", date: "Nov 29, 2026 19:00:00", color: "#ff0000" },
+            { n: "24", name: "Abu Dhabi GP", loc: "Yas Marina", date: "Dec 06, 2026 17:00:00", color: "#ff0000" }
         ];
 
-        const enduranceData = [{ name: "24 Hours of Le Mans", loc: "Le Mans", date: "Jun 13, 2026 16:00:00", color: "#002b5c", tag: "WEC" }];
+        const enduranceData = [
+            { name: "24 Hours of Le Mans", loc: "Le Mans", date: "Jun 13, 2026 16:00:00", color: "#0044ff", tag: "WEC" }
+        ];
 
-        let currentScroll = 0;
-        let targetScroll = 0;
+        let currentScroll = 0, targetScroll = 0;
         const ease = 0.08; 
         const content = document.getElementById('smooth-content');
         const progress = document.getElementById('top-scroll-bar');
         const motto = document.getElementById('animated-motto');
-        const gridBg = document.querySelector('.grid-bg');
-
-        // PERSISTENT FORMAT LOGIC
         let is24Hour = localStorage.getItem('timeFormat') !== '12h';
 
         function toggleTimeFormat() {
@@ -279,21 +235,18 @@
         function lerp(start, end, t) { return start * (1 - t) + end * t; }
 
         function updateScroll() {
-            document.body.style.height = content.getBoundingClientRect().height + 'px';
             targetScroll = window.scrollY;
             currentScroll = lerp(currentScroll, targetScroll, ease);
             content.style.transform = `translate3d(0, -${currentScroll}px, 0)`;
-            if(gridBg) gridBg.style.transform = `translate3d(0, ${currentScroll * 0.2}px, 0)`;
+            document.body.style.height = content.getBoundingClientRect().height + 'px';
+            
             const maxScroll = document.body.scrollHeight - window.innerHeight;
             if (maxScroll > 0) progress.style.width = (targetScroll / maxScroll) * 100 + "%";
+            
             const mottoPos = motto.getBoundingClientRect().top;
             if (mottoPos < window.innerHeight - 50) motto.classList.add('visible');
+            
             requestAnimationFrame(updateScroll);
-        }
-
-        function transitionTo(url) {
-            document.getElementById('transition-curtain').classList.add('active');
-            setTimeout(() => { window.location.href = url; }, 800);
         }
 
         function renderGrid(data, containerId, tag) {
@@ -325,25 +278,15 @@
                 const diff = new Date(ev.date).getTime() - now.getTime();
                 const el = document.getElementById(`timer-${pref}-${i}`);
                 if (el) {
-                    if (diff < 0) {
-                        el.innerText = "FINISHED";
-                        el.classList.remove('imminent');
-                        el.style.opacity = "0.3";
-                    } else {
-                        el.innerText = formatDiff(diff);
+                    if (diff < 0) { el.innerText = "FINISHED"; el.style.opacity = "0.2"; }
+                    else {
+                        const d = Math.floor(diff/86400000), h = Math.floor((diff%86400000)/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
+                        el.innerText = `${d}D ${h}H ${m}M ${s}S`;
                         if (diff < 86400000) el.classList.add('imminent');
-                        else el.classList.remove('imminent');
                     }
                 }
             });
-            proc(globalEvents, 'global-grid');
-            proc(f1Data, 'f1-grid');
-            proc(enduranceData, 'endurance-grid');
-        }
-
-        function formatDiff(ms) {
-            const d = Math.floor(ms/86400000), h = Math.floor((ms%86400000)/3600000), m = Math.floor((ms%3600000)/60000), s = Math.floor((ms%60000)/1000);
-            return `${d}D ${h}H ${m}M ${s}S`;
+            proc(globalEvents, 'global-grid'); proc(f1Data, 'f1-grid'); proc(enduranceData, 'endurance-grid');
         }
 
         function openTab(e, id, color) {
@@ -352,12 +295,12 @@
             document.getElementById(id).classList.add('active');
             e.currentTarget.classList.add('active');
             document.documentElement.style.setProperty('--accent', color);
-            window.scrollTo(0, 0);
-            currentScroll = 0; targetScroll = 0;
-            document.querySelectorAll(`#${id} .card`).forEach((c, idx) => {
-                c.classList.remove('visible');
-                setTimeout(() => c.classList.add('visible'), idx * 50);
-            });
+            window.scrollTo(0, 0); currentScroll = 0; targetScroll = 0;
+        }
+
+        function transitionTo(url) {
+            document.getElementById('transition-curtain').classList.add('active');
+            setTimeout(() => { window.location.href = url; }, 800);
         }
 
         window.addEventListener('load', () => {
