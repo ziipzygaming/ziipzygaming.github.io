@@ -6,33 +6,38 @@
     <title>ziipzy — labs</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; cursor: auto !important; text-transform: lowercase; }
-        :root { --bg: #e5e5e5; }
+        /* --- CORE SYSTEM --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; text-transform: lowercase; }
+        :root { --bg: #080808; --card-bg: #111; --text: #ffffff; --accent: #ff3e00; }
 
-        .ziipzy-text, h1, h2, .ui-btn, .copyright, .exit-btn { text-transform: uppercase !important; }
+        .ziipzy-text, h1, h2, .ui-btn, .copyright, .exit-btn, .motto b, .reveal-box h1 { text-transform: uppercase !important; }
 
-        html, body { 
-            overflow-x: hidden;
-            background: var(--bg);
-            scrollbar-width: none; 
+        /* --- FOOTER LOWERCASE OVERRIDE --- */
+        footer, footer *, footer .motto b, footer .reveal-box h1, footer .copyright { 
+            text-transform: lowercase !important; 
+        }
+
+        body { 
+            background: var(--bg); color: var(--text); 
+            font-family: 'Inter', sans-serif; overflow-x: hidden;
+            line-height: 1.1; scrollbar-width: none; 
         }
         body::-webkit-scrollbar { display: none; }
-        body { font-family: 'Inter', sans-serif; color: #000; min-height: 100vh; }
 
         /* --- UI COMPONENTS --- */
-        #top-scroll-bar { position: fixed; top: 0; left: 0; width: 0%; height: 4px; background: #000; z-index: 1000000; }
+        #top-scroll-bar { position: fixed; top: 0; left: 0; width: 0%; height: 4px; background: var(--accent); z-index: 1000000; }
         #smooth-wrapper { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; overflow: hidden; }
         #smooth-content { width: 100%; will-change: transform; display: flex; flex-direction: column; }
 
         .grid-bg {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background-image: linear-gradient(to right, rgba(0,0,0,0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.07) 1px, transparent 1px);
-            background-size: 50px 50px; z-index: -1;
+            position: absolute; top: 0; left: 0; width: 100%; height: 120%; 
+            background-image: linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 60px 60px; z-index: -1;
             -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
             mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
         }
 
-        /* --- SIGNATURE TRANSITIONS --- */
+        /* --- TRANSITIONS --- */
         #transition-curtain {
             position: fixed; inset: 0; background: #000; z-index: 9999999;
             transform: translateY(100%); transition: transform 0.8s cubic-bezier(0.87, 0, 0.13, 1);
@@ -55,87 +60,108 @@
         /* FIXED EXIT BUTTON */
         .exit-btn { 
             position: fixed; top: 30px; left: 30px; z-index: 1000;
-            background: #000; color: #fff; padding: 12px 20px; 
-            font-size: 0.6rem; font-weight: 900; letter-spacing: 0.2em; text-decoration: none;
+            background: #fff; color: #000; padding: 12px 20px; 
+            font-size: 0.6rem; font-weight: 900; letter-spacing: 0.2em;
             transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1); cursor: pointer; border: none;
         }
-        .exit-btn:hover { padding-left: 40px; background: #333; }
+        .exit-btn:hover { background: var(--accent); color: #fff; transform: translateX(10px); }
 
         /* --- CONTENT ZONE --- */
-        .content-zone { padding: 160px 10% 80px; text-align: left; position: relative; min-height: 100vh; }
+        .content-zone { padding: 180px 10% 80px; text-align: left; position: relative; min-height: 100vh; }
         header { margin-bottom: 80px; }
-        header p { letter-spacing: 0.3em; margin-bottom: 10px; opacity: 0.5; font-weight: 900; }
-        header h1 { font-size: clamp(3rem, 8vw, 6rem); font-weight: 900; line-height: 0.8; }
+        header p { letter-spacing: 0.3em; margin-bottom: 15px; opacity: 0.3; font-weight: 900; font-size: 0.7rem; }
+        header h1 { font-size: clamp(4rem, 12vw, 8rem); font-weight: 900; line-height: 0.8; letter-spacing: -0.04em; }
 
         /* --- MODULAR APP GRID --- */
         .app-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-            gap: 20px; 
-            margin-bottom: 80px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 25px; 
+            margin-bottom: 100px;
         }
 
         .app-card {
-            background: #fff;
+            background: var(--card-bg);
             aspect-ratio: 1/1;
-            padding: 40px;
+            padding: 45px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             text-decoration: none;
-            color: #000;
-            border: 1px solid rgba(0,0,0,0.05);
-            transition: 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            color: var(--text);
+            border-left: 4px solid rgba(255,255,255,0.05);
+            transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
+            overflow: hidden;
         }
 
         .app-card:not(.disabled):hover { 
-            background: #000; 
-            color: #fff; 
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border-left-color: var(--accent);
+            background: #161616;
+            transform: translateY(-10px);
         }
 
         .app-card.disabled {
             background: transparent;
-            border: 1px dashed rgba(0,0,0,0.2);
-            opacity: 0.6;
+            border: 1px dashed rgba(255,255,255,0.1);
+            opacity: 0.4;
             cursor: default;
         }
 
-        .app-card h2 { font-size: 2rem; font-weight: 900; line-height: 1; }
-        .app-card p { font-size: 0.85rem; opacity: 0.6; line-height: 1.4; }
+        .app-card h2 { font-size: 2.2rem; font-weight: 900; line-height: 0.9; letter-spacing: -0.02em; }
+        .app-card p { font-size: 0.8rem; opacity: 0.4; line-height: 1.4; }
         
-        .status-dot { width: 8px; height: 8px; background: #000; border-radius: 50%; display: inline-block; margin-right: 8px; }
-        .app-card:hover:not(.disabled) .status-dot { background: #fff; }
+        .status-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; display: inline-block; margin-right: 10px; }
+        .app-card.disabled .status-dot { background: #333; }
 
-        .card-meta { display: flex; align-items: center; }
+        .card-meta { display: flex; align-items: center; margin-bottom: 20px; }
+        .card-meta p { opacity: 0.3; font-weight: 900; letter-spacing: 0.1em; }
 
         /* --- MARQUEE SYSTEM --- */
         .marquee-container { 
-            overflow: hidden; background: #000; color: #fff; padding: 30px 0; 
+            overflow: hidden; background: var(--accent); color: #fff; padding: 40px 0; 
             margin: 100px -20% 0; transform: rotate(-1.5deg); display: flex;
             width: 140%;
         }
-        .marquee-track { display: flex; white-space: nowrap; animation: marquee-loop 30s linear infinite; width: max-content; }
-        .marquee-track span { font-weight: 900; font-size: 3rem; letter-spacing: 12px; padding-right: 60px; text-transform: uppercase !important; }
+        .marquee-track { display: flex; white-space: nowrap; animation: marquee-loop 40s linear infinite; width: max-content; }
+        .marquee-track span { font-weight: 900; font-size: 4rem; letter-spacing: 15px; padding-right: 80px; text-transform: uppercase !important; }
         @keyframes marquee-loop { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-        /* --- FOOTER --- */
-        footer { padding: 120px 5% 0; position: relative; z-index: 10; background: var(--bg); }
-        .motto { font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 0.9; margin-bottom: 25px; }
+        /* --- FOOTER MATCHED --- */
+        footer { 
+            padding: 150px 5% 50px; margin-top: 10vh;
+            border-top: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; 
+        }
+        .motto { font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 0.9; margin-bottom: 60px; color: #fff; }
         .motto span { display: block; transform: translateY(30px); opacity: 0; transition: 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
         .motto.visible span { transform: translateY(0); opacity: 1; }
-        .motto b { font-weight: 900; padding-left: 5%; display: block; }
+        .motto b { font-weight: 900; padding-left: 5%; display: block; color: var(--accent); }
         .motto i { font-style: normal; opacity: 0.2; padding-left: 10%; display: block; }
-        .footer-meta { display: flex; justify-content: flex-end; padding-bottom: 15px; }
-        .copyright { font-size: 0.7rem; font-weight: 900; opacity: 0.4; text-align: right; }
 
-        .reveal-box { background: #000; height: 130px; width: 111%; margin-left: -5.5%; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-        .reveal-box h1 { font-size: 11vw; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.1); transition: 0.7s; z-index: 2; pointer-events: none; }
+        .reveal-box { 
+            background: #111; height: 180px; width: 100%; margin: 50px 0;
+            display: flex; align-items: center; justify-content: center;
+            position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.03);
+        }
+        .reveal-box h1 { 
+            font-size: 12vw; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.1); 
+            transition: color 0.5s, transform 0.1s ease-out; z-index: 2; pointer-events: none;
+        }
         .reveal-box:hover h1 { color: #fff; }
+        
+        .grain { 
+            position: absolute; inset: -50%; width: 200%; height: 200%; opacity: 0; pointer-events: none; z-index: 3; 
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); 
+        }
+        .reveal-box:hover .grain { opacity: 0.1; animation: jitter 0.15s steps(2) infinite; }
+        @keyframes jitter { 0% { transform: translate(0,0); } 50% { transform: translate(-1%, -1%); } }
 
-        @media (max-width: 768px) { .exit-btn { top: 20px; left: 20px; } }
+        .footer-meta { display: flex; justify-content: space-between; align-items: flex-end; opacity: 0.4; font-size: 0.7rem; font-weight: 900; }
+
+        @media (max-width: 768px) { 
+            .content-zone { padding-top: 140px; }
+            .reveal-box { height: 100px; }
+        }
     </style>
 </head>
 <body>
@@ -144,10 +170,10 @@
     <div id="transition-curtain"></div>
     <div id="loader"><div class="bar"><div class="fill"></div></div></div>
 
-    <button onclick="transitionTo('/index.html')" class="exit-btn">← return</button>
-
     <div id="smooth-wrapper">
         <div id="smooth-content">
+            <button onclick="transitionTo('index.html')" class="exit-btn">← return</button>
+
             <section class="content-zone">
                 <div class="grid-bg" id="parallax-grid"></div>
                 
@@ -195,6 +221,7 @@
 
                     <div class="app-card disabled">
                         <div class="card-meta">
+                            <span class="status-dot"></span>
                             <p>system / --</p>
                         </div>
                         <h2>coming<br>soon</h2>
@@ -204,8 +231,6 @@
 
                 <div class="marquee-container">
                     <div class="marquee-track">
-                        <span>ziipzy — software labs — industrial grade — </span>
-                        <span>ziipzy — software labs — industrial grade — </span>
                         <span>ziipzy — software labs — industrial grade — </span>
                         <span>ziipzy — software labs — industrial grade — </span>
                     </div>
@@ -219,9 +244,13 @@
                     <span style="transition-delay: 0.3s;"><i>dreaming.</i></span>
                 </div>
                 <div class="footer-meta">
-                    <div class="copyright">© 2026 <span class="ziipzy-text">ziipzy</span> — est. london</div>
+                    <div>est. 2026 / labs_collection</div>
+                    <div class="copyright">© ziipzy studio</div>
                 </div>
-                <div class="reveal-box"><h1>ziipzy</h1></div>
+                <div class="reveal-box" id="footer-trigger">
+                    <div class="grain"></div>
+                    <h1 id="footer-logo">ziipzy</h1>
+                </div>
             </footer>
         </div>
     </div>
@@ -235,8 +264,23 @@
         const progress = document.getElementById('top-scroll-bar');
         const grid = document.getElementById('parallax-grid');
         const motto = document.getElementById('animated-motto');
+        const footerLogo = document.getElementById('footer-logo');
+        const footerTrigger = document.getElementById('footer-trigger');
 
         function lerp(start, end, t) { return start * (1 - t) + end * t; }
+
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX;
+            const y = e.clientY;
+            const box = footerTrigger.getBoundingClientRect();
+            if (x > box.left && x < box.right && y > box.top && y < box.bottom) {
+                const moveX = (x - (box.left + box.width/2)) * 0.2;
+                const moveY = (y - (box.top + box.height/2)) * 0.2;
+                footerLogo.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            } else {
+                footerLogo.style.transform = `translate(0, 0)`;
+            }
+        });
 
         function updateScroll() {
             if (content) {
@@ -251,7 +295,7 @@
 
                 if (grid) grid.style.transform = `translate3d(0, ${currentScroll * 0.15}px, 0)`;
 
-                if (motto && motto.getBoundingClientRect().top < window.innerHeight - 30) {
+                if (motto && motto.getBoundingClientRect().top < window.innerHeight - 50) {
                     motto.classList.add('visible');
                 }
             }
