@@ -8,21 +8,22 @@
     <style>
         /* --- CORE SYSTEM --- */
         :root {
-            --accent: #ff3e00; /* Signature Orange */
+            --accent: #ff3e00; 
             --bg: #080808;
             --card: rgba(12, 12, 12, 0.8);
             --border: rgba(255, 255, 255, 0.08);
             --text-dim: #666;
+            --dynamic-glow: rgba(255, 255, 255, 0.05);
         }
 
-        /* --- REMOVE SCROLLBAR & BASE RESET --- */
+        /* --- REMOVE SCROLLBAR --- */
         * { 
             box-sizing: border-box; 
             margin: 0; padding: 0; 
             text-transform: lowercase; 
-            scrollbar-width: none; /* Firefox */
+            scrollbar-width: none; 
         }
-        *::-webkit-scrollbar { display: none; /* Chrome/Safari */ }
+        *::-webkit-scrollbar { display: none; }
 
         body {
             background-color: var(--bg);
@@ -32,10 +33,29 @@
             line-height: 1.5;
             min-height: 100vh;
             overflow-x: hidden;
+        }
+
+        /* --- SEAMLESS TRANSITION CURTAIN --- */
+        #transition-layer {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 9999;
+            transform: translateY(100%);
+            transition: transform 0.6s cubic-bezier(0.87, 0, 0.13, 1);
+            pointer-events: none;
+        }
+        #transition-layer.active { transform: translateY(0); }
+
+        /* --- GRID & PARTICLES --- */
+        .grid-layer {
+            position: fixed;
+            inset: 0;
             background-image: 
                 linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
             background-size: 60px 60px;
+            z-index: -2;
         }
 
         #bg-canvas {
@@ -46,7 +66,7 @@
             pointer-events: none;
         }
 
-        /* --- BRANDING COLORS --- */
+        /* --- BRANDING --- */
         .ziip { color: #ffffff; }
         .zy { color: var(--accent); }
         .white-ext { color: #ffffff; }
@@ -69,7 +89,6 @@
             gap: 80px;
         }
 
-        .pfp-stage { flex-shrink: 0; }
         .pfp-frame {
             width: 320px; height: 320px;
             padding: 12px;
@@ -78,6 +97,7 @@
             border-radius: 40px;
             backdrop-filter: blur(20px);
             transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 0 0px var(--dynamic-glow);
         }
 
         .pfp-image {
@@ -88,11 +108,8 @@
             transition: 0.6s ease;
         }
 
-        .pfp-frame:hover {
-            border-color: var(--accent);
-            transform: scale(1.02) translateY(-10px);
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
-        }
+        body.theme-apps .pfp-frame { border-color: #ffffff; box-shadow: 0 20px 50px rgba(255,255,255,0.1); }
+        body.theme-directory .pfp-frame { border-color: var(--accent); box-shadow: 0 20px 50px rgba(255,62,0,0.15); }
 
         .intro h1 {
             font-size: clamp(3.5rem, 9vw, 5.5rem);
@@ -109,9 +126,10 @@
             margin-bottom: 40px;
             border-left: 3px solid var(--accent);
             padding-left: 24px;
+            transition: border-color 0.4s ease;
         }
+        body.theme-apps .intro p { border-color: #ffffff; }
 
-        /* ACTION BUTTONS */
         .btn-group { display: flex; gap: 15px; }
 
         .btn {
@@ -122,29 +140,33 @@
             font-size: 0.65rem;
             text-decoration: none;
             border-radius: 4px;
-            transition: all 0.3s;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             border: 1px solid var(--border);
+            cursor: pointer;
         }
 
-        .btn-solid { background: #fff; color: #000; border-color: #fff; }
-        .btn-solid:hover { background: var(--accent); border-color: var(--accent); color: #fff; transform: translateY(-5px); }
+        .btn-apps { background: #fff; color: #000; border-color: #fff; }
+        .btn-apps:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(255,255,255,0.2); }
 
-        .btn-outline { background: transparent; color: #fff; }
-        .btn-outline:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-5px); }
+        .btn-dir { background: transparent; color: #fff; border-color: var(--border); }
+        .btn-dir:hover { 
+            border-color: var(--accent); color: var(--accent); 
+            transform: translateY(-5px); box-shadow: 0 10px 20px rgba(255,62,0,0.2);
+        }
 
-        /* --- CLEAN FOOTER --- */
+        /* --- FULL STRETCH FOOTER --- */
         .footer {
             background: #050505;
-            padding: 120px 40px 60px;
+            padding: 180px 80px 100px; /* Large side padding */
             border-top: 1px solid var(--border);
         }
 
-        .footer-grid {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 2fr 1.5fr;
-            gap: 100px;
+        .footer-content {
+            width: 100%;
+            display: flex;
+            justify-content: space-between; /* Stretches items to leftmost and rightmost */
+            align-items: flex-start;
+            gap: 40px;
         }
 
         .footer-brand-link {
@@ -153,17 +175,18 @@
             font-weight: 900;
             letter-spacing: -0.05em;
             display: inline-block;
-            margin-bottom: 20px;
-            transition: 0.3s;
+            margin-bottom: 30px;
         }
-        
-        .footer-brand-link:hover { transform: translateX(10px); }
 
         .footer-brand p {
             color: var(--text-dim);
-            font-size: 0.9rem;
-            max-width: 350px;
-            line-height: 1.6;
+            font-size: 0.95rem;
+            max-width: 400px;
+            line-height: 1.8;
+        }
+
+        .footer-col {
+            text-align: right; /* Aligns links to the rightmost side */
         }
 
         .footer-col h4 {
@@ -171,58 +194,56 @@
             font-size: 11px;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.25em;
-            margin-bottom: 35px;
+            letter-spacing: 0.3em;
+            margin-bottom: 45px;
             opacity: 0.3;
         }
 
-        .footer-links {
-            list-style: none;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+        .footer-links { 
+            list-style: none; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 20px; 
         }
 
-        .footer-links a {
-            color: #888;
-            text-decoration: none;
-            font-size: 0.95rem;
-            font-weight: 500;
-            transition: 0.2s;
+        .footer-links a { 
+            color: #888; 
+            text-decoration: none; 
+            font-size: 1rem; 
+            transition: 0.3s; 
         }
 
-        .footer-links a:hover {
-            color: var(--accent);
-            padding-left: 8px;
+        .footer-links a:hover { 
+            color: var(--accent); 
+            padding-right: 12px; /* Hover effect moves toward the center */
         }
 
         .footer-bottom {
-            max-width: 1200px;
-            margin: 100px auto 0;
-            padding-top: 40px;
+            width: 100%;
+            margin-top: 140px;
+            padding-top: 50px;
             border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
         }
 
-        .copy {
-            font-size: 10px;
-            font-weight: 700;
-            color: #333;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-        }
+        .copy { font-size: 11px; font-weight: 700; color: #333; text-transform: uppercase; letter-spacing: 0.25em; }
 
-        /* --- MOBILE --- */
         @media (max-width: 900px) {
+            .footer { padding: 100px 30px 60px; }
+            .footer-content { flex-direction: column; text-align: center; }
+            .footer-col { text-align: center; }
+            .footer-bottom { justify-content: center; }
             .hero-container { flex-direction: column; text-align: center; gap: 50px; }
             .intro p { margin: 0 auto 40px; border-left: none; border-top: 3px solid var(--accent); padding: 25px 0 0 0; }
             .btn-group { justify-content: center; }
-            .footer-grid { grid-template-columns: 1fr; gap: 60px; }
-            .footer-links { grid-template-columns: 1fr; }
         }
     </style>
 </head>
-<body>
+<body id="body">
 
+    <div id="transition-layer"></div>
+    <div class="grid-layer"></div>
     <canvas id="bg-canvas"></canvas>
 
     <section class="hero">
@@ -237,16 +258,15 @@
                 <h1>hello, i'm <br><span class="ziip">ziip</span><span class="zy">zy.</span></h1>
                 <p>infrastructure specialist and interface developer based in the philippines. documenting the process of building performance-first systems.</p>
                 <div class="btn-group">
-                    <a href="projects/index.html" class="btn btn-solid">apps</a>
-                    <a href="links.html" class="btn btn-outline">directory</a>
+                    <a onclick="navigateSeamless('projects/index.html')" class="btn btn-apps" onmouseover="setTheme('apps')" onmouseout="clearTheme()">apps</a>
+                    <a onclick="navigateSeamless('links.html')" class="btn btn-dir" onmouseover="setTheme('directory')" onmouseout="clearTheme()">directory</a>
                 </div>
             </div>
         </div>
     </section>
 
     <footer class="footer">
-        <div class="footer-grid">
-            
+        <div class="footer-content">
             <div class="footer-brand">
                 <a href="https://ziipzy.qzz.io" class="footer-brand-link">
                     <span class="ziip">ziip</span><span class="zy">zy</span><span class="white-ext">.qzz.io</span>
@@ -257,32 +277,37 @@
             <div class="footer-col">
                 <h4>System Navigation</h4>
                 <ul class="footer-links">
-                    <li><a href="projects/index.html">apps</a></li>
-                    <li><a href="links.html">directory</a></li>
-                    <li><a href="weblink.html">website redirects</a></li>
+                    <li><a href="javascript:void(0)" onclick="navigateSeamless('projects/index.html')">apps</a></li>
+                    <li><a href="javascript:void(0)" onclick="navigateSeamless('links.html')">directory</a></li>
+                    <li><a href="javascript:void(0)" onclick="navigateSeamless('weblink.html')">website redirects</a></li>
                 </ul>
             </div>
-
         </div>
 
         <div class="footer-bottom">
             <div class="copy">
                 © 2026 <span class="ziip">ziip</span><span class="zy">zy</span> // Philippine Core
             </div>
+            <div class="copy">System Status: Optimal</div>
         </div>
     </footer>
 
     <script>
-        /* Particle Background Animation */
+        const body = document.getElementById('body');
+        const transitionLayer = document.getElementById('transition-layer');
+
+        function navigateSeamless(url) {
+            transitionLayer.classList.add('active');
+            setTimeout(() => { window.location.href = url; }, 600);
+        }
+
+        function setTheme(theme) { body.className = 'theme-' + theme; }
+        function clearTheme() { body.className = ''; }
+
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
-
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         window.addEventListener('resize', resize);
         resize();
 
@@ -298,13 +323,12 @@
                 if (this.y < -10) this.y = canvas.height + 10;
             }
             draw() {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+                ctx.fillStyle = body.className === 'theme-directory' ? 'rgba(255, 62, 0, 0.2)' : 'rgba(255, 255, 255, 0.15)';
                 ctx.fillRect(this.x, this.y, this.size, this.size * 5);
             }
         }
 
         for (let i = 0; i < 50; i++) particles.push(new Particle());
-
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             particles.forEach(p => { p.update(); p.draw(); });
