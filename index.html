@@ -3,8 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="ziipzy — Teenage tech and design. Building tools for the quiet parts of the internet."/>
+<meta name="theme-color" content="#000000" id="theme-color"/>
 <title>ziipzy</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
 
 <style>
@@ -15,6 +19,14 @@
   --line: rgba(255,255,255,0.08);
   --glass: rgba(255, 255, 255, 0.02);
   --glass-border: rgba(255, 255, 255, 0.05);
+  --accent: #fff;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --radius: 40px;
+  --radius-sm: 14px;
+  --transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  --marquee-speed: 60s;
+  --marquee-slow: 200s;
 }
 
 [data-theme="light"] {
@@ -24,24 +36,25 @@
   --line: rgba(0,0,0,0.06);
   --glass: rgba(0, 0, 0, 0.01);
   --glass-border: rgba(0, 0, 0, 0.04);
+  --accent: #000;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+html::-webkit-scrollbar { display: none; }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-}
-
-/* HIDE SCROLLBAR LOGIC */
-html, body {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-}
-
-html::-webkit-scrollbar, 
-body::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, and Opera */
+  font-family: var(--font-sans);
 }
 
 body {
@@ -49,8 +62,31 @@ body {
   color: var(--fg);
   overflow-x: hidden;
   line-height: 1.8;
-  transition: background-color 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color var(--transition-slow);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--fg);
+  color: var(--bg);
+  padding: 8px 16px;
+  z-index: 1000;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0 0 8px 0;
+}
+.skip-link:focus { top: 0; }
 
 canvas {
   position: fixed;
@@ -66,7 +102,7 @@ section {
   z-index: 2;
   opacity: 0;
   transform: translateY(40px);
-  transition: all 1s cubic-bezier(0.2, 1, 0.3, 1);
+  transition: opacity 1s cubic-bezier(0.2, 1, 0.3, 1), transform 1s cubic-bezier(0.2, 1, 0.3, 1);
 }
 
 section.visible {
@@ -74,6 +110,7 @@ section.visible {
   transform: translateY(0);
 }
 
+/* Header */
 .header {
   position: fixed;
   top: 0;
@@ -85,7 +122,7 @@ section.visible {
   justify-content: space-between;
   align-items: center;
   background: transparent;
-  transition: padding 0.4s ease, backdrop-filter 0.4s ease;
+  transition: padding 0.4s ease, backdrop-filter 0.4s ease, transform 0.4s ease;
 }
 
 .header.scrolled {
@@ -96,14 +133,24 @@ section.visible {
   border-bottom: 1px solid var(--line);
 }
 
-.logo { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.05em; text-transform: lowercase; }
+.header.hidden { transform: translateY(-100%); }
 
+.logo { 
+  font-size: 1.1rem; 
+  font-weight: 800; 
+  letter-spacing: -0.05em; 
+  text-transform: lowercase; 
+  text-decoration: none;
+  color: var(--fg);
+}
+
+/* Theme controller */
 .theme-controller {
   display: flex;
   background: var(--glass);
   border: 1px solid var(--glass-border);
   padding: 3px;
-  border-radius: 14px;
+  border-radius: var(--radius-sm);
   position: relative;
   width: 190px;
 }
@@ -119,9 +166,12 @@ section.visible {
   padding: 12px 0;
   cursor: pointer;
   z-index: 2;
+  position: relative;
+  border-radius: 11px;
+  transition: color 0.3s 0.1s;
 }
 
-.theme-btn.active { color: var(--bg); transition: color 0.3s 0.1s; }
+.theme-btn.active { color: var(--bg); }
 
 .slider-thumb {
   position: absolute;
@@ -135,16 +185,18 @@ section.visible {
   transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* Hero */
 .hero {
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
+  padding: 120px 5%;
 }
 
-.hero .title {
+.hero-title {
   font-size: clamp(4rem, 15vw, 14rem);
   font-weight: 900;
   letter-spacing: -0.07em;
@@ -152,13 +204,95 @@ section.visible {
   margin-bottom: 40px;
 }
 
-.hero .subtitle {
+.hero-subtitle {
   font-size: 1.2rem;
   color: var(--muted);
   max-width: 600px;
+  line-height: 1.6;
 }
 
-/* PROJECT PREVIEW STYLES */
+/* About */
+.about-grid { 
+  display: grid; 
+  grid-template-columns: 1.5fr 1fr; 
+  gap: 30px; 
+}
+
+.bento-card {
+  background: var(--glass); 
+  border: 1px solid var(--glass-border);
+  padding: 60px; 
+  border-radius: var(--radius); 
+  display: flex; 
+  flex-direction: column; 
+  justify-content: space-between;
+  min-height: 320px;
+}
+
+.bento-card h2 {
+  font-size: 3rem; 
+  line-height: 1.1; 
+  letter-spacing: -0.03em;
+}
+
+.bento-label {
+  font-family: monospace; 
+  font-size: 12px; 
+  color: var(--muted); 
+  margin-top: 40px;
+  line-height: 1.8;
+}
+
+.bento-card.inverted {
+  background: var(--fg); 
+  color: var(--bg);
+}
+
+.bento-card.inverted p {
+  font-size: 1.1rem; 
+  font-weight: 600;
+}
+
+.bento-card.inverted .muted-inverted {
+  color: rgba(0,0,0,0.5);
+  font-weight: 400;
+  margin-top: 12px;
+  font-size: 1rem;
+}
+
+/* Marquee */
+.marquee-container { 
+  padding: 100px 0; 
+  border-top: 1px solid var(--line); 
+  border-bottom: 1px solid var(--line); 
+  overflow: hidden; 
+}
+
+.track { 
+  display: flex; 
+  width: max-content; 
+  animation: scroll var(--marquee-speed) linear infinite; 
+}
+
+.marquee-container:hover .track,
+.marquee-container:focus-within .track {
+  animation-duration: var(--marquee-slow);
+}
+
+.track h2 { 
+  font-size: 8vw; 
+  font-weight: 900; 
+  padding: 0 40px; 
+  white-space: nowrap; 
+  text-transform: uppercase; 
+}
+
+@keyframes scroll { 
+  from { transform: translateX(0); } 
+  to { transform: translateX(-50%); } 
+}
+
+/* Projects */
 .projects-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -166,20 +300,21 @@ section.visible {
 }
 
 .project-item {
-  height: 700px;
+  min-height: 700px;
   background: var(--glass);
-  border-radius: 40px;
+  border-radius: var(--radius);
   border: 1px solid var(--glass-border);
   overflow: hidden; 
   position: relative;
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease;
+  transition: transform var(--transition), border-color 0.4s ease;
   display: flex;
   flex-direction: column;
-  text-decoration: none; /* For card links */
+  text-decoration: none;
   color: inherit;
 }
 
-.project-item:hover {
+.project-item:hover,
+.project-item:focus-visible {
   transform: scale(0.99);
   border-color: var(--fg);
 }
@@ -192,7 +327,8 @@ section.visible {
   overflow: hidden;
 }
 
-.preview-container iframe {
+.preview-container iframe,
+.preview-fallback {
   width: 100%;
   height: 100%;
   border: none;
@@ -200,7 +336,21 @@ section.visible {
   transform: scale(1.01);
 }
 
-.project-item:hover .preview-container iframe {
+.preview-fallback {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.preview-container iframe.loaded + .preview-fallback {
+  display: none;
+}
+
+.project-item:hover .preview-container iframe,
+.project-item:focus-within .preview-container iframe {
   pointer-events: auto;
 }
 
@@ -211,8 +361,16 @@ section.visible {
   z-index: 10;
 }
 
-.project-info h3 { font-size: 1.5rem; letter-spacing: -0.02em; margin-bottom: 5px; }
-.project-info p { font-size: 0.9rem; color: var(--muted); }
+.project-info h3 { 
+  font-size: 1.5rem; 
+  letter-spacing: -0.02em; 
+  margin-bottom: 5px; 
+}
+
+.project-info p { 
+  font-size: 0.9rem; 
+  color: var(--muted); 
+}
 
 .project-link-overlay {
   position: absolute;
@@ -230,120 +388,210 @@ section.visible {
   opacity: 0;
   transform: translateY(10px);
   transition: all 0.4s ease;
+  border: 2px solid transparent;
 }
 
-.project-item:hover .project-link-overlay {
+.project-item:hover .project-link-overlay,
+.project-item:focus-within .project-link-overlay {
   opacity: 1;
   transform: translateY(0);
 }
 
-.about-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px; }
-.bento-card {
-  background: var(--glass); border: 1px solid var(--glass-border);
-  padding: 60px; border-radius: 40px; display: flex; flex-direction: column; justify-content: space-between;
+.project-link-overlay:focus-visible {
+  border-color: var(--bg);
+  outline: none;
 }
-.marquee-container { padding: 100px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); overflow: hidden; }
-.track { display: flex; width: max-content; animation: scroll 60s linear infinite; }
-.track h2 { font-size: 8vw; font-weight: 900; padding: 0 40px; white-space: nowrap; text-transform: uppercase; }
 
-@keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.project-item.static {
+  justify-content: center; 
+  align-items: center; 
+  text-align: center;
+  min-height: 500px;
+}
 
-.footer { padding: 120px 10% 60px; border-top: 1px solid var(--line); }
-.footer-main { display: grid; grid-template-columns: 2fr repeat(3, 1fr); gap: 60px; margin-bottom: 100px; }
-.footer-col h4 { font-size: 0.7rem; text-transform: uppercase; color: var(--muted); margin-bottom: 30px; }
-.footer-col a { display: block; color: var(--fg); text-decoration: none; margin-bottom: 15px; opacity: 0.6; transition: 0.3s; }
-.footer-col a:hover { opacity: 1; transform: translateX(5px); }
-.footer-bottom { display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 40px; color: var(--muted); font-size: 0.7rem; }
+.project-item.static .static-content {
+  padding: 40px;
+}
 
+.project-item.static .static-icon {
+  font-size: 4rem; 
+  opacity: 0.1;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 16px;
+}
+
+/* Footer */
+.footer { 
+  padding: 120px 10% 60px; 
+  border-top: 1px solid var(--line); 
+}
+
+.footer-main { 
+  display: grid; 
+  grid-template-columns: 2fr repeat(3, 1fr); 
+  gap: 60px; 
+  margin-bottom: 100px; 
+}
+
+.footer-col h4 { 
+  font-size: 0.7rem; 
+  text-transform: uppercase; 
+  color: var(--muted); 
+  margin-bottom: 30px; 
+  letter-spacing: 0.05em;
+}
+
+.footer-col a { 
+  display: block; 
+  color: var(--fg); 
+  text-decoration: none; 
+  margin-bottom: 15px; 
+  opacity: 0.6; 
+  transition: 0.3s; 
+}
+
+.footer-col a:hover,
+.footer-col a:focus-visible { 
+  opacity: 1; 
+  transform: translateX(5px); 
+}
+
+.footer-col p {
+  max-width: 300px;
+  line-height: 1.7;
+}
+
+.footer-bottom { 
+  display: flex; 
+  justify-content: space-between; 
+  border-top: 1px solid var(--line); 
+  padding-top: 40px; 
+  color: var(--muted); 
+  font-size: 0.7rem; 
+}
+
+/* Responsive */
 @media (max-width: 1024px) {
   .about-grid, .projects-grid, .footer-main { grid-template-columns: 1fr; }
-  .project-item { height: 500px; }
+  .project-item { min-height: 500px; }
+  .bento-card h2 { font-size: 2rem; }
+}
+
+@media (max-width: 640px) {
+  .header { padding: 20px 5%; }
+  .theme-controller { width: 160px; }
+  .theme-btn { font-size: 9px; padding: 10px 0; }
+  section { padding: 120px 5%; }
+  .hero-title { font-size: clamp(3rem, 18vw, 6rem); }
+  .track h2 { font-size: 12vw; }
+  .footer-main { gap: 40px; margin-bottom: 60px; }
+  .project-info { padding: 24px; }
+  .project-link-overlay {
+    opacity: 1;
+    transform: none;
+    top: auto;
+    bottom: 20px;
+    right: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track { animation: none; }
+  section { opacity: 1; transform: none; }
 }
 </style>
+<base target="_blank">
 </head>
 <body>
 
-<canvas id="bg"></canvas>
+<a href="#main" class="skip-link">Skip to content</a>
+
+<canvas id="bg" aria-hidden="true"></canvas>
 
 <header class="header" id="navbar">
-  <div class="logo">ziipzy</div>
-  <div class="theme-controller">
-    <div class="slider-thumb" id="thumb"></div>
-    <button class="theme-btn" onclick="setTheme('dark', 0)">Dark</button>
-    <button class="theme-btn" onclick="setTheme('light', 1)">Light</button>
-    <button class="theme-btn" onclick="setTheme('auto', 2)">Auto</button>
-  </div>
+  <a href="#" class="logo" aria-label="ziipzy home">ziipzy</a>
+  <nav class="theme-controller" role="tablist" aria-label="Theme selector">
+    <div class="slider-thumb" id="thumb" aria-hidden="true"></div>
+    <button class="theme-btn" role="tab" aria-selected="false" data-theme="dark" data-index="0">Dark</button>
+    <button class="theme-btn" role="tab" aria-selected="false" data-theme="light" data-index="1">Light</button>
+    <button class="theme-btn" role="tab" aria-selected="false" data-theme="auto" data-index="2">Auto</button>
+  </nav>
 </header>
 
-<main>
-  <section class="hero visible">
-    <h1 class="title">ziipzy</h1>
-    <p class="subtitle">Teenage tech and design at its finest. Working for the people that deserve it.</p>
+<main id="main">
+  <section class="hero visible" aria-label="Introduction">
+    <h1 class="hero-title">ziipzy</h1>
+    <p class="hero-subtitle">Teenage tech and design at its finest. Working for the people that deserve it.</p>
   </section>
 
-  <section class="about">
+  <section class="about" aria-labelledby="about-heading">
+    <h2 id="about-heading" class="sr-only" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;">About</h2>
     <div class="about-grid">
-      <div class="bento-card">
-        <h2 style="font-size: 3rem; line-height: 1.1; letter-spacing: -0.03em;">The future of digital structure is silent.</h2>
-        <div style="font-family: monospace; font-size: 12px; color: var(--muted); margin-top: 40px;">
+      <article class="bento-card">
+        <h2>The future of digital structure is silent.</h2>
+        <div class="bento-label" aria-hidden="true">
           > INITIALIZING CORE_V2...<br>
           > STATUS: OPTIMAL<br>
           > LOAD_TIME: 0.002s
         </div>
-      </div>
-      <div class="bento-card" style="background: var(--fg); color: var(--bg);">
-        <p style="font-size: 1.1rem; font-weight: 600;">Goal</p>
-        <p>Exploring the boundaries between physical architecture and digital experiences.</p>
-      </div>
+      </article>
+      <article class="bento-card inverted">
+        <p>Goal</p>
+        <p class="muted-inverted">Exploring the boundaries between physical architecture and digital experiences.</p>
+      </article>
     </div>
   </section>
 
-  <div class="marquee-container">
+  <div class="marquee-container" aria-hidden="true">
     <div class="track">
       <h2>Experimental / Research / Design / System / Architecture / &nbsp;</h2>
       <h2>Experimental / Research / Design / System / Architecture / &nbsp;</h2>
     </div>
   </div>
 
-  <section class="projects">
+  <section class="projects" aria-labelledby="projects-heading">
+    <h2 id="projects-heading" class="sr-only" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;">Projects</h2>
     <div class="projects-grid">
-      
-      <div class="project-item">
-        <a href="https://avaosproject.github.io/" target="_blank" class="project-link-overlay">Visit Site</a>
+
+      <article class="project-item">
+        <a href="https://avaosproject.github.io/" target="_blank" rel="noopener noreferrer" class="project-link-overlay" aria-label="Visit The AVAOS Project">Visit Site</a>
         <div class="preview-container">
-          <iframe src="https://avaosproject.github.io/" loading="lazy"></iframe>
+          <iframe data-src="https://avaosproject.github.io/" loading="lazy" title="The AVAOS Project preview" onload="this.classList.add('loaded')"></iframe>
+          <div class="preview-fallback">Preview unavailable</div>
         </div>
         <div class="project-info">
           <h3>The AVAOS Project</h3>
           <p>System improvement and RnD project.</p>
         </div>
-      </div>
+      </article>
 
-      <div class="project-item">
-        <a href="https://theziipzyfiles.github.io/" target="_blank" class="project-link-overlay">Visit Site</a>
+      <article class="project-item">
+        <a href="https://theziipzyfiles.github.io/" target="_blank" rel="noopener noreferrer" class="project-link-overlay" aria-label="Visit theziipzyfiles">Visit Site</a>
         <div class="preview-container">
-          <iframe src="https://theziipzyfiles.github.io/" loading="lazy"></iframe>
+          <iframe data-src="https://theziipzyfiles.github.io/" loading="lazy" title="theziipzyfiles preview" onload="this.classList.add('loaded')"></iframe>
+          <div class="preview-fallback">Preview unavailable</div>
         </div>
         <div class="project-info">
           <h3>theziipzyfiles</h3>
           <p>Links repository and Toolbox.</p>
         </div>
-      </div>
+      </article>
 
-      <a href="Yourlinkhere" class="project-item" style="justify-content: center; align-items: center; text-align: center;">
-         <div style="padding: 40px;">
-            <h1 style="font-size: 4rem; opacity: 0.1;">CORE</h1>
-            <h3>System Core</h3>
-            <p>Logical code</p>
-         </div>
+      <a href="#" class="project-item static" aria-label="System Core project">
+        <div class="static-content">
+          <div class="static-icon" aria-hidden="true">CORE</div>
+          <h3>System Core</h3>
+          <p>Logical code</p>
+        </div>
       </a>
 
-      <a href="Yourlinkhere" class="project-item" style="justify-content: center; align-items: center; text-align: center;">
-         <div style="padding: 40px;">
-            <h1 style="font-size: 4rem; opacity: 0.1;">LAB</h1>
-            <h3>Labs</h3>
-            <p>Stress testing monochrome variables and fluid layouts.</p>
-         </div>
+      <a href="#" class="project-item static" aria-label="Labs project">
+        <div class="static-content">
+          <div class="static-icon" aria-hidden="true">LAB</div>
+          <h3>Labs</h3>
+          <p>Stress testing monochrome variables and fluid layouts.</p>
+        </div>
       </a>
 
     </div>
@@ -354,96 +602,207 @@ section.visible {
   <div class="footer-main">
     <div class="footer-col">
       <h4>Philosophy</h4>
-      <p style="max-width: 300px;">Designing tools for those who build the quiet parts of the internet.</p>
+      <p>Designing tools for those who build the quiet parts of the internet.</p>
     </div>
-    <div class="footer-col">
+    <nav class="footer-col" aria-label="Products">
       <h4>Products</h4>
       <a href="https://avaosproject.github.io/">AVAOS</a>
       <a href="https://theziipzyfiles.github.io/">theziipzyfiles</a>
-    </div>
-    <div class="footer-col">
+    </nav>
+    <nav class="footer-col" aria-label="Resources">
       <h4>Resources</h4>
-      <a href="Yourlinkhere">Docs</a>
-      <a href="Yourlinkhere">GitHub</a>
-    </div>
-    <div class="footer-col">
+      <a href="#">Docs</a>
+      <a href="#">GitHub</a>
+    </nav>
+    <nav class="footer-col" aria-label="Social">
       <h4>Social</h4>
-      <a href="Yourlinkhere">Tiktok</a>
-      <a href="Yourlinkhere">Facebook</a>
-      <a href="Yourlinkhere">Discord</a>
-    </div>
+      <a href="#">TikTok</a>
+      <a href="#">Facebook</a>
+      <a href="#">Discord</a>
+    </nav>
   </div>
   <div class="footer-bottom">
     <div>© 2026 ZIIPZY ARCHITECTURE</div>
-    <div>VERSION 2.0.4</div>
+    <div>VERSION 2.1.0</div>
   </div>
 </footer>
 
 <script>
-/* SCROLL REVEAL */
+/* ============================
+   SCROLL REVEAL
+   ============================ */
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) entry.target.classList.add('visible');
   });
-}, { threshold: 0.1 });
+}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
 document.querySelectorAll('section').forEach(section => observer.observe(section));
 
-/* NAVBAR EFFECT */
-window.addEventListener('scroll', () => {
-  const nav = document.getElementById('navbar');
-  if (window.scrollY > 50) nav.classList.add('scrolled');
-  else nav.classList.remove('scrolled');
-});
+/* ============================
+   NAVBAR SCROLL EFFECT
+   ============================ */
+let lastScroll = 0;
+const nav = document.getElementById('navbar');
 
-/* THEME LOGIC */
+window.addEventListener('scroll', () => {
+  const currentScroll = window.scrollY;
+
+  if (currentScroll > 50) nav.classList.add('scrolled');
+  else nav.classList.remove('scrolled');
+
+  if (currentScroll > lastScroll && currentScroll > 200) nav.classList.add('hidden');
+  else nav.classList.remove('hidden');
+
+  lastScroll = currentScroll;
+}, { passive: true });
+
+/* ============================
+   THEME SYSTEM
+   ============================ */
 const thumb = document.getElementById('thumb');
 const buttons = document.querySelectorAll('.theme-btn');
+const metaTheme = document.getElementById('theme-color');
+const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+function getSystemTheme() {
+  return mediaQuery.matches ? 'dark' : 'light';
+}
 
 function applyTheme(theme) {
-  if (theme === 'auto') {
-    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-  } else {
-    document.documentElement.setAttribute('data-theme', theme);
-  }
+  const resolved = theme === 'auto' ? getSystemTheme() : theme;
+  document.documentElement.setAttribute('data-theme', resolved);
+  metaTheme.setAttribute('content', resolved === 'dark' ? '#000000' : '#fbfbfb');
 }
 
 function setTheme(theme, index) {
   localStorage.setItem('user-theme', theme);
   localStorage.setItem('theme-index', index);
   thumb.style.transform = `translateX(${index * 100}%)`;
-  buttons.forEach((btn, i) => btn.classList.toggle('active', i === index));
+
+  buttons.forEach((btn, i) => {
+    const isActive = i === index;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-selected', isActive);
+  });
+
   applyTheme(theme);
 }
 
-const savedTheme = localStorage.getItem('user-theme') || 'dark';
-const savedIndex = parseInt(localStorage.getItem('theme-index')) || 0;
+buttons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    setTheme(btn.dataset.theme, parseInt(btn.dataset.index));
+  });
+});
+
+mediaQuery.addEventListener('change', () => {
+  const current = localStorage.getItem('user-theme') || 'auto';
+  if (current === 'auto') applyTheme('auto');
+});
+
+const savedTheme = localStorage.getItem('user-theme') || 'auto';
+const savedIndex = parseInt(localStorage.getItem('theme-index')) || 2;
 setTheme(savedTheme, savedIndex);
 
-/* NOISE BACKGROUND */
-const canvas = document.getElementById("bg");
-const ctx = canvas.getContext("2d");
-function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-window.addEventListener("resize", resize);
+/* ============================
+   LAZY IFRAME LOADING
+   ============================ */
+const iframeObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    const iframe = entry.target;
+    if (entry.isIntersecting && iframe.dataset.src && !iframe.src) {
+      iframe.src = iframe.dataset.src;
+    }
+  });
+}, { rootMargin: '100px' });
+
+document.querySelectorAll('iframe[data-src]').forEach(iframe => {
+  iframeObserver.observe(iframe);
+});
+
+/* ============================
+   OPTIMIZED CANVAS BACKGROUND
+   ============================ */
+const canvas = document.getElementById('bg');
+const ctx = canvas.getContext('2d');
+let dots = [];
+let animId;
+let isVisible = true;
+let dotColor = '#ffffff';
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
 resize();
 
-let dots = Array.from({length: 80}, () => ({
-  x: Math.random()*canvas.width, y: Math.random()*canvas.height,
-  vx: (Math.random()-0.5)*0.2, vy: (Math.random()-0.5)*0.2
-}));
+function initDots() {
+  dots = Array.from({length: 80}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    vx: (Math.random() - 0.5) * 0.2,
+    vy: (Math.random() - 0.5) * 0.2
+  }));
+}
+
+function updateDotColor() {
+  const style = getComputedStyle(document.documentElement);
+  dotColor = style.getPropertyValue('--fg').trim();
+}
+
+const themeObserver = new MutationObserver(updateDotColor);
+themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+updateDotColor();
 
 function animate() {
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fg');
-  dots.forEach(d => {
-    d.x += d.vx; d.y += d.vy;
-    if(d.x < 0 || d.x > canvas.width) d.vx *= -1;
-    if(d.y < 0 || d.y > canvas.height) d.vy *= -1;
-    ctx.beginPath(); ctx.arc(d.x, d.y, 0.6, 0, Math.PI*2); ctx.fill();
-  });
-  requestAnimationFrame(animate);
+  if (!isVisible) {
+    animId = requestAnimationFrame(animate);
+    return;
+  }
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = dotColor;
+
+  for (let d of dots) {
+    d.x += d.vx;
+    d.y += d.vy;
+
+    if (d.x < 0 || d.x > canvas.width) d.vx *= -1;
+    if (d.y < 0 || d.y > canvas.height) d.vy *= -1;
+
+    ctx.beginPath();
+    ctx.arc(d.x, d.y, 0.6, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  animId = requestAnimationFrame(animate);
 }
-animate();
+
+document.addEventListener('visibilitychange', () => {
+  isVisible = !document.hidden;
+});
+
+const canvasObserver = new IntersectionObserver((entries) => {
+  isVisible = entries[0].isIntersecting;
+}, { threshold: 0 });
+canvasObserver.observe(canvas);
+
+const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+if (!motionQuery.matches) {
+  initDots();
+  animate();
+}
+
+motionQuery.addEventListener('change', (e) => {
+  if (e.matches) {
+    cancelAnimationFrame(animId);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  } else {
+    initDots();
+    animate();
+  }
+});
 </script>
 
 </body>
