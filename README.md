@@ -1,1 +1,1 @@
-Website Repository for https://ziipay.qzz.io
+Website Repository for https://ziipzy.qzz.io
