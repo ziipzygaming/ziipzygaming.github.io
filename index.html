@@ -1,340 +1,439 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ziipzy | home</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
-        /* --- CORE SYSTEM --- */
-        :root {
-            --accent: #ff3e00; 
-            --bg: #080808;
-            --card: rgba(12, 12, 12, 0.8);
-            --border: rgba(255, 255, 255, 0.08);
-            --text-dim: #666;
-            --dynamic-glow: rgba(255, 255, 255, 0.05);
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ziipzy</title>
 
-        /* --- REMOVE SCROLLBAR --- */
-        * { 
-            box-sizing: border-box; 
-            margin: 0; padding: 0; 
-            text-transform: lowercase; 
-            scrollbar-width: none; 
-        }
-        *::-webkit-scrollbar { display: none; }
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
 
-        body {
-            background-color: var(--bg);
-            color: #ffffff;
-            font-family: 'Inter', sans-serif;
-            letter-spacing: -0.02em;
-            line-height: 1.5;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
+<style>
+:root {
+  --bg: #000;
+  --fg: #fff;
+  --muted: rgba(255,255,255,0.4);
+  --line: rgba(255,255,255,0.08);
+  --glass: rgba(255, 255, 255, 0.02);
+  --glass-border: rgba(255, 255, 255, 0.05);
+}
 
-        /* --- SEAMLESS TRANSITION CURTAIN --- */
-        #transition-layer {
-            position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 9999;
-            transform: translateY(100%);
-            transition: transform 0.6s cubic-bezier(0.87, 0, 0.13, 1);
-            pointer-events: none;
-        }
-        #transition-layer.active { transform: translateY(0); }
+[data-theme="light"] {
+  --bg: #fbfbfb;
+  --fg: #000;
+  --muted: rgba(0,0,0,0.4);
+  --line: rgba(0,0,0,0.06);
+  --glass: rgba(0, 0, 0, 0.01);
+  --glass-border: rgba(0, 0, 0, 0.04);
+}
 
-        /* --- GRID & PARTICLES --- */
-        .grid-layer {
-            position: fixed;
-            inset: 0;
-            background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-            background-size: 60px 60px;
-            z-index: -2;
-        }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
 
-        #bg-canvas {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: -1;
-            pointer-events: none;
-        }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  overflow-x: hidden;
+  line-height: 1.8;
+  transition: background-color 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-        /* --- BRANDING --- */
-        .ziip { color: #ffffff; }
-        .zy { color: var(--accent); }
-        .white-ext { color: #ffffff; }
+canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.3;
+  pointer-events: none;
+}
 
-        /* --- HERO SECTION --- */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-            position: relative;
-        }
+section {
+  padding: 240px 10%;
+  position: relative;
+  z-index: 2;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 1s cubic-bezier(0.2, 1, 0.3, 1);
+}
 
-        .hero-container {
-            max-width: 1100px;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            gap: 80px;
-        }
+section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
 
-        .pfp-frame {
-            width: 320px; height: 320px;
-            padding: 12px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 40px;
-            backdrop-filter: blur(20px);
-            transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 0 0px var(--dynamic-glow);
-        }
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 30px 5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: transparent;
+  transition: padding 0.4s ease, backdrop-filter 0.4s ease;
+}
 
-        .pfp-image {
-            width: 100%; height: 100%;
-            object-fit: cover;
-            border-radius: 30px;
-            filter: grayscale(40%);
-            transition: 0.6s ease;
-        }
+.header.scrolled {
+  padding: 15px 5%;
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  background: var(--glass);
+  border-bottom: 1px solid var(--line);
+}
 
-        body.theme-apps .pfp-frame { border-color: #ffffff; box-shadow: 0 20px 50px rgba(255,255,255,0.1); }
-        body.theme-directory .pfp-frame { border-color: var(--accent); box-shadow: 0 20px 50px rgba(255,62,0,0.15); }
+.logo { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.05em; text-transform: lowercase; }
 
-        .intro h1 {
-            font-size: clamp(3.5rem, 9vw, 5.5rem);
-            font-weight: 900;
-            line-height: 0.85;
-            margin-bottom: 30px;
-            letter-spacing: -0.06em;
-        }
+.theme-controller {
+  display: flex;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  padding: 3px;
+  border-radius: 14px;
+  position: relative;
+  width: 190px;
+}
 
-        .intro p {
-            font-size: 1.1rem;
-            color: var(--text-dim);
-            max-width: 460px;
-            margin-bottom: 40px;
-            border-left: 3px solid var(--accent);
-            padding-left: 24px;
-            transition: border-color 0.4s ease;
-        }
-        body.theme-apps .intro p { border-color: #ffffff; }
+.theme-btn {
+  flex: 1;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 12px 0;
+  cursor: pointer;
+  z-index: 2;
+}
 
-        .btn-group { display: flex; gap: 15px; }
+.theme-btn.active { color: var(--bg); transition: color 0.3s 0.1s; }
 
-        .btn {
-            padding: 16px 36px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            font-size: 0.65rem;
-            text-decoration: none;
-            border-radius: 4px;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            border: 1px solid var(--border);
-            cursor: pointer;
-        }
+.slider-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  height: calc(100% - 6px);
+  width: calc(33.33% - 4px);
+  background: var(--fg);
+  border-radius: 11px;
+  z-index: 1;
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
 
-        .btn-apps { background: #fff; color: #000; border-color: #fff; }
-        .btn-apps:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(255,255,255,0.2); }
+.hero {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
 
-        .btn-dir { background: transparent; color: #fff; border-color: var(--border); }
-        .btn-dir:hover { 
-            border-color: var(--accent); color: var(--accent); 
-            transform: translateY(-5px); box-shadow: 0 10px 20px rgba(255,62,0,0.2);
-        }
+.hero .title {
+  font-size: clamp(4rem, 15vw, 14rem);
+  font-weight: 900;
+  letter-spacing: -0.07em;
+  line-height: 0.8;
+  margin-bottom: 40px;
+}
 
-        /* --- FULL STRETCH FOOTER --- */
-        .footer {
-            background: #050505;
-            padding: 180px 80px 100px; /* Large side padding */
-            border-top: 1px solid var(--border);
-        }
+.hero .subtitle {
+  font-size: 1.2rem;
+  color: var(--muted);
+  max-width: 600px;
+}
 
-        .footer-content {
-            width: 100%;
-            display: flex;
-            justify-content: space-between; /* Stretches items to leftmost and rightmost */
-            align-items: flex-start;
-            gap: 40px;
-        }
+/* PROJECT PREVIEW STYLES */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+}
 
-        .footer-brand-link {
-            text-decoration: none;
-            font-size: 2.2rem;
-            font-weight: 900;
-            letter-spacing: -0.05em;
-            display: inline-block;
-            margin-bottom: 30px;
-        }
+.project-item {
+  height: 700px;
+  background: var(--glass);
+  border-radius: 40px;
+  border: 1px solid var(--glass-border);
+  overflow: hidden; 
+  position: relative;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none; /* For card links */
+  color: inherit;
+}
 
-        .footer-brand p {
-            color: var(--text-dim);
-            font-size: 0.95rem;
-            max-width: 400px;
-            line-height: 1.8;
-        }
+.project-item:hover {
+  transform: scale(0.99);
+  border-color: var(--fg);
+}
 
-        .footer-col {
-            text-align: right; /* Aligns links to the rightmost side */
-        }
+.preview-container {
+  flex: 1;
+  width: 100%;
+  position: relative;
+  background: #000;
+  overflow: hidden;
+}
 
-        .footer-col h4 {
-            color: #fff;
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.3em;
-            margin-bottom: 45px;
-            opacity: 0.3;
-        }
+.preview-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  pointer-events: none;
+  transform: scale(1.01);
+}
 
-        .footer-links { 
-            list-style: none; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 20px; 
-        }
+.project-item:hover .preview-container iframe {
+  pointer-events: auto;
+}
 
-        .footer-links a { 
-            color: #888; 
-            text-decoration: none; 
-            font-size: 1rem; 
-            transition: 0.3s; 
-        }
+.project-info {
+  padding: 30px 40px;
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+  z-index: 10;
+}
 
-        .footer-links a:hover { 
-            color: var(--accent); 
-            padding-right: 12px; /* Hover effect moves toward the center */
-        }
+.project-info h3 { font-size: 1.5rem; letter-spacing: -0.02em; margin-bottom: 5px; }
+.project-info p { font-size: 0.9rem; color: var(--muted); }
 
-        .footer-bottom {
-            width: 100%;
-            margin-top: 140px;
-            padding-top: 50px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-        }
+.project-link-overlay {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: var(--fg);
+  color: var(--bg);
+  padding: 10px 20px;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-decoration: none;
+  text-transform: uppercase;
+  z-index: 20;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.4s ease;
+}
 
-        .copy { font-size: 11px; font-weight: 700; color: #333; text-transform: uppercase; letter-spacing: 0.25em; }
+.project-item:hover .project-link-overlay {
+  opacity: 1;
+  transform: translateY(0);
+}
 
-        @media (max-width: 900px) {
-            .footer { padding: 100px 30px 60px; }
-            .footer-content { flex-direction: column; text-align: center; }
-            .footer-col { text-align: center; }
-            .footer-bottom { justify-content: center; }
-            .hero-container { flex-direction: column; text-align: center; gap: 50px; }
-            .intro p { margin: 0 auto 40px; border-left: none; border-top: 3px solid var(--accent); padding: 25px 0 0 0; }
-            .btn-group { justify-content: center; }
-        }
-    </style>
+.about-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px; }
+.bento-card {
+  background: var(--glass); border: 1px solid var(--glass-border);
+  padding: 60px; border-radius: 40px; display: flex; flex-direction: column; justify-content: space-between;
+}
+.marquee-container { padding: 100px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); overflow: hidden; }
+.track { display: flex; width: max-content; animation: scroll 60s linear infinite; }
+.track h2 { font-size: 8vw; font-weight: 900; padding: 0 40px; white-space: nowrap; text-transform: uppercase; }
+
+@keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+.footer { padding: 120px 10% 60px; border-top: 1px solid var(--line); }
+.footer-main { display: grid; grid-template-columns: 2fr repeat(3, 1fr); gap: 60px; margin-bottom: 100px; }
+.footer-col h4 { font-size: 0.7rem; text-transform: uppercase; color: var(--muted); margin-bottom: 30px; }
+.footer-col a { display: block; color: var(--fg); text-decoration: none; margin-bottom: 15px; opacity: 0.6; transition: 0.3s; }
+.footer-col a:hover { opacity: 1; transform: translateX(5px); }
+.footer-bottom { display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 40px; color: var(--muted); font-size: 0.7rem; }
+
+@media (max-width: 1024px) {
+  .about-grid, .projects-grid, .footer-main { grid-template-columns: 1fr; }
+  .project-item { height: 500px; }
+}
+</style>
 </head>
-<body id="body">
+<body>
 
-    <div id="transition-layer"></div>
-    <div class="grid-layer"></div>
-    <canvas id="bg-canvas"></canvas>
+<canvas id="bg"></canvas>
 
-    <section class="hero">
-        <div class="hero-container">
-            <div class="pfp-stage">
-                <div class="pfp-frame">
-                    <img src="https://scontent.fceb1-3.fna.fbcdn.net/v/t39.30808-6/654321146_916306021392311_2053248028350330406_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=1d70fc&_nc_eui2=AeHF-Vd9UZxenGH_lDUy99kuszoL11jcA6CzOgvXWNwDoPfGkHzxzI_tjdIcEnqgDmU_FNxnKOuwO6ZYV0zS2e2F&_nc_ohc=GVmsfueif1IQ7kNvwHTQwcX&_nc_oc=Adq_kRjUAolCPXWrAxrZctxMcdQTmT2hn4faYxZ5tqVczOFMZ5oq2c-hVwIt6EJEZqfY1osB166CznyzZFbLJrjm&_nc_zt=23&_nc_ht=scontent.fceb1-3.fna&_nc_gid=zeVBko8GEL96EUzdQG-n2Q&_nc_ss=7a3a8&oh=00_Af199LEqq-7ptAFIoPsy-NfKjKlvaBz7B9KA9OE7HsdQYw&oe=69E7D9C6" alt="ziipzy" class="pfp-image">
-                </div>
-            </div>
+<header class="header" id="navbar">
+  <div class="logo">ziipzy</div>
+  <div class="theme-controller">
+    <div class="slider-thumb" id="thumb"></div>
+    <button class="theme-btn" onclick="setTheme('dark', 0)">Dark</button>
+    <button class="theme-btn" onclick="setTheme('light', 1)">Light</button>
+    <button class="theme-btn" onclick="setTheme('auto', 2)">Auto</button>
+  </div>
+</header>
 
-            <div class="intro">
-                <h1>hello, i'm <br><span class="ziip">ziip</span><span class="zy">zy.</span></h1>
-                <p>infrastructure specialist and interface developer based in the philippines. documenting the process of building performance-first systems.</p>
-                <div class="btn-group">
-                    <a onclick="navigateSeamless('projects/index.html')" class="btn btn-apps" onmouseover="setTheme('apps')" onmouseout="clearTheme()">apps</a>
-                    <a onclick="navigateSeamless('links.html')" class="btn btn-dir" onmouseover="setTheme('directory')" onmouseout="clearTheme()">directory</a>
-                </div>
-            </div>
+<main>
+  <section class="hero visible">
+    <h1 class="title">ziipzy</h1>
+    <p class="subtitle">An architectural study in motion and monochrome interface design.</p>
+  </section>
+
+  <section class="about">
+    <div class="about-grid">
+      <div class="bento-card">
+        <h2 style="font-size: 3rem; line-height: 1.1; letter-spacing: -0.03em;">The future of digital structure is silent.</h2>
+        <div style="font-family: monospace; font-size: 12px; color: var(--muted); margin-top: 40px;">
+          > INITIALIZING CORE_V2...<br>
+          > STATUS: OPTIMAL<br>
+          > LOAD_TIME: 0.002s
         </div>
-    </section>
+      </div>
+      <div class="bento-card" style="background: var(--fg); color: var(--bg);">
+        <p style="font-size: 1.1rem; font-weight: 600;">Research Node</p>
+        <p>Exploring the boundaries between physical architecture and digital canvases.</p>
+      </div>
+    </div>
+  </section>
 
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-brand">
-                <a href="https://ziipzy.qzz.io" class="footer-brand-link">
-                    <span class="ziip">ziip</span><span class="zy">zy</span><span class="white-ext">.qzz.io</span>
-                </a>
-                <p>Developing high-performance digital environments. Every line of code is optimized for the end-user experience.</p>
-            </div>
-            
-            <div class="footer-col">
-                <h4>System Navigation</h4>
-                <ul class="footer-links">
-                    <li><a href="javascript:void(0)" onclick="navigateSeamless('projects/index.html')">apps</a></li>
-                    <li><a href="javascript:void(0)" onclick="navigateSeamless('links.html')">directory</a></li>
-                    <li><a href="javascript:void(0)" onclick="navigateSeamless('weblink.html')">website redirects</a></li>
-                </ul>
-            </div>
+  <div class="marquee-container">
+    <div class="track">
+      <h2>Experimental / Research / Design / System / Architecture / &nbsp;</h2>
+      <h2>Experimental / Research / Design / System / Architecture / &nbsp;</h2>
+    </div>
+  </div>
+
+  <section class="projects">
+    <div class="projects-grid">
+      
+      <div class="project-item">
+        <a href="https://avaosproject.github.io/" target="_blank" class="project-link-overlay">Visit Site</a>
+        <div class="preview-container">
+          <iframe src="https://avaosproject.github.io/" loading="lazy"></iframe>
         </div>
-
-        <div class="footer-bottom">
-            <div class="copy">
-                © 2026 <span class="ziip">ziip</span><span class="zy">zy</span> // Philippine Core
-            </div>
-            <div class="copy">System Status: Optimal</div>
+        <div class="project-info">
+          <h3>The AVAOS Project</h3>
+          <p>System improvement and RnD project.</p>
         </div>
-    </footer>
+      </div>
 
-    <script>
-        const body = document.getElementById('body');
-        const transitionLayer = document.getElementById('transition-layer');
+      <div class="project-item">
+        <a href="https://theziipzyfiles.github.io/" target="_blank" class="project-link-overlay">Visit Site</a>
+        <div class="preview-container">
+          <iframe src="https://theziipzyfiles.github.io/" loading="lazy"></iframe>
+        </div>
+        <div class="project-info">
+          <h3>theziipzyfiles</h3>
+          <p>Links repository and Toolbox.</p>
+        </div>
+      </div>
 
-        function navigateSeamless(url) {
-            transitionLayer.classList.add('active');
-            setTimeout(() => { window.location.href = url; }, 600);
-        }
+      <a href="Yourlinkhere" class="project-item" style="justify-content: center; align-items: center; text-align: center;">
+         <div style="padding: 40px;">
+            <h1 style="font-size: 4rem; opacity: 0.1;">CORE</h1>
+            <h3>System Core</h3>
+            <p>Logical code</p>
+         </div>
+      </a>
 
-        function setTheme(theme) { body.className = 'theme-' + theme; }
-        function clearTheme() { body.className = ''; }
+      <a href="Yourlinkhere" class="project-item" style="justify-content: center; align-items: center; text-align: center;">
+         <div style="padding: 40px;">
+            <h1 style="font-size: 4rem; opacity: 0.1;">LAB</h1>
+            <h3>Labs</h3>
+            <p>Stress testing monochrome variables and fluid layouts.</p>
+         </div>
+      </a>
 
-        const canvas = document.getElementById('bg-canvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resize);
-        resize();
+    </div>
+  </section>
+</main>
 
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2;
-                this.speed = Math.random() * 0.5 + 0.2;
-            }
-            update() {
-                this.y -= this.speed;
-                if (this.y < -10) this.y = canvas.height + 10;
-            }
-            draw() {
-                ctx.fillStyle = body.className === 'theme-directory' ? 'rgba(255, 62, 0, 0.2)' : 'rgba(255, 255, 255, 0.15)';
-                ctx.fillRect(this.x, this.y, this.size, this.size * 5);
-            }
-        }
+<footer class="footer">
+  <div class="footer-main">
+    <div class="footer-col">
+      <h4>Philosophy</h4>
+      <p style="max-width: 300px;">Designing tools for those who build the quiet parts of the internet.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Products</h4>
+      <a href="https://avaosproject.github.io/">AVAOS</a>
+      <a href="https://theziipzyfiles.github.io/">theziipzyfiles</a>
+    </div>
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <a href="Yourlinkhere">Docs</a>
+      <a href="Yourlinkhere">GitHub</a>
+    </div>
+    <div class="footer-col">
+      <h4>Social</h4>
+      <a href="Yourlinkhere">Tiktok</a>
+      <a href="Yourlinkhere">Facebook</a>
+      <a href="Yourlinkhere">Discord</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div>© 2026 ZIIPZY ARCHITECTURE</div>
+    <div>VERSION 2.0.4</div>
+  </div>
+</footer>
 
-        for (let i = 0; i < 50; i++) particles.push(new Particle());
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => { p.update(); p.draw(); });
-            requestAnimationFrame(animate);
-        }
-        animate();
-    </script>
+<script>
+/* SCROLL REVEAL */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) entry.target.classList.add('visible');
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('section').forEach(section => observer.observe(section));
+
+/* NAVBAR EFFECT */
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('navbar');
+  if (window.scrollY > 50) nav.classList.add('scrolled');
+  else nav.classList.remove('scrolled');
+});
+
+/* THEME LOGIC */
+const thumb = document.getElementById('thumb');
+const buttons = document.querySelectorAll('.theme-btn');
+
+function applyTheme(theme) {
+  if (theme === 'auto') {
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  } else {
+    document.documentElement.setAttribute('data-theme', theme);
+  }
+}
+
+function setTheme(theme, index) {
+  localStorage.setItem('user-theme', theme);
+  localStorage.setItem('theme-index', index);
+  thumb.style.transform = `translateX(${index * 100}%)`;
+  buttons.forEach((btn, i) => btn.classList.toggle('active', i === index));
+  applyTheme(theme);
+}
+
+const savedTheme = localStorage.getItem('user-theme') || 'dark';
+const savedIndex = parseInt(localStorage.getItem('theme-index')) || 0;
+setTheme(savedTheme, savedIndex);
+
+/* NOISE BACKGROUND */
+const canvas = document.getElementById("bg");
+const ctx = canvas.getContext("2d");
+function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+window.addEventListener("resize", resize);
+resize();
+
+let dots = Array.from({length: 80}, () => ({
+  x: Math.random()*canvas.width, y: Math.random()*canvas.height,
+  vx: (Math.random()-0.5)*0.2, vy: (Math.random()-0.5)*0.2
+}));
+
+function animate() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fg');
+  dots.forEach(d => {
+    d.x += d.vx; d.y += d.vy;
+    if(d.x < 0 || d.x > canvas.width) d.vx *= -1;
+    if(d.y < 0 || d.y > canvas.height) d.vy *= -1;
+    ctx.beginPath(); ctx.arc(d.x, d.y, 0.6, 0, Math.PI*2); ctx.fill();
+  });
+  requestAnimationFrame(animate);
+}
+animate();
+</script>
+
 </body>
 </html>
