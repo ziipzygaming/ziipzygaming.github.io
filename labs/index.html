@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="Labs — ziipzy. Experimental builds, stress tests, and prototypes."/>
+<meta name="theme-color" content="#000000" id="theme-color"/>
+<title>Labs — ziipzy</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #000;
+  --fg: #fff;
+  --muted: rgba(255,255,255,0.4);
+  --line: rgba(255,255,255,0.08);
+  --glass: rgba(255, 255, 255, 0.02);
+  --glass-border: rgba(255, 255, 255, 0.05);
+  --accent: #fff;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --radius: 40px;
+  --radius-sm: 14px;
+  --transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="light"] {
+  --bg: #fbfbfb;
+  --fg: #000;
+  --muted: rgba(0,0,0,0.4);
+  --line: rgba(0,0,0,0.06);
+  --glass: rgba(0, 0, 0, 0.01);
+  --glass-border: rgba(0, 0, 0, 0.04);
+  --accent: #000;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+html::-webkit-scrollbar { display: none; }
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var(--font-sans);
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  overflow-x: hidden;
+  line-height: 1.8;
+  transition: background-color var(--transition-slow);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--fg);
+  color: var(--bg);
+  padding: 8px 16px;
+  z-index: 1000;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0 0 8px 0;
+}
+.skip-link:focus { top: 0; }
+
+canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* Header */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 30px 5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: transparent;
+  transition: padding 0.4s ease, backdrop-filter 0.4s ease, transform 0.4s ease;
+}
+
+.header.scrolled {
+  padding: 15px 5%;
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  background: var(--glass);
+  border-bottom: 1px solid var(--line);
+}
+
+.header.hidden { transform: translateY(-100%); }
+
+.logo { 
+  font-size: 1.1rem; 
+  font-weight: 800; 
+  letter-spacing: -0.05em; 
+  text-transform: lowercase; 
+  text-decoration: none;
+  color: var(--fg);
+}
+
+/* Theme controller */
+.theme-controller {
+  display: flex;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  position: relative;
+  width: 190px;
+}
+
+.theme-btn {
+  flex: 1;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 12px 0;
+  cursor: pointer;
+  z-index: 2;
+  position: relative;
+  border-radius: 11px;
+  transition: color 0.3s 0.1s;
+}
+
+.theme-btn.active { color: var(--bg); }
+
+.slider-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  height: calc(100% - 6px);
+  width: calc(33.33% - 4px);
+  background: var(--fg);
+  border-radius: 11px;
+  z-index: 1;
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Sections */
+section {
+  padding: 240px 10%;
+  position: relative;
+  z-index: 2;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 1s cubic-bezier(0.2, 1, 0.3, 1), transform 1s cubic-bezier(0.2, 1, 0.3, 1);
+}
+
+section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Hero */
+.hero {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 160px 10% 80px;
+}
+
+.hero-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+.hero-title {
+  font-size: clamp(3rem, 10vw, 8rem);
+  font-weight: 900;
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+  margin-bottom: 30px;
+}
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  color: var(--muted);
+  max-width: 500px;
+  line-height: 1.7;
+}
+
+/* Stats bar */
+.stats-bar {
+  display: flex;
+  gap: 60px;
+  margin-top: 60px;
+  padding-top: 40px;
+  border-top: 1px solid var(--line);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* Projects Grid */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+}
+
+.project-item {
+  min-height: 500px;
+  background: var(--glass);
+  border-radius: var(--radius);
+  border: 1px solid var(--glass-border);
+  overflow: hidden;
+  position: relative;
+  transition: transform var(--transition), border-color 0.4s ease;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+}
+
+.project-item:hover,
+.project-item:focus-visible {
+  transform: scale(0.99);
+  border-color: var(--fg);
+}
+
+.project-visual {
+  flex: 1;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.005));
+}
+
+.project-visual .icon {
+  font-size: 5rem;
+  font-weight: 900;
+  opacity: 0.06;
+  letter-spacing: -0.05em;
+  user-select: none;
+}
+
+.project-status {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  z-index: 10;
+}
+
+.status-live {
+  background: rgba(68, 255, 136, 0.12);
+  color: #44ff88;
+  border: 1px solid rgba(68, 255, 136, 0.2);
+}
+
+.status-wip {
+  background: rgba(255, 200, 68, 0.12);
+  color: #ffc844;
+  border: 1px solid rgba(255, 200, 68, 0.2);
+}
+
+.status-planned {
+  background: rgba(136, 136, 255, 0.12);
+  color: #8888ff;
+  border: 1px solid rgba(136, 136, 255, 0.2);
+}
+
+.status-deprecated {
+  background: rgba(255, 68, 68, 0.12);
+  color: #ff4444;
+  border: 1px solid rgba(255, 68, 68, 0.2);
+}
+
+[data-theme="light"] .status-live { color: #008800; background: rgba(0, 136, 0, 0.08); border-color: rgba(0, 136, 0, 0.15); }
+[data-theme="light"] .status-wip { color: #886600; background: rgba(136, 102, 0, 0.08); border-color: rgba(136, 102, 0, 0.15); }
+[data-theme="light"] .status-planned { color: #4444cc; background: rgba(68, 68, 204, 0.08); border-color: rgba(68, 68, 204, 0.15); }
+[data-theme="light"] .status-deprecated { color: #cc0000; background: rgba(204, 0, 0, 0.08); border-color: rgba(204, 0, 0, 0.15); }
+
+.project-link-overlay {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: var(--fg);
+  color: var(--bg);
+  padding: 10px 20px;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-decoration: none;
+  text-transform: uppercase;
+  z-index: 20;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.4s ease;
+  border: 2px solid transparent;
+}
+
+.project-item:hover .project-link-overlay,
+.project-item:focus-within .project-link-overlay {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.project-link-overlay:focus-visible {
+  border-color: var(--bg);
+  outline: none;
+}
+
+.project-info {
+  padding: 30px 40px;
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+  z-index: 10;
+}
+
+.project-info h3 {
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+  margin-bottom: 5px;
+}
+
+.project-info p {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.project-tags {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  color: var(--muted);
+}
+
+/* Full width project */
+.project-item.full-width {
+  grid-column: 1 / -1;
+  min-height: 400px;
+  flex-direction: row;
+}
+
+.project-item.full-width .project-visual {
+  flex: 1;
+}
+
+.project-item.full-width .project-info {
+  width: 40%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-top: none;
+  border-left: 1px solid var(--line);
+}
+
+/* Coming soon card */
+.coming-soon {
+  grid-column: 1 / -1;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px;
+  background: var(--glass);
+  border-radius: var(--radius);
+  border: 1px dashed var(--glass-border);
+}
+
+.coming-soon h3 {
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+  opacity: 0.5;
+}
+
+.coming-soon p {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* Footer */
+.footer { 
+  padding: 120px 10% 60px; 
+  border-top: 1px solid var(--line); 
+  position: relative;
+  z-index: 2;
+}
+
+.footer-main { 
+  display: grid; 
+  grid-template-columns: 2fr repeat(3, 1fr); 
+  gap: 60px; 
+  margin-bottom: 100px; 
+}
+
+.footer-col h4 { 
+  font-size: 0.7rem; 
+  text-transform: uppercase; 
+  color: var(--muted); 
+  margin-bottom: 30px; 
+  letter-spacing: 0.05em;
+}
+
+.footer-col a { 
+  display: block; 
+  color: var(--fg); 
+  text-decoration: none; 
+  margin-bottom: 15px; 
+  opacity: 0.6; 
+  transition: 0.3s; 
+}
+
+.footer-col a:hover,
+.footer-col a:focus-visible { 
+  opacity: 1; 
+  transform: translateX(5px); 
+}
+
+.footer-col p {
+  max-width: 300px;
+  line-height: 1.7;
+}
+
+.footer-bottom { 
+  display: flex; 
+  justify-content: space-between; 
+  border-top: 1px solid var(--line); 
+  padding-top: 40px; 
+  color: var(--muted); 
+  font-size: 0.7rem; 
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .projects-grid { grid-template-columns: 1fr; }
+  .project-item.full-width { flex-direction: column; min-height: 500px; }
+  .project-item.full-width .project-info { width: 100%; border-left: none; border-top: 1px solid var(--line); }
+  .stats-bar { gap: 30px; }
+  .footer-main { grid-template-columns: 1fr; gap: 40px; margin-bottom: 60px; }
+}
+
+@media (max-width: 640px) {
+  .header { padding: 20px 5%; }
+  .theme-controller { width: 160px; }
+  .theme-btn { font-size: 9px; padding: 10px 0; }
+  section { padding: 120px 5%; }
+  .hero { padding: 120px 5% 60px; }
+  .stats-bar { flex-wrap: wrap; gap: 24px; }
+  .stat-value { font-size: 1.5rem; }
+  .project-info { padding: 24px; }
+  .project-link-overlay {
+    opacity: 1;
+    transform: none;
+    top: auto;
+    bottom: 20px;
+    right: 20px;
+  }
+  .project-visual .icon { font-size: 3rem; }
+  .footer { padding: 60px 5% 40px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  section { opacity: 1; transform: none; }
+}
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<canvas id="bg" aria-hidden="true"></canvas>
+
+<header class="header" id="navbar">
+  <a href="/" class="logo" aria-label="ziipzy home">ziipzy</a>
+  <nav class="theme-controller" role="tablist" aria-label="Theme selector">
+    <div class="slider-thumb" id="thumb" aria-hidden="true"></div>
+    <button class="theme-btn" role="tab" aria-selected="false" data-theme="dark" data-index="0">Dark</button>
+    <button class="theme-btn" role="tab" aria-selected="false" data-theme="light" data-index="1">Light</button>
+    <button class="theme-btn" role="tab" aria-selected="false" data-theme="auto" data-index="2">Auto</button>
+  </nav>
+</header>
+
+<main id="main">
+  <section class="hero visible" aria-label="Labs introduction">
+    <span class="hero-label">Experimental Division</span>
+    <h1 class="hero-title">Labs</h1>
+    <p class="hero-subtitle">Stress testing monochrome variables, fluid layouts, and the boundaries between structure and chaos. Every build is a hypothesis.</p>
+
+    <div class="stats-bar">
+      <div class="stat-item">
+        <span class="stat-value">12</span>
+        <span class="stat-label">Projects</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">4</span>
+        <span class="stat-label">Live</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">7</span>
+        <span class="stat-label">In Progress</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">1</span>
+        <span class="stat-label">Deprecated</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="projects" aria-labelledby="projects-heading">
+    <h2 id="projects-heading" class="sr-only" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;">Lab Projects</h2>
+    <div class="projects-grid">
+
+      <!-- LIVE -->
+      <a href="Yourlinkhere" class="project-item">
+        <span class="project-status status-live">Live</span>
+        <span class="project-link-overlay">Open</span>
+        <div class="project-visual">
+          <span class="icon" aria-hidden="true">GLSL</span>
+        </div>
+        <div class="project-info">
+          <h3>Shader Sandbox</h3>
+          <p>Real-time WebGL fragment shader editor with live preview and noise function library.</p>
+          <div class="project-tags">
+            <span class="tag">WebGL</span>
+            <span class="tag">GLSL</span>
+            <span class="tag">Canvas</span>
+          </div>
+        </div>
+      </a>
+
+      <a href="Yourlinkhere" class="project-item">
+        <span class="project-status status-live">Live</span>
+        <span class="project-link-overlay">Open</span>
+        <div class="project-visual">
+          <span class="icon" aria-hidden="true">TYPE</span>
+        </div>
+        <div class="project-info">
+          <h3>Kinetic Type</h3>
+          <p>Variable font stress tester. Animate weight, width, and slant with scroll and mouse interaction.</p>
+          <div class="project-tags">
+            <span class="tag">Typography</span>
+            <span class="tag">Animation</span>
+            <span class="tag">CSS</span>
+          </div>
+        </div>
+      </a>
+
+      <a href="Yourlinkhere" class="project-item">
+        <span class="project-status status-live">Live</span>
+        <span class="project-link-overlay">Open</span>
+        <div class="project-visual">
+          <span class="icon" aria-hidden="true">GRID</span>
+        </div>
+        <div class="project-info">
+          <h3>Fluid Grid</h3>
+          <p>Responsive layout engine that morphs between 12-column and masonry based on viewport density.</p>
+          <div class="project-tags">
+            <span class="tag">Layout</span>
+            <span class="tag">Responsive</span>
+            <span class="tag">JS</span>
+          </div>
+        </div>
+      </a>
+
+      <a href="Yourlinkhere" class="project-item">
+        <span class="project-status status-live">Live</span>
+        <span class="project-link-overlay">Open</span>
+        <div class="project-visual">
+          <span class="icon" aria-hidden="true">NOISE</span>
+        </div>
+        <div class="project-info">
+          <h3>Noise Generator</h3>
+          <p>Procedural texture generator. Perlin, Simplex, and Worley noise with export to PNG/SVG.</p>
+          <div class="project-tags">
+            <span class="tag">Generative</span>
+            <span class="tag">Math</span>
+            <span class="tag">Export</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- WIP -->
+      <a href="Yourlinkhere" class="project-item">
+        <span class="project-status status-wip">WIP</span>
+        <span class="project-link-overlay">Preview</span>
+        <div class="project-visual">
+          <span class="icon" aria-hidden="true">3D</span>
+        </div>
+        <div class="project-info">
+          <h3>Depth Map</h3>
+          <p>Convert 2D images into pseudo-3D parallax scenes using depth estimation and CSS transforms.</p>
+          <div class="project-tags">
+            <span class="tag">3D</span>
+            <span class="tag">Parallax</span>
+            <span class="tag">Image</span>
+          </div>
+        </div>
+      </a>
+
+      <a href="Yourlinkhere" class="project-item">
+        <span class="project-status status-wip">WIP</span>
+        <span class="project-link-overlay">Preview</span>
+        <div class="project-visual">
+          <span class="icon" aria-hidden="true">AUDIO</span>
+        </div>
+        <div class="project-info">
+          <h3>Sonic Canvas</h3>
+          <p>Audio-reactive visualizer using Web Audio API and FFT data to drive canvas animations.</p>
+          <div class="project-tags">
+            <span class="tag">Audio</span>
+            <span class="tag">Visualizer</span>
+            <span class="tag">FFT</span>
+          </div>
+        </div>
+      </a>
+
+      <a href="Yourlinkhere" class="project-item">
+        <span class="project-status status-wip">WIP</span>
+        <span class="project-link-overlay">Preview</span>
+        <div class="project-visual">
+          <span class="icon" aria-hidden="true">TERM</span>
+        </div>
+        <div class="project-info">
+          <h3>Terminal UI</h3>
+          <p>Command-line interface in the browser. Custom parser, history, and plugin architecture.</p>
+          <div class="project-tags">
+            <span class="tag">CLI</span>
+            <span class="tag">Parser</span>
+            <span class="tag">Plugins</span>
+          </div>
+        </div>
+      </a>
+
+      <a href="Yourlinkhere" class="project-item">
+        <span class="project-status status-wip">WIP</span>
+        <span class="project-link-overlay">Preview</span>
+        <div class="project-visual">
+          <span class="icon" aria-hidden="true">DATA</span>
+        </div>
+        <div class="project-info">
+          <h3>Data Flow</h3>
+          <p>Real-time data visualization dashboard with D3.js and simulated live data streams.</p>
+          <div class="project-tags">
+            <span class="tag">D3</span>
+            <span class="tag">Charts</span>
+            <span class="tag">Real-time</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- PLANNED -->
+      <a href="Yourlinkhere" class="project-item">
+        <span class="project-status status-planned">Planned</span>
+        <span class="project-link-overlay">Soon</span>
+        <div class="project-visual">
+          <span class="icon" aria-hidden="true">AI</span>
+        </div>
+        <div class="project-info">
+          <h3>Prompt Lab</h3>
+          <p>AI prompt engineering workspace. Save, version, and A/B test prompts with local LLM integration.</p>
+          <div class="project-tags">
+            <span class="tag">AI</span>
+            <span class="tag">LLM</span>
+            <span class="tag">Tools</span>
+          </div>
+        </div>
+      </a>
+
+      <a href="Yourlinkhere" class="project-item">
+        <span class="project-status status-planned">Planned</span>
+        <span class="project-link-overlay">Soon</span>
+        <div class="project-visual">
+          <span class="icon" aria-hidden="true">CODE</span>
+        </div>
+        <div class="project-info">
+          <h3>Snippet Vault</h3>
+          <p>Code snippet manager with syntax highlighting, tagging, and instant shareable links.</p>
+          <div class="project-tags">
+            <span class="tag">DevTools</span>
+            <span class="tag">Storage</span>
+            <span class="tag">Share</span>
+          </div>
+        </div>
+      </a>
+
+      <a href="Yourlinkhere" class="project-item">
+        <span class="project-status status-planned">Planned</span>
+        <span class="project-link-overlay">Soon</span>
+        <div class="project-visual">
+          <span class="icon" aria-hidden="true">MOTION</span>
+        </div>
+        <div class="project-info">
+          <h3>Motion Kit</h3>
+          <p>Micro-interaction library. Pre-built hover states, page transitions, and scroll triggers.</p>
+          <div class="project-tags">
+            <span class="tag">Animation</span>
+            <span class="tag">Library</span>
+            <span class="tag">CSS</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- DEPRECATED -->
+      <a href="Yourlinkhere" class="project-item">
+        <span class="project-status status-deprecated">Deprecated</span>
+        <span class="project-link-overlay">Archive</span>
+        <div class="project-visual">
+          <span class="icon" aria-hidden="true">V1</span>
+        </div>
+        <div class="project-info">
+          <h3>ziipzy v1.0</h3>
+          <p>Original site build. Kept for reference. Monolithic CSS, no theme system, static everything.</p>
+          <div class="project-tags">
+            <span class="tag">Archive</span>
+            <span class="tag">Legacy</span>
+            <span class="tag">v1.0</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- COMING SOON -->
+      <div class="coming-soon">
+        <h3>More experiments loading...</h3>
+        <p>Check back. Or don't. We'll be here either way.</p>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="footer-main">
+    <div class="footer-col">
+      <h4>Philosophy</h4>
+      <p>Designing tools for those who build the quiet parts of the internet.</p>
+    </div>
+    <nav class="footer-col" aria-label="Products">
+      <h4>Products</h4>
+      <a href="https://avaosproject.github.io/">AVAOS</a>
+      <a href="https://theziipzyfiles.github.io/">theziipzyfiles</a>
+    </nav>
+    <nav class="footer-col" aria-label="Resources">
+      <h4>Resources</h4>
+      <a href="#">Docs</a>
+      <a href="#">GitHub</a>
+    </nav>
+    <nav class="footer-col" aria-label="Social">
+      <h4>Social</h4>
+      <a href="#">TikTok</a>
+      <a href="#">Facebook</a>
+      <a href="#">Discord</a>
+    </nav>
+  </div>
+  <div class="footer-bottom">
+    <div>© 2026 ZIIPZY ARCHITECTURE</div>
+    <div>VERSION 2.1.0</div>
+  </div>
+</footer>
+
+<script>
+/* ============================
+   SCROLL REVEAL
+   ============================ */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) entry.target.classList.add('visible');
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+document.querySelectorAll('section').forEach(section => observer.observe(section));
+
+/* ============================
+   NAVBAR SCROLL EFFECT
+   ============================ */
+let lastScroll = 0;
+const nav = document.getElementById('navbar');
+
+window.addEventListener('scroll', () => {
+  const currentScroll = window.scrollY;
+
+  if (currentScroll > 50) nav.classList.add('scrolled');
+  else nav.classList.remove('scrolled');
+
+  if (currentScroll > lastScroll && currentScroll > 200) nav.classList.add('hidden');
+  else nav.classList.remove('hidden');
+
+  lastScroll = currentScroll;
+}, { passive: true });
+
+/* ============================
+   THEME SYSTEM
+   ============================ */
+const thumb = document.getElementById('thumb');
+const buttons = document.querySelectorAll('.theme-btn');
+const metaTheme = document.getElementById('theme-color');
+const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+function getSystemTheme() {
+  return mediaQuery.matches ? 'dark' : 'light';
+}
+
+function applyTheme(theme) {
+  const resolved = theme === 'auto' ? getSystemTheme() : theme;
+  document.documentElement.setAttribute('data-theme', resolved);
+  metaTheme.setAttribute('content', resolved === 'dark' ? '#000000' : '#fbfbfb');
+}
+
+function setTheme(theme, index) {
+  localStorage.setItem('user-theme', theme);
+  localStorage.setItem('theme-index', index);
+  thumb.style.transform = `translateX(${index * 100}%)`;
+
+  buttons.forEach((btn, i) => {
+    const isActive = i === index;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-selected', isActive);
+  });
+
+  applyTheme(theme);
+}
+
+buttons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    setTheme(btn.dataset.theme, parseInt(btn.dataset.index));
+  });
+});
+
+mediaQuery.addEventListener('change', () => {
+  const current = localStorage.getItem('user-theme') || 'auto';
+  if (current === 'auto') applyTheme('auto');
+});
+
+const savedTheme = localStorage.getItem('user-theme') || 'auto';
+const savedIndex = parseInt(localStorage.getItem('theme-index')) || 2;
+setTheme(savedTheme, savedIndex);
+
+/* ============================
+   OPTIMIZED CANVAS BACKGROUND
+   ============================ */
+const canvas = document.getElementById('bg');
+const ctx = canvas.getContext('2d');
+let dots = [];
+let animId;
+let isVisible = true;
+let dotColor = '#ffffff';
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+function initDots() {
+  dots = Array.from({length: 80}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    vx: (Math.random() - 0.5) * 0.2,
+    vy: (Math.random() - 0.5) * 0.2
+  }));
+}
+
+function updateDotColor() {
+  const style = getComputedStyle(document.documentElement);
+  dotColor = style.getPropertyValue('--fg').trim();
+}
+
+const themeObserver = new MutationObserver(updateDotColor);
+themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+updateDotColor();
+
+function animate() {
+  if (!isVisible) {
+    animId = requestAnimationFrame(animate);
+    return;
+  }
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = dotColor;
+
+  for (let d of dots) {
+    d.x += d.vx;
+    d.y += d.vy;
+
+    if (d.x < 0 || d.x > canvas.width) d.vx *= -1;
+    if (d.y < 0 || d.y > canvas.height) d.vy *= -1;
+
+    ctx.beginPath();
+    ctx.arc(d.x, d.y, 0.6, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  animId = requestAnimationFrame(animate);
+}
+
+document.addEventListener('visibilitychange', () => {
+  isVisible = !document.hidden;
+});
+
+const canvasObserver = new IntersectionObserver((entries) => {
+  isVisible = entries[0].isIntersecting;
+}, { threshold: 0 });
+canvasObserver.observe(canvas);
+
+const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+if (!motionQuery.matches) {
+  initDots();
+  animate();
+}
+
+motionQuery.addEventListener('change', (e) => {
+  if (e.matches) {
+    cancelAnimationFrame(animId);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  } else {
+    initDots();
+    animate();
+  }
+});
+</script>
+
+</body>
+</html>
