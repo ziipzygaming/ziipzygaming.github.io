@@ -32,7 +32,7 @@
 [data-theme="light"] {
   --bg: #fbfbfb;
   --fg: #000;
-  --muted: rgba(0,0,0,0.4);
+  --muted: rgba(255,255,255,0.4);
   --line: rgba(0,0,0,0.06);
   --glass: rgba(0, 0, 0, 0.01);
   --glass-border: rgba(0, 0, 0, 0.04);
@@ -675,7 +675,7 @@ function applyTheme(theme) {
 function setTheme(theme, index) {
   localStorage.setItem('user-theme', theme);
   localStorage.setItem('theme-index', index);
-  thumb.style.transform = `translateX(${index * 100}%)`;
+  thumb.style.transform = `translateX(${index * 105}%)`;
 
   buttons.forEach((btn, i) => {
     const isActive = i === index;
