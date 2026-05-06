@@ -1,662 +1,264 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta name="description" content="404 — Page not found. ziipzy"/>
-<meta name="theme-color" content="#000000" id="theme-color"/>
-<meta name="robots" content="noindex, nofollow"/>
-<title>ziipzy - 404</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 | Lost in the Architecture</title>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Theme Meta - Fixes scrollbar gutter color */
+            color-scheme: light;
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+            /* Palette Core */
+            --bright-snow: #f8f9faff;
+            --platinum: #e9ecefff;
+            --alabaster-grey: #dee2e6ff;
+            --pale-slate: #ced4daff;
+            --pale-slate-2: #adb5bdff;
+            --slate-grey: #6c757dff;
+            --iron-grey: #495057ff;
+            --gunmetal: #343a40ff;
+            --carbon-black: #212529ff;
+            
+            /* Theme Variables */
+            --bg-color: var(--bright-snow);
+            --surface-color: var(--platinum);
+            --text-main: var(--carbon-black);
+            --text-sub: var(--slate-grey);
+            --nav-bg: rgba(248, 249, 250, 0.85);
+            --card-hover: var(--alabaster-grey);
+            --accent-glow: rgba(52, 58, 64, 0.1);
+            --footer-bg: var(--carbon-black);
+            --footer-text: var(--bright-snow);
 
-<style>
-:root {
-  --bg: #000;
-  --fg: #fff;
-  --muted: rgba(255,255,255,0.4);
-  --line: rgba(255,255,255,0.08);
-  --glass: rgba(255, 255, 255, 0.02);
-  --glass-border: rgba(255, 255, 255, 0.05);
-  --accent: #fff;
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --radius: 40px;
-  --radius-sm: 14px;
-  --transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-slow: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
+            /* Material 3 Tokens */
+            --radius-huge: 56px;
+            --radius-large: 32px;
+            --radius-small: 16px;
+            --easing: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --transition-smooth: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
 
-[data-theme="light"] {
-  --bg: #fbfbfb;
-  --fg: #000;
-  --muted: rgba(255,255,255,0.4);
-  --line: rgba(0,0,0,0.06);
-  --glass: rgba(0, 0, 0, 0.01);
-  --glass-border: rgba(0, 0, 0, 0.04);
-  --accent: #000;
-}
+        [data-theme="dark"] {
+            color-scheme: dark;
+            --bg-color: var(--carbon-black);
+            --surface-color: var(--gunmetal);
+            --text-main: var(--bright-snow);
+            --text-sub: var(--pale-slate-2);
+            --nav-bg: rgba(33, 37, 41, 0.85);
+            --card-hover: var(--iron-grey);
+            --accent-glow: rgba(248, 249, 250, 0.08);
+            --footer-bg: #111111;
+            --footer-text: var(--bright-snow);
+        }
 
-@media (prefers-reduced-motion: reduce) {
-  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
-}
+        /* --- EXACT Main Page Floating Scrollbar --- */
+        ::-webkit-scrollbar { width: 16px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); } /* Linked to theme bg */
+        ::-webkit-scrollbar-thumb {
+            background: var(--text-sub);
+            border: 5px solid var(--bg-color); /* Creates the "floating" effect against the theme bg */
+            background-clip: content-box;
+            border-radius: 20px;
+            transition: 0.3s;
+        }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-main); background-clip: content-box; }
+        body:active::-webkit-scrollbar-thumb { border-width: 2px; }
 
-html {
-  scroll-behavior: smooth;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-html::-webkit-scrollbar { display: none; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Google Sans', sans-serif; }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: var(--font-sans);
-}
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            line-height: 1.6;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
 
-body {
-  background: var(--bg);
-  color: var(--fg);
-  overflow-x: hidden;
-  line-height: 1.8;
-  transition: background-color var(--transition-slow);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
+        /* --- Loader Screen --- */
+        #loader {
+            position: fixed; inset: 0;
+            background: var(--bg-color);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9999;
+            transition: opacity 0.8s var(--easing), visibility 0.8s;
+        }
+        .m3-spinner {
+            width: 60px; height: 60px;
+            border: 5px solid var(--surface-color);
+            border-top-color: var(--text-main);
+            border-radius: 50%;
+            animation: spin 1s infinite linear;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loaded #loader { opacity: 0; visibility: hidden; }
 
-:focus-visible {
-  outline: 2px solid var(--fg);
-  outline-offset: 4px;
-  border-radius: 4px;
-}
+        .reveal { opacity: 0; transform: translateY(30px); transition: var(--transition-smooth); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
 
-.skip-link {
-  position: absolute;
-  top: -40px;
-  left: 0;
-  background: var(--fg);
-  color: var(--bg);
-  padding: 8px 16px;
-  z-index: 1000;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-decoration: none;
-  border-radius: 0 0 8px 0;
-}
-.skip-link:focus { top: 0; }
+        /* --- Header / Nav --- */
+        nav {
+            position: fixed; top: 0; width: 100%; padding: 25px 60px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000; background: var(--nav-bg); backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--accent-glow);
+        }
+        .logo { 
+            font-family: 'Space Grotesk', sans-serif; 
+            font-weight: 700; font-size: 24px; letter-spacing: -1px; 
+            text-decoration: none; color: inherit;
+        }
+        .theme-btn {
+            background: var(--text-main); color: var(--bg-color);
+            border: none; padding: 10px 24px; border-radius: 100px;
+            font-weight: 700; font-size: 12px; cursor: pointer;
+            transition: var(--transition-smooth); text-transform: uppercase;
+        }
 
-canvas {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  opacity: 0.3;
-  pointer-events: none;
-}
+        /* --- Hero Section (The 404 Visual) --- */
+        .hero-container {
+            display: grid; grid-template-columns: 1.1fr 0.9fr;
+            min-height: 95vh; padding: 0 10%; align-items: center;
+            background: var(--surface-color);
+            border-bottom-left-radius: var(--radius-huge);
+            border-bottom-right-radius: var(--radius-huge);
+            position: relative; overflow: hidden;
+        }
+        .hero-text h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(3.5rem, 10vw, 9rem);
+            line-height: 0.85; margin-bottom: 25px;
+        }
 
-/* Header */
-.header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  padding: 30px 5%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: transparent;
-  transition: padding 0.4s ease, backdrop-filter 0.4s ease, transform 0.4s ease;
-}
+        .orb-canvas { display: flex; justify-content: center; align-items: center; height: 500px; }
+        .interactive-blob {
+            width: 350px; height: 350px;
+            background: var(--text-main);
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            cursor: pointer;
+            transition: all 1s var(--easing);
+            box-shadow: 0 30px 60px var(--accent-glow);
+            animation: blob-morph 8s ease-in-out infinite;
+        }
+        @keyframes blob-morph {
+            0%, 100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; transform: translate(0, 0) rotate(0deg); }
+            33% { border-radius: 50% 50% 20% 80% / 25% 80% 20% 75%; transform: translate(10px, -20px) rotate(5deg); }
+            66% { border-radius: 67% 33% 47% 53% / 37% 20% 80% 63%; transform: translate(-15px, 10px) rotate(-5deg); }
+        }
 
-.header.scrolled {
-  padding: 15px 5%;
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
-  background: var(--glass);
-  border-bottom: 1px solid var(--line);
-}
+        /* --- FAQ Section Styled as Project Grid --- */
+        .faq-section { padding: 120px 10%; }
+        .faq-grid { display: flex; flex-wrap: wrap; gap: 40px; margin-top: 60px; }
+        
+        .faq-card {
+            background: var(--surface-color); padding: 35px;
+            border-radius: var(--radius-large); flex: 1 1 400px;
+            display: flex; flex-direction: column; gap: 15px;
+            transition: var(--transition-smooth);
+            border: 1px solid transparent;
+        }
+        .faq-card:hover { transform: translateY(-10px); border-color: var(--text-sub); }
+        .faq-card h3 { font-family: 'Space Grotesk', sans-serif; font-size: 24px; letter-spacing: -0.5px; }
+        .faq-card p { font-size: 14px; color: var(--text-sub); }
 
-.header.hidden { transform: translateY(-100%); }
+        .action-btn { 
+            display: inline-block; padding: 14px 28px; border-radius: 14px; 
+            text-align: center; text-decoration: none; font-size: 13px; font-weight: 700; 
+            background: var(--text-main); color: var(--bg-color); transition: 0.3s; 
+            width: fit-content; margin-top: 10px;
+        }
 
-.logo { 
-  font-size: 1.1rem; 
-  font-weight: 800; 
-  letter-spacing: -0.05em; 
-  text-transform: lowercase; 
-  text-decoration: none;
-  color: var(--fg);
-}
+        /* --- Footer --- */
+                footer { background: var(--footer-bg); color: var(--footer-text); padding: 80px 10%; border-top-left-radius: var(--radius-huge); border-top-right-radius: var(--radius-huge); transition: background-color 0.5s ease; position: relative; overflow: hidden; }
+        .footer-logo { font-size: 40px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; margin-bottom: 20px;}
+        .footer-link { color: var(--pale-slate); text-decoration: none; margin-right: 20px; transition: 0.3s; font-size: 14px; }
+        .footer-link:hover { color: white; }
 
-/* Theme controller */
-.theme-controller {
-  display: flex;
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
-  padding: 3px;
-  border-radius: var(--radius-sm);
-  position: relative;
-  width: 190px;
-}
-
-.theme-btn {
-  flex: 1;
-  border: none;
-  background: none;
-  color: var(--muted);
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  padding: 12px 0;
-  cursor: pointer;
-  z-index: 2;
-  position: relative;
-}
-
-.theme-btn.active { color: var(--bg); }
-
-.slider-thumb {
-  position: absolute;
-  top: 3px; left: 3px;
-  height: calc(100% - 6px);
-  width: calc(33.33% - 4px);
-  background: var(--fg);
-  border-radius: 11px;
-  z-index: 1;
-  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* Main content area */
-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  padding: 160px 5% 80px;
-  position: relative;
-  z-index: 2;
-}
-
-/* 404 Content */
-.error-code {
-  font-size: clamp(8rem, 25vw, 20rem);
-  font-weight: 900;
-  letter-spacing: -0.08em;
-  line-height: 0.85;
-  opacity: 0.08;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  user-select: none;
-  pointer-events: none;
-  white-space: nowrap;
-  z-index: 0;
-}
-
-.error-content {
-  position: relative;
-  z-index: 1;
-  max-width: 600px;
-}
-
-.error-title {
-  font-size: clamp(2rem, 5vw, 4rem);
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  line-height: 1.1;
-  margin-bottom: 20px;
-}
-
-.error-subtitle {
-  font-size: 1.1rem;
-  color: var(--muted);
-  margin-bottom: 50px;
-  line-height: 1.6;
-}
-
-/* Glitch text effect */
-.glitch-text {
-  position: relative;
-  display: inline-block;
-}
-
-.glitch-text::before,
-.glitch-text::after {
-  content: attr(data-text);
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-}
-
-@keyframes glitch-1 {
-  0%, 100% { opacity: 0; transform: translate(0); }
-  7% { opacity: 0.8; transform: translate(-2px, 1px); }
-  10% { opacity: 0; }
-  27% { opacity: 0; }
-  30% { opacity: 0.6; transform: translate(2px, -1px); }
-  35% { opacity: 0; }
-}
-
-@keyframes glitch-2 {
-  0%, 100% { opacity: 0; transform: translate(0); }
-  15% { opacity: 0; }
-  18% { opacity: 0.5; transform: translate(1px, 2px); }
-  22% { opacity: 0; }
-  60% { opacity: 0; }
-  63% { opacity: 0.7; transform: translate(-1px, -2px); }
-  68% { opacity: 0; }
-}
-
-.glitch-text::before {
-  color: #ff0000;
-  animation: glitch-1 4s infinite;
-}
-
-.glitch-text::after {
-  color: #00ffff;
-  animation: glitch-2 4s infinite;
-}
-
-[data-theme="light"] .glitch-text::before { color: #cc0000; }
-[data-theme="light"] .glitch-text::after { color: #0088aa; }
-
-/* Back button */
-.back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--fg);
-  color: var(--bg);
-  padding: 16px 32px;
-  border-radius: 100px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  border: 2px solid var(--fg);
-}
-
-.back-btn:hover,
-.back-btn:focus-visible {
-  background: transparent;
-  color: var(--fg);
-  transform: scale(1.05);
-}
-
-.back-btn svg {
-  width: 16px;
-  height: 16px;
-  transition: transform 0.3s ease;
-}
-
-.back-btn:hover svg,
-.back-btn:focus-visible svg {
-  transform: translateX(-4px);
-}
-
-/* Terminal output */
-.terminal {
-  font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
-  font-size: 11px;
-  color: var(--muted);
-  text-align: left;
-  margin-top: 60px;
-  padding: 24px 28px;
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  max-width: 420px;
-  width: 100%;
-}
-
-.terminal-line {
-  display: block;
-  line-height: 2;
-  opacity: 0;
-  animation: typeIn 0.3s ease forwards;
-}
-
-.terminal-line:nth-child(1) { animation-delay: 0.2s; }
-.terminal-line:nth-child(2) { animation-delay: 0.6s; }
-.terminal-line:nth-child(3) { animation-delay: 1.0s; }
-.terminal-line:nth-child(4) { animation-delay: 1.4s; }
-.terminal-line:nth-child(5) { animation-delay: 1.8s; }
-
-@keyframes typeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.terminal .cmd { color: var(--fg); }
-.terminal .err { color: #ff4444; }
-.terminal .ok { color: #44ff88; }
-
-[data-theme="light"] .terminal .err { color: #cc0000; }
-[data-theme="light"] .terminal .ok { color: #008800; }
-
-/* Cursor blink */
-.cursor {
-  display: inline-block;
-  width: 8px;
-  height: 1.2em;
-  background: var(--fg);
-  margin-left: 2px;
-  vertical-align: text-bottom;
-  animation: blink 1s step-end infinite;
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-/* Footer */
-.footer { 
-  padding: 120px 10% 60px; 
-  border-top: 1px solid var(--line); 
-}
-
-.footer-main { 
-  display: grid; 
-  grid-template-columns: 2fr repeat(3, 1fr); 
-  gap: 60px; 
-  margin-bottom: 100px; 
-}
-
-.footer-col h4 { 
-  font-size: 0.7rem; 
-  text-transform: uppercase; 
-  color: var(--muted); 
-  margin-bottom: 30px; 
-  letter-spacing: 0.05em;
-}
-
-.footer-col a { 
-  display: block; 
-  color: var(--fg); 
-  text-decoration: none; 
-  margin-bottom: 15px; 
-  opacity: 0.6; 
-  transition: 0.3s; 
-}
-
-.footer-col a:hover,
-.footer-col a:focus-visible { 
-  opacity: 1; 
-  transform: translateX(5px); 
-}
-
-.footer-col p {
-  max-width: 300px;
-  line-height: 1.7;
-}
-
-.footer-bottom { 
-  display: flex; 
-  justify-content: space-between; 
-  border-top: 1px solid var(--line); 
-  padding-top: 40px; 
-  color: var(--muted); 
-  font-size: 0.7rem; 
-}
-
-/* Responsive */
-@media (max-width: 1024px) {
-  .footer-main { grid-template-columns: 1fr; gap: 40px; }
-}
-
-@media (max-width: 640px) {
-  .header { padding: 20px 5%; }
-  .theme-controller { width: 160px; }
-  .theme-btn { font-size: 9px; padding: 10px 0; }
-  .error-title { font-size: clamp(1.5rem, 8vw, 3rem); }
-  .terminal { padding: 18px 20px; font-size: 10px; }
-  .footer { padding: 40px 5%; }
-  .footer-main { margin-bottom: 40px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .glitch-text::before,
-  .glitch-text::after { animation: none; }
-  .terminal-line { opacity: 1; animation: none; }
-  .cursor { animation: none; opacity: 1; }
-}
-</style>
-<base target="_blank">
+        @media (max-width: 900px) {
+            .hero-container { grid-template-columns: 1fr; text-align: center; padding-top: 100px;}
+            .faq-card { flex: 1 1 100%; }
+        }
+    </style>
 </head>
 <body>
 
-<a href="#main" class="skip-link">Skip to content</a>
+    <div id="loader"><div class="m3-spinner"></div></div>
 
-<canvas id="bg" aria-hidden="true"></canvas>
-
-<header class="header" id="navbar">
-  <a href="/" class="logo" aria-label="ziipzy home">ziipzy</a>
-  <nav class="theme-controller" role="tablist" aria-label="Theme selector">
-    <div class="slider-thumb" id="thumb" aria-hidden="true"></div>
-    <button class="theme-btn" role="tab" aria-selected="false" data-theme="dark" data-index="0">Dark</button>
-    <button class="theme-btn" role="tab" aria-selected="false" data-theme="light" data-index="1">Light</button>
-    <button class="theme-btn" role="tab" aria-selected="false" data-theme="auto" data-index="2">Auto</button>
-  </nav>
-</header>
-
-<main id="main">
-  <div class="error-code" aria-hidden="true">404</div>
-
-  <div class="error-content">
-    <h1 class="error-title">
-      <span class="glitch-text" data-text="Lost in the void">Lost in the void</span>
-    </h1>
-    <p class="error-subtitle">The page you're looking for doesn't exist. It might have been moved, deleted, or never existed in the first place.</p>
-
-    <a href="/" class="back-btn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M19 12H5M12 19l-7-7 7-7"/>
-      </svg>
-      Back to base
-    </a>
-
-    <div class="terminal" aria-hidden="true">
-      <span class="terminal-line"><span class="cmd">$</span> navigate --to /requested-page</span>
-      <span class="terminal-line"><span class="err">ERROR:</span> Resource not found (404)</span>
-      <span class="terminal-line"><span class="cmd">$</span> check --status core_v2</span>
-      <span class="terminal-line"><span class="ok">OK</span> System operational. Redirecting...</span>
-      <span class="terminal-line"><span class="cmd">$</span> <span class="cursor"></span></span>
-    </div>
-  </div>
-</main>
-
-<footer class="footer">
-  <div class="footer-main">
-    <div class="footer-col">
-      <h4>Philosophy</h4>
-      <p>Designing tools for those who build the quiet parts of the internet.</p>
-    </div>
-    <nav class="footer-col" aria-label="Products">
-      <h4>Products</h4>
-      <a href="https://avaosproject.github.io/">AVAOS</a>
-      <a href="https://theziipzyfiles.github.io/">theziipzyfiles</a>
+    <nav>
+        <a href="/" class="logo">ZIIPZY</a>
+        <button class="theme-btn" onclick="toggleTheme()">Switch Theme</button>
     </nav>
-    <nav class="footer-col" aria-label="Resources">
-      <h4>Resources</h4>
-      <a href="Docs">Docs</a>
-      <a href="https://github.com/ziipzygaming">GitHub</a>
-    </nav>
-    <nav class="footer-col" aria-label="Social">
-      <h4>Social</h4>
-      <a href="https://www.tiktok.com/@ziipzy">TikTok</a>
-      <a href="https://www.facebook.com/ziipzy">Facebook</a>
-      <a href="https://www.instagram.com/chrts/">Instagram</a>
-    </nav>
-  </div>
-  <div class="footer-bottom">
-    <div>© 2026 ZIIPZY ARCHITECTURE</div>
-    <div>VERSION 2.1.0</div>
-  </div>
-</footer>
 
-<script>
-/* ============================
-   NAVBAR SCROLL EFFECT
-   ============================ */
-let lastScroll = 0;
-const nav = document.getElementById('navbar');
+    <section class="hero-container">
+        <div class="hero-text">
+            <h1 class="reveal">Error.<br>404.<br>Null.</h1>
+            <p class="reveal" style="color: var(--text-sub); font-size: 18px; max-width: 500px;">The page you are looking for has been deconstructed or moved to a different coordinate.</p>
+            <a href="/" class="action-btn reveal">Return Home</a>
+        </div>
+        <div class="orb-canvas reveal">
+            <div class="interactive-blob"></div>
+        </div>
+    </section>
 
-window.addEventListener('scroll', () => {
-  const currentScroll = window.scrollY;
+    <section class="faq-section">
+        <p class="reveal" style="text-transform: uppercase; letter-spacing: 2px; color: var(--text-sub); font-weight: 700;">System FAQ</p>
+        
+        <div class="faq-grid">
+            <div class="faq-card reveal">
+                <h3>Why am I here?</h3>
+                <p>This coordinate (URL) no longer exists in our digital architecture. You may have used an outdated link or made a typo in the address bar.</p>
+            </div>
 
-  if (currentScroll > 50) nav.classList.add('scrolled');
-  else nav.classList.remove('scrolled');
+            <div class="faq-card reveal">
+                <h3>What is a 404?</h3>
+                <p>It is a standard HTTP status code indicating that the browser was able to communicate with the server, but the server could not find what was requested.</p>
+            </div>
 
-  if (currentScroll > lastScroll && currentScroll > 200) nav.classList.add('hidden');
-  else nav.classList.remove('hidden');
+            <div class="faq-card reveal">
+                <h3>How do I escape?</h3>
+                <p>Use the navigation at the top to return to the main dashboard, or click the primary action button in the hero section to reset your session.</p>
+            </div>
+        </div>
+    </section>
 
-  lastScroll = currentScroll;
-}, { passive: true });
+        <footer>
+        <div class="footer-logo">ZIIPZY</div>
+        <div class="reveal">
+            <a href="https://github.com/ziipzygaming" class="footer-link">GitHub Profile</a>
+            <a href="labs" class="footer-link">Labs</a>
+            <a href="socials" class="footer-link">Socials</a>
+            <a href="mailto:hello@ziipzy.io" class="footer-link">Contact</a>
+        </div>
+        <p style="margin-top: 40px; font-size: 12px; opacity: 0.5;">© 2026 Ziipzy Creative. Built with Material 3 Expressive Logic.</p>
+    </footer>
 
-/* ============================
-   THEME SYSTEM
-   ============================ */
-const thumb = document.getElementById('thumb');
-const buttons = document.querySelectorAll('.theme-btn');
-const metaTheme = document.getElementById('theme-color');
-const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    <script>
+        // Loading State
+        window.addEventListener('load', () => {
+            setTimeout(() => { document.body.classList.add('loaded'); }, 1000);
+        });
 
-function getSystemTheme() {
-  return mediaQuery.matches ? 'dark' : 'light';
-}
+        // Exact Theme Logic
+        const html = document.documentElement;
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        html.setAttribute('data-theme', savedTheme);
 
-function applyTheme(theme) {
-  const resolved = theme === 'auto' ? getSystemTheme() : theme;
-  document.documentElement.setAttribute('data-theme', resolved);
-  metaTheme.setAttribute('content', resolved === 'dark' ? '#000000' : '#fbfbfb');
-}
+        function toggleTheme() {
+            const current = html.getAttribute('data-theme');
+            const target = current === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', target);
+            localStorage.setItem('theme', target);
+        }
 
-function setTheme(theme, index) {
-  localStorage.setItem('user-theme', theme);
-  localStorage.setItem('theme-index', index);
-  thumb.style.transform = `translateX(${index * 105}%)`;
+        // Intersection Observer for Reveal
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('active');
+            });
+        }, { threshold: 0.1 });
 
-  buttons.forEach((btn, i) => {
-    const isActive = i === index;
-    btn.classList.toggle('active', isActive);
-    btn.setAttribute('aria-selected', isActive);
-  });
-
-  applyTheme(theme);
-}
-
-buttons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    setTheme(btn.dataset.theme, parseInt(btn.dataset.index));
-  });
-});
-
-mediaQuery.addEventListener('change', () => {
-  const current = localStorage.getItem('user-theme') || 'auto';
-  if (current === 'auto') applyTheme('auto');
-});
-
-const savedTheme = localStorage.getItem('user-theme') || 'auto';
-const savedIndex = parseInt(localStorage.getItem('theme-index')) || 2;
-setTheme(savedTheme, savedIndex);
-
-/* ============================
-   OPTIMIZED CANVAS BACKGROUND
-   ============================ */
-const canvas = document.getElementById('bg');
-const ctx = canvas.getContext('2d');
-let dots = [];
-let animId;
-let isVisible = true;
-let dotColor = '#ffffff';
-
-function resize() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-window.addEventListener('resize', resize);
-resize();
-
-function initDots() {
-  dots = Array.from({length: 80}, () => ({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    vx: (Math.random() - 0.5) * 0.2,
-    vy: (Math.random() - 0.5) * 0.2
-  }));
-}
-
-function updateDotColor() {
-  const style = getComputedStyle(document.documentElement);
-  dotColor = style.getPropertyValue('--fg').trim();
-}
-
-const themeObserver = new MutationObserver(updateDotColor);
-themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-updateDotColor();
-
-function animate() {
-  if (!isVisible) {
-    animId = requestAnimationFrame(animate);
-    return;
-  }
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = dotColor;
-
-  for (let d of dots) {
-    d.x += d.vx;
-    d.y += d.vy;
-
-    if (d.x < 0 || d.x > canvas.width) d.vx *= -1;
-    if (d.y < 0 || d.y > canvas.height) d.vy *= -1;
-
-    ctx.beginPath();
-    ctx.arc(d.x, d.y, 0.6, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  animId = requestAnimationFrame(animate);
-}
-
-document.addEventListener('visibilitychange', () => {
-  isVisible = !document.hidden;
-});
-
-const canvasObserver = new IntersectionObserver((entries) => {
-  isVisible = entries[0].isIntersecting;
-}, { threshold: 0 });
-canvasObserver.observe(canvas);
-
-const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-if (!motionQuery.matches) {
-  initDots();
-  animate();
-}
-
-motionQuery.addEventListener('change', (e) => {
-  if (e.matches) {
-    cancelAnimationFrame(animId);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  } else {
-    initDots();
-    animate();
-  }
-});
-</script>
-
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
 </body>
 </html>
