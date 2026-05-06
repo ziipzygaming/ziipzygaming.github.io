@@ -590,7 +590,7 @@ const buttons = document.querySelectorAll('.theme-btn');
 function setTheme(theme, index) {
   localStorage.setItem('theme', theme);
   localStorage.setItem('themeIndex', index);
-  thumb.style.transform = `translateX(${index * 100}%)`;
+  thumb.style.transform = `translateX(${index * 105}%)`;
   buttons.forEach((b, i) => b.classList.toggle('active', i === index));
 
   if (theme === 'auto') {
