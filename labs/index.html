@@ -19,12 +19,9 @@
   --line: rgba(255,255,255,0.08);
   --glass: rgba(255, 255, 255, 0.02);
   --glass-border: rgba(255, 255, 255, 0.05);
-  --accent: #fff;
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --radius: 40px;
   --radius-sm: 14px;
-  --transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-slow: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 [data-theme="light"] {
@@ -34,57 +31,23 @@
   --line: rgba(0,0,0,0.06);
   --glass: rgba(0, 0, 0, 0.01);
   --glass-border: rgba(0, 0, 0, 0.04);
-  --accent: #000;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
 
 html {
   scroll-behavior: smooth;
   scrollbar-width: none;
-  -ms-overflow-style: none;
 }
 html::-webkit-scrollbar { display: none; }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: var(--font-sans);
-}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-sans); }
 
 body {
   background: var(--bg);
   color: var(--fg);
   overflow-x: hidden;
   line-height: 1.8;
-  transition: background-color var(--transition-slow);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
-:focus-visible {
-  outline: 2px solid var(--fg);
-  outline-offset: 4px;
-  border-radius: 4px;
-}
-
-.skip-link {
-  position: absolute;
-  top: -40px;
-  left: 0;
-  background: var(--fg);
-  color: var(--bg);
-  padding: 8px 16px;
-  z-index: 1000;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-decoration: none;
-  border-radius: 0 0 8px 0;
-}
-.skip-link:focus { top: 0; }
 
 canvas {
   position: fixed;
@@ -97,27 +60,22 @@ canvas {
 /* Header */
 .header {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 0; left: 0; right: 0;
   z-index: 100;
   padding: 30px 5%;
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: transparent;
-  transition: padding 0.4s ease, backdrop-filter 0.4s ease, transform 0.4s ease;
+  transition: padding 0.4s ease, backdrop-filter 0.4s ease;
 }
 
 .header.scrolled {
   padding: 15px 5%;
   backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
   background: var(--glass);
   border-bottom: 1px solid var(--line);
 }
-
-.header.hidden { transform: translateY(-100%); }
 
 .logo { 
   font-size: 1.1rem; 
@@ -151,16 +109,13 @@ canvas {
   cursor: pointer;
   z-index: 2;
   position: relative;
-  border-radius: 11px;
-  transition: color 0.3s 0.1s;
 }
 
 .theme-btn.active { color: var(--bg); }
 
 .slider-thumb {
   position: absolute;
-  top: 3px;
-  left: 3px;
+  top: 3px; left: 3px;
   height: calc(100% - 6px);
   width: calc(33.33% - 4px);
   background: var(--fg);
@@ -171,26 +126,18 @@ canvas {
 
 /* Sections */
 section {
-  padding: 240px 10%;
+  padding: 200px 10%;
   position: relative;
   z-index: 2;
-  opacity: 0;
-  transform: translateY(40px);
-  transition: opacity 1s cubic-bezier(0.2, 1, 0.3, 1), transform 1s cubic-bezier(0.2, 1, 0.3, 1);
-}
-
-section.visible {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 /* Hero */
 .hero {
-  min-height: 60vh;
+  min-height: 50vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 160px 10% 80px;
+  padding: 140px 10% 60px;
 }
 
 .hero-label {
@@ -199,7 +146,7 @@ section.visible {
   text-transform: uppercase;
   letter-spacing: 0.15em;
   color: var(--muted);
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .hero-title {
@@ -207,30 +154,25 @@ section.visible {
   font-weight: 900;
   letter-spacing: -0.06em;
   line-height: 0.9;
-  margin-bottom: 30px;
+  margin-bottom: 24px;
 }
 
 .hero-subtitle {
   font-size: 1.1rem;
   color: var(--muted);
   max-width: 500px;
-  line-height: 1.7;
 }
 
 /* Stats bar */
 .stats-bar {
   display: flex;
   gap: 60px;
-  margin-top: 60px;
-  padding-top: 40px;
+  margin-top: 50px;
+  padding-top: 30px;
   border-top: 1px solid var(--line);
 }
 
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+.stat-item { display: flex; flex-direction: column; gap: 4px; }
 
 .stat-value {
   font-size: 2rem;
@@ -255,30 +197,23 @@ section.visible {
 }
 
 .project-item {
-  min-height: 500px;
+  min-height: 480px;
   background: var(--glass);
   border-radius: var(--radius);
   border: 1px solid var(--glass-border);
   overflow: hidden;
   position: relative;
-  transition: transform var(--transition), border-color 0.4s ease;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease;
   display: flex;
   flex-direction: column;
   text-decoration: none;
   color: inherit;
 }
 
-.project-item:hover,
-.project-item:focus-visible {
-  transform: scale(0.99);
-  border-color: var(--fg);
-}
+.project-item:hover { transform: scale(0.99); border-color: var(--fg); }
 
 .project-visual {
   flex: 1;
-  width: 100%;
-  position: relative;
-  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -286,17 +221,16 @@ section.visible {
 }
 
 .project-visual .icon {
-  font-size: 5rem;
+  font-size: 4rem;
   font-weight: 900;
   opacity: 0.06;
   letter-spacing: -0.05em;
-  user-select: none;
 }
 
+/* Status badges */
 .project-status {
   position: absolute;
-  top: 20px;
-  left: 20px;
+  top: 20px; left: 20px;
   padding: 6px 14px;
   border-radius: 100px;
   font-size: 0.65rem;
@@ -306,13 +240,13 @@ section.visible {
   z-index: 10;
 }
 
-.status-planned {
+.status-live {
   background: rgba(68, 255, 136, 0.12);
   color: #44ff88;
   border: 1px solid rgba(68, 255, 136, 0.2);
 }
 
-.status-planned {
+.status-wip {
   background: rgba(255, 200, 68, 0.12);
   color: #ffc844;
   border: 1px solid rgba(255, 200, 68, 0.2);
@@ -330,15 +264,15 @@ section.visible {
   border: 1px solid rgba(255, 68, 68, 0.2);
 }
 
-[data-theme="light"] .status-live { color: #008800; background: rgba(0, 136, 0, 0.08); border-color: rgba(0, 136, 0, 0.15); }
-[data-theme="light"] .status-wip { color: #886600; background: rgba(136, 102, 0, 0.08); border-color: rgba(136, 102, 0, 0.15); }
-[data-theme="light"] .status-planned { color: #4444cc; background: rgba(68, 68, 204, 0.08); border-color: rgba(68, 68, 204, 0.15); }
-[data-theme="light"] .status-deprecated { color: #cc0000; background: rgba(204, 0, 0, 0.08); border-color: rgba(204, 0, 0, 0.15); }
+[data-theme="light"] .status-live { color: #008800; background: rgba(0,136,0,0.08); border-color: rgba(0,136,0,0.15); }
+[data-theme="light"] .status-wip { color: #886600; background: rgba(136,102,0,0.08); border-color: rgba(136,102,0,0.15); }
+[data-theme="light"] .status-planned { color: #4444cc; background: rgba(68,68,204,0.08); border-color: rgba(68,68,204,0.15); }
+[data-theme="light"] .status-deprecated { color: #cc0000; background: rgba(204,0,0,0.08); border-color: rgba(204,0,0,0.15); }
 
+/* Overlay button */
 .project-link-overlay {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 20px; right: 20px;
   background: var(--fg);
   color: var(--bg);
   padding: 10px 20px;
@@ -351,42 +285,34 @@ section.visible {
   opacity: 0;
   transform: translateY(10px);
   transition: all 0.4s ease;
-  border: 2px solid transparent;
 }
 
-.project-item:hover .project-link-overlay,
-.project-item:focus-within .project-link-overlay {
+.project-item:hover .project-link-overlay {
   opacity: 1;
   transform: translateY(0);
 }
 
-.project-link-overlay:focus-visible {
-  border-color: var(--bg);
-  outline: none;
-}
-
 .project-info {
-  padding: 30px 40px;
+  padding: 28px 36px;
   background: var(--bg);
   border-top: 1px solid var(--line);
-  z-index: 10;
 }
 
 .project-info h3 {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   letter-spacing: -0.02em;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
 
 .project-info p {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--muted);
 }
 
 .project-tags {
   display: flex;
   gap: 8px;
-  margin-top: 16px;
+  margin-top: 14px;
   flex-wrap: wrap;
 }
 
@@ -402,58 +328,28 @@ section.visible {
   color: var(--muted);
 }
 
-/* Full width project */
-.project-item.full-width {
-  grid-column: 1 / -1;
-  min-height: 400px;
-  flex-direction: row;
-}
-
-.project-item.full-width .project-visual {
-  flex: 1;
-}
-
-.project-item.full-width .project-info {
-  width: 40%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  border-top: none;
-  border-left: 1px solid var(--line);
-}
-
-/* Coming soon card */
+/* Coming soon */
 .coming-soon {
   grid-column: 1 / -1;
-  min-height: 200px;
+  min-height: 180px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 60px;
+  padding: 50px;
   background: var(--glass);
   border-radius: var(--radius);
   border: 1px dashed var(--glass-border);
 }
 
-.coming-soon h3 {
-  font-size: 1.3rem;
-  margin-bottom: 8px;
-  opacity: 0.5;
-}
-
-.coming-soon p {
-  font-size: 0.85rem;
-  color: var(--muted);
-}
+.coming-soon h3 { font-size: 1.2rem; margin-bottom: 6px; opacity: 0.5; }
+.coming-soon p { font-size: 0.8rem; color: var(--muted); }
 
 /* Footer */
 .footer { 
   padding: 120px 10% 60px; 
   border-top: 1px solid var(--line); 
-  position: relative;
-  z-index: 2;
 }
 
 .footer-main { 
@@ -503,10 +399,7 @@ section.visible {
 /* Responsive */
 @media (max-width: 1024px) {
   .projects-grid { grid-template-columns: 1fr; }
-  .project-item.full-width { flex-direction: column; min-height: 500px; }
-  .project-item.full-width .project-info { width: 100%; border-left: none; border-top: 1px solid var(--line); }
-  .stats-bar { gap: 30px; }
-  .footer-main { grid-template-columns: 1fr; gap: 40px; margin-bottom: 60px; }
+  .footer-main { grid-template-columns: 1fr; gap: 40px; }
 }
 
 @media (max-width: 640px) {
@@ -514,285 +407,137 @@ section.visible {
   .theme-controller { width: 160px; }
   .theme-btn { font-size: 9px; padding: 10px 0; }
   section { padding: 120px 5%; }
-  .hero { padding: 120px 5% 60px; }
+  .hero { padding: 120px 5% 40px; }
   .stats-bar { flex-wrap: wrap; gap: 24px; }
   .stat-value { font-size: 1.5rem; }
-  .project-info { padding: 24px; }
+  .project-info { padding: 20px 24px; }
   .project-link-overlay {
     opacity: 1;
     transform: none;
     top: auto;
-    bottom: 20px;
-    right: 20px;
+    bottom: 16px;
+    right: 16px;
+    padding: 8px 16px;
+    font-size: 0.65rem;
   }
   .project-visual .icon { font-size: 3rem; }
   .footer { padding: 60px 5% 40px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  section { opacity: 1; transform: none; }
 }
 </style>
 <base target="_blank">
 </head>
 <body>
 
-<a href="#main" class="skip-link">Skip to content</a>
-
 <canvas id="bg" aria-hidden="true"></canvas>
 
 <header class="header" id="navbar">
-  <a href="/" class="logo" aria-label="ziipzy home">ziipzy</a>
-  <nav class="theme-controller" role="tablist" aria-label="Theme selector">
-    <div class="slider-thumb" id="thumb" aria-hidden="true"></div>
-    <button class="theme-btn" role="tab" aria-selected="false" data-theme="dark" data-index="0">Dark</button>
-    <button class="theme-btn" role="tab" aria-selected="false" data-theme="light" data-index="1">Light</button>
-    <button class="theme-btn" role="tab" aria-selected="false" data-theme="auto" data-index="2">Auto</button>
-  </nav>
+  <a href="/" class="logo">ziipzy</a>
+  <div class="theme-controller">
+    <div class="slider-thumb" id="thumb"></div>
+    <button class="theme-btn" onclick="setTheme('dark', 0)">Dark</button>
+    <button class="theme-btn" onclick="setTheme('light', 1)">Light</button>
+    <button class="theme-btn" onclick="setTheme('auto', 2)">Auto</button>
+  </div>
 </header>
 
-<main id="main">
-  <section class="hero visible" aria-label="Labs introduction">
+<main>
+  <section class="hero">
     <span class="hero-label">Experimental Division</span>
     <h1 class="hero-title">Labs</h1>
-    <p class="hero-subtitle">Stress testing monochrome variables, fluid layouts, and the boundaries between structure and chaos. Every build is a hypothesis.</p>
+    <p class="hero-subtitle">Stress testing monochrome variables, fluid layouts, and the boundaries between structure and chaos.</p>
 
-    <div class="stats-bar">
+    <div class="stats-bar" id="statsBar">
       <div class="stat-item">
-        <span class="stat-value">12</span>
+        <span class="stat-value" id="statTotal">0</span>
         <span class="stat-label">Projects</span>
       </div>
       <div class="stat-item">
-        <span class="stat-value">4</span>
+        <span class="stat-value" id="statLive">0</span>
         <span class="stat-label">Live</span>
       </div>
       <div class="stat-item">
-        <span class="stat-value">7</span>
+        <span class="stat-value" id="statWip">0</span>
         <span class="stat-label">In Progress</span>
       </div>
       <div class="stat-item">
-        <span class="stat-value">1</span>
+        <span class="stat-value" id="statDeprecated">0</span>
         <span class="stat-label">Deprecated</span>
       </div>
     </div>
   </section>
 
-  <section class="projects" aria-labelledby="projects-heading">
-    <h2 id="projects-heading" class="sr-only" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;">Lab Projects</h2>
-    <div class="projects-grid">
+  <section class="projects">
+    <div class="projects-grid" id="projectsGrid">
 
-      <!-- LIVE -->
-      <a href="Yourlinkhere" class="project-item">
-        <span class="project-status status-planned">Live</span>
-        <span class="project-link-overlay">Open</span>
-        <div class="project-visual">
-          <span class="icon" aria-hidden="true">GLSL</span>
-        </div>
+      <!-- Just change data-status to: live, wip, planned, or deprecated -->
+      <!-- The badge text, color, overlay text, and sorting all happen automatically -->
+
+      <a href="Yourlinkhere" class="project-item" data-status="planned">
+        <div class="project-visual"><span class="icon">GLSL</span></div>
         <div class="project-info">
           <h3>Shader Sandbox</h3>
-          <p>Real-time WebGL fragment shader editor with live preview and noise function library.</p>
-          <div class="project-tags">
-            <span class="tag">WebGL</span>
-            <span class="tag">GLSL</span>
-            <span class="tag">Canvas</span>
-          </div>
+          <p>Real-time WebGL fragment shader editor with live preview.</p>
+          <div class="project-tags"><span class="tag">WebGL</span><span class="tag">GLSL</span></div>
         </div>
       </a>
 
-      <a href="Yourlinkhere" class="project-item">
-        <span class="project-status status-planned">Live</span>
-        <span class="project-link-overlay">Open</span>
-        <div class="project-visual">
-          <span class="icon" aria-hidden="true">TYPE</span>
-        </div>
+      <a href="Yourlinkhere" class="project-item" data-status="planned">
+        <div class="project-visual"><span class="icon">TYPE</span></div>
         <div class="project-info">
           <h3>Kinetic Type</h3>
-          <p>Variable font stress tester. Animate weight, width, and slant with scroll and mouse interaction.</p>
-          <div class="project-tags">
-            <span class="tag">Typography</span>
-            <span class="tag">Animation</span>
-            <span class="tag">CSS</span>
-          </div>
+          <p>Variable font stress tester with scroll interaction.</p>
+          <div class="project-tags"><span class="tag">Typography</span><span class="tag">CSS</span></div>
         </div>
       </a>
 
-      <a href="Yourlinkhere" class="project-item">
-        <span class="project-status status-planned">Live</span>
-        <span class="project-link-overlay">Open</span>
-        <div class="project-visual">
-          <span class="icon" aria-hidden="true">GRID</span>
-        </div>
-        <div class="project-info">
-          <h3>Fluid Grid</h3>
-          <p>Responsive layout engine that morphs between 12-column and masonry based on viewport density.</p>
-          <div class="project-tags">
-            <span class="tag">Layout</span>
-            <span class="tag">Responsive</span>
-            <span class="tag">JS</span>
-          </div>
-        </div>
-      </a>
-
-      <a href="Yourlinkhere" class="project-item">
-        <span class="project-status status-planned">Live</span>
-        <span class="project-link-overlay">Open</span>
-        <div class="project-visual">
-          <span class="icon" aria-hidden="true">NOISE</span>
-        </div>
-        <div class="project-info">
-          <h3>Noise Generator</h3>
-          <p>Procedural texture generator. Perlin, Simplex, and Worley noise with export to PNG/SVG.</p>
-          <div class="project-tags">
-            <span class="tag">Generative</span>
-            <span class="tag">Math</span>
-            <span class="tag">Export</span>
-          </div>
-        </div>
-      </a>
-
-      <!-- WIP -->
-      <a href="Yourlinkhere" class="project-item">
-        <span class="project-status status-planned">WIP</span>
-        <span class="project-link-overlay">Preview</span>
-        <div class="project-visual">
-          <span class="icon" aria-hidden="true">3D</span>
-        </div>
+      <a href="Yourlinkhere" class="project-item" data-status="planned">
+        <div class="project-visual"><span class="icon">3D</span></div>
         <div class="project-info">
           <h3>Depth Map</h3>
-          <p>Convert 2D images into pseudo-3D parallax scenes using depth estimation and CSS transforms.</p>
-          <div class="project-tags">
-            <span class="tag">3D</span>
-            <span class="tag">Parallax</span>
-            <span class="tag">Image</span>
-          </div>
+          <p>2D to pseudo-3D parallax with depth estimation.</p>
+          <div class="project-tags"><span class="tag">3D</span><span class="tag">Parallax</span></div>
         </div>
       </a>
 
-      <a href="Yourlinkhere" class="project-item">
-        <span class="project-status status-planned">WIP</span>
-        <span class="project-link-overlay">Preview</span>
-        <div class="project-visual">
-          <span class="icon" aria-hidden="true">AUDIO</span>
-        </div>
+      <a href="Yourlinkhere" class="project-item" data-status="planned">
+        <div class="project-visual"><span class="icon">AUDIO</span></div>
         <div class="project-info">
           <h3>Sonic Canvas</h3>
-          <p>Audio-reactive visualizer using Web Audio API and FFT data to drive canvas animations.</p>
-          <div class="project-tags">
-            <span class="tag">Audio</span>
-            <span class="tag">Visualizer</span>
-            <span class="tag">FFT</span>
-          </div>
+          <p>Audio-reactive visualizer using Web Audio API.</p>
+          <div class="project-tags"><span class="tag">Audio</span><span class="tag">FFT</span></div>
         </div>
       </a>
 
-      <a href="Yourlinkhere" class="project-item">
-        <span class="project-status status-planned">WIP</span>
-        <span class="project-link-overlay">Preview</span>
-        <div class="project-visual">
-          <span class="icon" aria-hidden="true">TERM</span>
-        </div>
-        <div class="project-info">
-          <h3>Terminal UI</h3>
-          <p>Command-line interface in the browser. Custom parser, history, and plugin architecture.</p>
-          <div class="project-tags">
-            <span class="tag">CLI</span>
-            <span class="tag">Parser</span>
-            <span class="tag">Plugins</span>
-          </div>
-        </div>
-      </a>
-
-      <a href="Yourlinkhere" class="project-item">
-        <span class="project-status status-planned">WIP</span>
-        <span class="project-link-overlay">Preview</span>
-        <div class="project-visual">
-          <span class="icon" aria-hidden="true">DATA</span>
-        </div>
-        <div class="project-info">
-          <h3>Data Flow</h3>
-          <p>Real-time data visualization dashboard with D3.js and simulated live data streams.</p>
-          <div class="project-tags">
-            <span class="tag">D3</span>
-            <span class="tag">Charts</span>
-            <span class="tag">Real-time</span>
-          </div>
-        </div>
-      </a>
-
-      <!-- PLANNED -->
-      <a href="Yourlinkhere" class="project-item">
-        <span class="project-status status-planned">Planned</span>
-        <span class="project-link-overlay">Soon</span>
-        <div class="project-visual">
-          <span class="icon" aria-hidden="true">AI</span>
-        </div>
+      <a href="Yourlinkhere" class="project-item" data-status="planned">
+        <div class="project-visual"><span class="icon">AI</span></div>
         <div class="project-info">
           <h3>Prompt Lab</h3>
-          <p>AI prompt engineering workspace. Save, version, and A/B test prompts with local LLM integration.</p>
-          <div class="project-tags">
-            <span class="tag">AI</span>
-            <span class="tag">LLM</span>
-            <span class="tag">Tools</span>
-          </div>
+          <p>AI prompt engineering workspace with versioning.</p>
+          <div class="project-tags"><span class="tag">AI</span><span class="tag">LLM</span></div>
         </div>
       </a>
 
-      <a href="Yourlinkhere" class="project-item">
-        <span class="project-status status-planned">Planned</span>
-        <span class="project-link-overlay">Soon</span>
-        <div class="project-visual">
-          <span class="icon" aria-hidden="true">CODE</span>
-        </div>
+      <a href="Yourlinkhere" class="project-item" data-status="planned">
+        <div class="project-visual"><span class="icon">CODE</span></div>
         <div class="project-info">
           <h3>Snippet Vault</h3>
-          <p>Code snippet manager with syntax highlighting, tagging, and instant shareable links.</p>
-          <div class="project-tags">
-            <span class="tag">DevTools</span>
-            <span class="tag">Storage</span>
-            <span class="tag">Share</span>
-          </div>
+          <p>Code snippet manager with syntax highlighting.</p>
+          <div class="project-tags"><span class="tag">DevTools</span><span class="tag">Storage</span></div>
         </div>
       </a>
 
-      <a href="Yourlinkhere" class="project-item">
-        <span class="project-status status-planned">Planned</span>
-        <span class="project-link-overlay">Soon</span>
-        <div class="project-visual">
-          <span class="icon" aria-hidden="true">MOTION</span>
-        </div>
-        <div class="project-info">
-          <h3>Motion Kit</h3>
-          <p>Micro-interaction library. Pre-built hover states, page transitions, and scroll triggers.</p>
-          <div class="project-tags">
-            <span class="tag">Animation</span>
-            <span class="tag">Library</span>
-            <span class="tag">CSS</span>
-          </div>
-        </div>
-      </a>
-
-      <!-- DEPRECATED -->
-      <a href="Yourlinkhere" class="project-item">
-        <span class="project-status status-deprecated">Deprecated</span>
-        <span class="project-link-overlay">Archive</span>
-        <div class="project-visual">
-          <span class="icon" aria-hidden="true">V1</span>
-        </div>
+      <a href="Yourlinkhere" class="project-item" data-status="planned">
+        <div class="project-visual"><span class="icon">V1</span></div>
         <div class="project-info">
           <h3>ziipzy v1.0</h3>
-          <p>Original site build. Kept for reference. Monolithic CSS, no theme system, static everything.</p>
-          <div class="project-tags">
-            <span class="tag">Archive</span>
-            <span class="tag">Legacy</span>
-            <span class="tag">v1.0</span>
-          </div>
+          <p>Original build. Monolithic CSS, no theme system.</p>
+          <div class="project-tags"><span class="tag">Archive</span><span class="tag">Legacy</span></div>
         </div>
       </a>
 
-      <!-- COMING SOON -->
       <div class="coming-soon">
         <h3>More experiments loading...</h3>
-        <p>Check back. Or don't. We'll be here either way.</p>
+        <p>Check back. Or don't.</p>
       </div>
 
     </div>
@@ -812,14 +557,14 @@ section.visible {
     </nav>
     <nav class="footer-col" aria-label="Resources">
       <h4>Resources</h4>
-      <a href="#">Docs</a>
-      <a href="#">GitHub</a>
+      <a href="Docs">Docs</a>
+      <a href="https://github.com/ziipzygaming">GitHub</a>
     </nav>
     <nav class="footer-col" aria-label="Social">
       <h4>Social</h4>
-      <a href="#">TikTok</a>
-      <a href="#">Facebook</a>
-      <a href="#">Discord</a>
+      <a href="https://www.tiktok.com/@ziipzy">TikTok</a>
+      <a href="https://www.facebook.com/ziipzy">Facebook</a>
+      <a href="https://www.instagram.com/chrts/">Instagram</a>
     </nav>
   </div>
   <div class="footer-bottom">
@@ -829,91 +574,99 @@ section.visible {
 </footer>
 
 <script>
-/* ============================
-   SCROLL REVEAL
-   ============================ */
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) entry.target.classList.add('visible');
-  });
-}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+/* ===== CONFIG ===== */
+const STATUS_ORDER = { live: 0, wip: 1, planned: 2, deprecated: 3 };
+const STATUS_CONFIG = {
+  live:       { label: 'Live',       overlay: 'Open',     class: 'status-live' },
+  wip:        { label: 'WIP',        overlay: 'Preview',  class: 'status-wip' },
+  planned:    { label: 'Planned',    overlay: 'Soon',     class: 'status-planned' },
+  deprecated: { label: 'Deprecated', overlay: 'Archive',  class: 'status-deprecated' }
+};
 
-document.querySelectorAll('section').forEach(section => observer.observe(section));
-
-/* ============================
-   NAVBAR SCROLL EFFECT
-   ============================ */
-let lastScroll = 0;
-const nav = document.getElementById('navbar');
-
-window.addEventListener('scroll', () => {
-  const currentScroll = window.scrollY;
-
-  if (currentScroll > 50) nav.classList.add('scrolled');
-  else nav.classList.remove('scrolled');
-
-  if (currentScroll > lastScroll && currentScroll > 200) nav.classList.add('hidden');
-  else nav.classList.remove('hidden');
-
-  lastScroll = currentScroll;
-}, { passive: true });
-
-/* ============================
-   THEME SYSTEM
-   ============================ */
+/* ===== THEME ===== */
 const thumb = document.getElementById('thumb');
 const buttons = document.querySelectorAll('.theme-btn');
-const metaTheme = document.getElementById('theme-color');
-const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-function getSystemTheme() {
-  return mediaQuery.matches ? 'dark' : 'light';
-}
-
-function applyTheme(theme) {
-  const resolved = theme === 'auto' ? getSystemTheme() : theme;
-  document.documentElement.setAttribute('data-theme', resolved);
-  metaTheme.setAttribute('content', resolved === 'dark' ? '#000000' : '#fbfbfb');
-}
 
 function setTheme(theme, index) {
-  localStorage.setItem('user-theme', theme);
-  localStorage.setItem('theme-index', index);
+  localStorage.setItem('theme', theme);
+  localStorage.setItem('themeIndex', index);
   thumb.style.transform = `translateX(${index * 100}%)`;
+  buttons.forEach((b, i) => b.classList.toggle('active', i === index));
 
-  buttons.forEach((btn, i) => {
-    const isActive = i === index;
-    btn.classList.toggle('active', isActive);
-    btn.setAttribute('aria-selected', isActive);
-  });
-
-  applyTheme(theme);
+  if (theme === 'auto') {
+    const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  } else {
+    document.documentElement.setAttribute('data-theme', theme);
+  }
 }
 
-buttons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    setTheme(btn.dataset.theme, parseInt(btn.dataset.index));
+const saved = localStorage.getItem('theme') || 'auto';
+const savedIdx = parseInt(localStorage.getItem('themeIndex')) || 2;
+setTheme(saved, savedIdx);
+
+/* ===== AUTO SORT + BADGES + STATS ===== */
+function initProjects() {
+  const grid = document.getElementById('projectsGrid');
+  const items = Array.from(grid.querySelectorAll('.project-item[data-status]'));
+  const comingSoon = grid.querySelector('.coming-soon');
+
+  let total = 0, live = 0, wip = 0, deprecated = 0;
+
+  // Sort by status order
+  items.sort((a, b) => STATUS_ORDER[a.dataset.status] - STATUS_ORDER[b.dataset.status]);
+
+  // Process each project
+  items.forEach(item => {
+    const status = item.dataset.status;
+    const config = STATUS_CONFIG[status];
+
+    // Add badge
+    if (!item.querySelector('.project-status')) {
+      const badge = document.createElement('span');
+      badge.className = `project-status ${config.class}`;
+      badge.textContent = config.label;
+      item.appendChild(badge);
+    }
+
+    // Add overlay button
+    if (!item.querySelector('.project-link-overlay')) {
+      const overlay = document.createElement('span');
+      overlay.className = 'project-link-overlay';
+      overlay.textContent = config.overlay;
+      item.appendChild(overlay);
+    }
+
+    // Count stats
+    total++;
+    if (status === 'live') live++;
+    else if (status === 'wip') wip++;
+    else if (status === 'deprecated') deprecated++;
+
+    // Re-append to grid (maintains sort order)
+    grid.appendChild(item);
   });
+
+  // Move coming-soon to end
+  if (comingSoon) grid.appendChild(comingSoon);
+
+  // Update stats
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statLive').textContent = live;
+  document.getElementById('statWip').textContent = wip;
+  document.getElementById('statDeprecated').textContent = deprecated;
+}
+
+initProjects();
+
+/* ===== NAVBAR ===== */
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
 });
 
-mediaQuery.addEventListener('change', () => {
-  const current = localStorage.getItem('user-theme') || 'auto';
-  if (current === 'auto') applyTheme('auto');
-});
-
-const savedTheme = localStorage.getItem('user-theme') || 'auto';
-const savedIndex = parseInt(localStorage.getItem('theme-index')) || 2;
-setTheme(savedTheme, savedIndex);
-
-/* ============================
-   OPTIMIZED CANVAS BACKGROUND
-   ============================ */
+/* ===== CANVAS DOTS ===== */
 const canvas = document.getElementById('bg');
 const ctx = canvas.getContext('2d');
-let dots = [];
-let animId;
-let isVisible = true;
-let dotColor = '#ffffff';
 
 function resize() {
   canvas.width = window.innerWidth;
@@ -922,72 +675,29 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-function initDots() {
-  dots = Array.from({length: 80}, () => ({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    vx: (Math.random() - 0.5) * 0.2,
-    vy: (Math.random() - 0.5) * 0.2
-  }));
-}
+const dots = Array.from({length: 60}, () => ({
+  x: Math.random() * canvas.width,
+  y: Math.random() * canvas.height,
+  vx: (Math.random() - 0.5) * 0.3,
+  vy: (Math.random() - 0.5) * 0.3
+}));
 
-function updateDotColor() {
-  const style = getComputedStyle(document.documentElement);
-  dotColor = style.getPropertyValue('--fg').trim();
-}
-
-const themeObserver = new MutationObserver(updateDotColor);
-themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-updateDotColor();
-
-function animate() {
-  if (!isVisible) {
-    animId = requestAnimationFrame(animate);
-    return;
-  }
-
+function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = dotColor;
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fg');
 
-  for (let d of dots) {
-    d.x += d.vx;
-    d.y += d.vy;
-
+  dots.forEach(d => {
+    d.x += d.vx; d.y += d.vy;
     if (d.x < 0 || d.x > canvas.width) d.vx *= -1;
     if (d.y < 0 || d.y > canvas.height) d.vy *= -1;
-
     ctx.beginPath();
     ctx.arc(d.x, d.y, 0.6, 0, Math.PI * 2);
     ctx.fill();
-  }
+  });
 
-  animId = requestAnimationFrame(animate);
+  requestAnimationFrame(draw);
 }
-
-document.addEventListener('visibilitychange', () => {
-  isVisible = !document.hidden;
-});
-
-const canvasObserver = new IntersectionObserver((entries) => {
-  isVisible = entries[0].isIntersecting;
-}, { threshold: 0 });
-canvasObserver.observe(canvas);
-
-const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-if (!motionQuery.matches) {
-  initDots();
-  animate();
-}
-
-motionQuery.addEventListener('change', (e) => {
-  if (e.matches) {
-    cancelAnimationFrame(animId);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  } else {
-    initDots();
-    animate();
-  }
-});
+draw();
 </script>
 
 </body>
